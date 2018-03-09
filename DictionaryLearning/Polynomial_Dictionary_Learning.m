@@ -129,12 +129,12 @@ for iterNum = 1 : param.numIteration
                 r = sum(param.K(1:i)) + i;
             end
             
-              figure()
-              hold on
-              for s = 1 : param.S
-                  plot(lambda_sym,g_ker(:,s),num2str(color_matrix(s)));
-              end
-              hold off
+%               figure()
+%               hold on
+%               for s = 1 : param.S
+%                   plot(lambda_sym,g_ker(:,s),num2str(color_matrix(s)));
+%               end
+%               hold off
         end
 
       
@@ -162,6 +162,14 @@ for iterNum = 1 : param.numIteration
     
 
 end
+
+              figure()
+              hold on
+              for s = 1 : param.S
+                  plot(lambda_sym,g_ker(:,s),num2str(color_matrix(s)));
+              end
+              hold off
+
 
 output.CoefMatrix = CoefMatrix;
 output.alpha =  alpha;
@@ -246,7 +254,7 @@ for i = 1 : N
         end
 end
 
-YPhi = (Phi*vec(Y'))';
+YPhi = (Phi*(reshape(Y',1,[]))')';
 PhiPhiT = Phi*Phi';
 
 Q2 = YPhi;

@@ -19,10 +19,16 @@ load testdata.mat
 %%---- Set the paremeters-------- 
 %------------------------------------------------------
 
-param.N = 100; % number of nodes in the graph
+param.N = 150; % number of nodes in the graph
 param.S = 4;  % number of subdictionaries 
 param.J = param.N * param.S; % total number of atoms 
-param.K = [20 20 20 20]; % polynomial degree of each subdictionary
+
+%%% My changings %%%
+number_sub = ones(1,param.S);
+param.K = 20.*number_sub;
+%%%
+
+%param.K = [20 20 20 20]; % polynomial degree of each subdictionary
 param.T0 = 4; % sparsity level in the training phase
 param.c = 1; % spectral control parameters
 param.epsilon = 0.02; % we assume that epsilon_1 = epsilon_2 = epsilon
@@ -65,7 +71,7 @@ end
 %%---------------------------------------------------------
 param.InitializationMethod =  'Random_kernels';
 param.displayProgress = 1;
-param.numIteration = 25;
+param.numIteration = 8;
 param.plot_kernels = 1; % plot thelearned polynomial kernels after each iteration
 param.quadratic = 0; % solve the quadratic program using interior point methods
 

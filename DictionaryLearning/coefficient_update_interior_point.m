@@ -40,7 +40,7 @@ for i = 1 : N
             r = sum(param.K(1 : s)) + s;
         end
 end
-YPhi = (Phi*vec(Data'))';
+YPhi = (Phi*(reshape(Data',1,[]))')';
 PhiPhiT = Phi*Phi';
 
 
@@ -60,11 +60,16 @@ X = norm(Data,'fro')^2 - 2*YPhi*alpha + alpha'*(PhiPhiT + mu*eye(size(PhiPhiT,2)
 % Define Constraints
 %-----------------------------------------------
 
-F = set(B1*alpha <= c*ones(l1,1))...
-    + set(-B1*alpha <= 0*ones(l1,1))...
-    + set(B2*alpha <= (c+epsilon)*ones(l2,1))...
-    + set(-B2*alpha <= -(c-epsilon)*ones(l2,1));
+% % F = set(B1*alpha <= c*ones(l1,1))...
+% %     + set(-B1*alpha <= 0*ones(l1,1))...
+% %     + set(B2*alpha <= (c+epsilon)*ones(l2,1))...
+% %     + set(-B2*alpha <= -(c-epsilon)*ones(l2,1));
  
+F = (B1*alpha <= c*ones(l1,1))...
+    + (-B1*alpha <= 0*ones(l1,1))...
+    + (B2*alpha <= (c+epsilon)*ones(l2,1))...
+    + (-B2*alpha <= -(c-epsilon)*ones(l2,1));
+
 %---------------------------------------------------------------------
 % Solve the SDP using the YALMIP toolbox 
 %---------------------------------------------------------------------
