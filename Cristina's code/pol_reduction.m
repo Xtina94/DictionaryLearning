@@ -1,7 +1,7 @@
 %Trial code for kernel factorization
 %Cristina Gava
 
-function [betas, rts] = pol_reduction(lambdas,m)
+function [beta, rts] = pol_reduction(lambdas,m)
 
 % load lambdas.mat
 
@@ -29,5 +29,19 @@ end
 m = m - 1;
 
 betas = null(vand_eig);
-%beta = betas(:,1);
+
+    i = 1;
+          
+    if betas(1,1) > 0
+        beta = betas(:,1);
+    else
+        while betas(1,i) < 0
+          if i < length(betas(1,:))
+              i = i+1;
+          elseif i == length(betas(1,:))
+              betas = -betas;
+          end
+        end
+        beta = (betas(:,i));
+    end
     

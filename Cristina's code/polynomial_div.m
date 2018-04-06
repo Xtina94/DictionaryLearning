@@ -1,4 +1,4 @@
-function [new_alpha] = polynomial_div(S,N,K,lambdas,percentage)
+function [beta] = polynomial_div(S,N,K,lambdas,percentage)
 % =========================================================================
 %                  Polynomial Division Algorithm (Cristina)
 % =========================================================================
@@ -32,40 +32,19 @@ function [new_alpha] = polynomial_div(S,N,K,lambdas,percentage)
             end
         end
     gammas = null(lambda_vand);
-
-    %Let's just choose a coefficients' combination
-    my_gamma = gammas(:,1); %Since every kernel has to go to zero for certain 
-                              %coefficients we can choose a gamma
-                              %combinationa in such a way that when we
-                              %divide the original polynomials by this
-                              %subpolynomial we obtain S different
-                              %reminders
-
-% % %     %Updating the kernel coefficients
-% % %     if (plot_kernels == 1)
-% % %         g_ker = zeros(N, S);
-% % %         %r = 0;
-% % %         for i = 1 : S
-% % %             for n = 1 :N
-% % %                 p = 0;
-% % %                 for l = 0 : K(i)-1
-% % %                     p = p +  my_gamma(l + 1,1)*lambda_powers{n}(l + 1);
-% % %                 end
-% % %                 g_ker(n,i) = p;
-% % %             end
-% % %             %r = sum(param.K(1:i)) + i;
-% % %         end
-% % %     end
-
-% % %     kernels = g_ker;
-    new_alpha = my_gamma;
-
-% % % figure()
-% % % hold on
-% % % for s = 1 : param.S
-% % %     plot(lambda_sym,g_ker(:,s),num2str(color_matrix(s)));
-% % % end
-% % % hold off
-
+    i = 1;
+          
+    if gammas(1,1) > 0
+        beta = gammas(:,1);
+    else
+        while gammas(1,i) < 0
+          if i < length(gammas(1,:))
+              i = i+1;
+          elseif i == length(gammas(1,:))
+              beta = -gammas(:,i);
+          end
+        end
+    end
+    
 
 

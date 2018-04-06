@@ -1,4 +1,4 @@
-function [X]=OMP_non_normalized_atoms(D,Y,T0)
+function [X] = OMP_non_normalized_atoms(D,Y,T0)
 %==========================================================================
 %    Sparse signals decomposition using OMP
 % =========================================================================
