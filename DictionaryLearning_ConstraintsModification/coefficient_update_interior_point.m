@@ -60,14 +60,14 @@ function [alpha_coefficients, err] = coefficient_update_interior_point(Data,Coef
     %% Defining the constraints (for gamma vector)
 
     lambda_mx = zeros(N,m+1);
-    for i = 1:N
+    for i = N-m:N
         tmp_lambda = lambda_powers{i};
-        for j =1:m+1
+        for j =1:K+1
             lambda_mx(i,j) = tmp_lambda(j);
         end
     end
     
-%     F = [B1*alpha_coefficients <= c*ones(l1,1), -B1*alpha_coefficients <= 0*ones(l1,1), lambda_mx*alpha_coefficients = zeros(m+1,1)]; 
+%     F = [B1*alpha_coefficients <= c*ones(l1,1), -B1*alpha_coefficients <= 0*ones(l1,1), lambda_mx*alpha_coefficients(1:K+1) = zeros(N,1)]; 
     
     %% Setting the alpha_coefficients vector
     %==========================================================================
