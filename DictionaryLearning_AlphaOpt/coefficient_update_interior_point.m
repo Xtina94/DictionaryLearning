@@ -93,7 +93,7 @@ function [alpha_coefficients, err] = coefficient_update_interior_point(Data,Coef
     %% Defining the constraints (for gamma vector)
 
     alpha_coefficients = 100.*alpha_coefficients;
-    F = (B1*alpha_coefficients <= 100*c*ones(l1,1)) + (-B1*alpha_coefficients <= 100*0*ones(l1,1));
+    F = (B1*alpha_coefficients <= c*ones(l1,1)) + (-B1*alpha_coefficients <= 100*0*ones(l1,1));
 
 
     %%  Solve the SDP using the YALMIP toolbox
