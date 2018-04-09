@@ -59,15 +59,17 @@ function [alpha_coefficients, err] = coefficient_update_interior_point(Data,Coef
 
     %% Defining the constraints (for gamma vector)
 
-    lambda_mx = zeros(N,m+1);
-    for i = N-m:N
-        tmp_lambda = lambda_powers{i};
-        for j =1:K+1
-            lambda_mx(i,j) = tmp_lambda(j);
+    lambda_mx = zeros(m,(K+1)*S);
+    for i = 1:m
+        tmp_lambda = lambda_powers{N-m+i};
+        for z = 0:S-1 %Cerca di togliere questo ciclo che sicuro è superfluo
+            for j =1:K+1
+                lambda_mx(i,j+z*(K+1)) = tmp_lambda(j);
+            end
         end
     end
     
-%     F = [B1*alpha_coefficients <= c*ones(l1,1), -B1*alpha_coefficients <= 0*ones(l1,1), lambda_mx*alpha_coefficients(1:K+1) = zeros(N,1)]; 
+    F = [B1*alpha_coefficients <= c*ones(l1,1), -B1*alpha_coefficients <= 0*ones(l1,1), lambda_mx*alpha_coefficients == zeros(m,1)];
     
     %% Setting the alpha_coefficients vector
     %==========================================================================
@@ -141,7 +143,7 @@ function [alpha_coefficients, err] = coefficient_update_interior_point(Data,Coef
     if strcmp(sdpsolver,'sedumi')
         diagnostic = solvesdp(F,X,sdpsettings('solver','sedumi','sedumi.eps',0,'sedumi.maxiter',200));
     elseif strcmp(sdpsolver,'sdpt3')
-        diagnostic = solvesdp(F,X,sdpsettings('solver','sdpt3'));
+        diagnostic = optimize(F,X,sdpsettings('solver','sdpt3'));
     elseif strcmp(sdpsolver,'mosek')
         diagnostic = solvesdp(F,X,sdpsettings('solver','mosek'));
         %sdpt3;
