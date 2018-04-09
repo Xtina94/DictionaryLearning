@@ -6,12 +6,12 @@
 % Submitted to IEEE Transactions on Signal Processing,
 % Available at:  http://arxiv.org/pdf/1401.0887.pdf
 
-clear all
+% clear all
 close all
 
 load testdata.mat
 load reference_dictionary.mat
-% load initial_sparsity_mx.mat
+load initial_sparsity_mx.mat
 
 %% Set the parameters
 
@@ -28,7 +28,7 @@ param.c = 1; % spectral control parameters
 param.epsilon = 0.02; % we assume that epsilon_1 = epsilon_2 = epsilon
 param.mu = 1e-2; % polynomial regularizer paremeter
 
-param.percentage = 17; % number of coefficients in the beta vector that I impose to know.
+param.percentage = 15; % number of coefficients in the beta vector that I impose to know.
                  % NOTE: is not automatic that #lambdas as root of beta =
                  % percentage, this because while solving the beta
                  % polynomial I can hav invalid roots like complex values
@@ -71,7 +71,7 @@ param.quadratic = 0; % solve the quadratic program using interior point methods
 
 % Sparsity matrix initialization
 smoothed_TrainSignal = smooth2a(TrainSignal,20,20);
-initial_sparsity_mx = sparsity_matrix_initialize(param,smoothed_TrainSignal);
+% initial_sparsity_mx = sparsity_matrix_initialize(param,smoothed_TrainSignal);
 
 % Coefficient initialization
 

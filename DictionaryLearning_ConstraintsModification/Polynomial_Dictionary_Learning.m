@@ -108,7 +108,7 @@ function [recovered_Dictionary,output, err_or] = Polynomial_Dictionary_Learning(
             if (iterNum == 1)
                 disp('solving the quadratic problem with YALMIP...')
             end
-            [alpha_coefficients, err] = coefficient_update_interior_point(Y,CoefMatrix,param,'sdpt3');
+            [alpha_coefficients, err] = coefficient_update_interior_point(Y,CoefMatrix,param,'sedumi');
         else
             if (iterNum == 1)
                 disp('solving the quadratic problem with ADMM...')
