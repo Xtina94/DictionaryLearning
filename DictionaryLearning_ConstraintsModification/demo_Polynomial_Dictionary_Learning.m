@@ -28,7 +28,7 @@ param.c = 1; % spectral control parameters
 param.epsilon = 0.02; % we assume that epsilon_1 = epsilon_2 = epsilon
 param.mu = 1e-2; % polynomial regularizer paremeter
 
-param.percentage = 10; % number of coefficients in the beta vector that I impose to know.
+param.percentage = 15; % number of coefficients in the beta vector that I impose to know.
                  % NOTE: is not automatic that #lambdas as root of beta =
                  % percentage, this because while solving the beta
                  % polynomial I can hav invalid roots like complex values
@@ -37,8 +37,8 @@ param.percentage = 10; % number of coefficients in the beta vector that I impose
 
 %% Plot the reandom graph
 
-% % % figure()   
-% % % gplot(A,[XCoords YCoords])
+figure()   
+gplot(A,[XCoords YCoords])
  
 %% Compute the Laplacian and the normalized Laplacian operator 
     
@@ -60,8 +60,6 @@ for j=1:param.N
         param.lambda_power_matrix(j,i + 1) = param.lambda_sym(j)^(i);
      end
 end
-
-% % % output = generate_kernels(param, param.percentage);
     
 %% Polynomial Dictionary Learning Algorithm 
 
