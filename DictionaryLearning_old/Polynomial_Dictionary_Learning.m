@@ -81,7 +81,8 @@ if (strcmp(param.InitializationMethod,'Random_kernels'))
    
     
 elseif (strcmp(param.InitializationMethod,'GivenMatrix'))
-        Dictionary(:,1 : param.J) = param.initialDictionary(:,1 : param.J);  %initialize with a given initialization dictionary
+     Dictionary = param.initial_dictionary;
+% % %      Dictionary(:,1 : param.J) = param.initialDictionary(:,1 : param.J);  %initialize with a given initialization dictionary
 else 
     display('Initialization method is not valid')
 end
@@ -106,7 +107,7 @@ for iterNum = 1 : param.numIteration
            if (iterNum == 1)
             disp('solving the quadratic problem with YALMIP...')
            end
-            alpha = coefficient_update_interior_point(Y,CoefMatrix,param,'sdpt3');
+            alpha = coefficient_update_interior_point(Y,CoefMatrix,param,'sedumi');
        else
            if (iterNum == 1)
             disp('solving the quadratic problem with ADMM...')

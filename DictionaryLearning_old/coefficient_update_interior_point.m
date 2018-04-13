@@ -43,9 +43,6 @@ end
 YPhi = (Phi*(reshape(Data',1,[]))')';
 PhiPhiT = Phi*Phi';
 
-
-
-
 l1 = length(B1*alpha);
 l2 = length(B2*alpha);
 

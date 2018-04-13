@@ -15,7 +15,7 @@ close all
 load testdata.mat
 load reference_dictionary.mat
 load SampleSignal.mat
-load initial_dictionary.mat
+% % % load initial_dictionary.mat
 %------------------------------------------------------    
 %%---- Set the paremeters-------- 
 %------------------------------------------------------
@@ -80,19 +80,19 @@ param.quadratic = 0; % solve the quadratic program using interior point methods
 
 disp('Starting to train the dictionary');
 
-[Dictionary_Pol, output_Pol]  = Polynomial_Dictionary_Learning(SampleSignal, param);
+% [Dictionary_Pol, output_Pol]  = Polynomial_Dictionary_Learning(SampleSignal, param);
 
 %%%%%%%%%%%%%%%Parte riguardante il segnale campione%%%%%%%%%%%%%
 
-% % % output_CoefKernels = generate_kernels(param);
-% % % param.TrainSignal = TrainSignal;
-% % % [SampleSignal, initial_dictionary] = generate_signal(output_Pol,param);
+output_CoefKernels = generate_kernels(param);
+param.TrainSignal = TrainSignal;
+[SampleSignal, initial_dictionary] = generate_signal(output_CoefKernels,param);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-CoefMatrix_Pol = OMP_non_normalized_atoms(Dictionary_Pol,TestSignal, param.T0);
-errorTesting_Pol = sqrt(norm(TestSignal - Dictionary_Pol*CoefMatrix_Pol,'fro')^2/size(TestSignal,2));
-disp(['The total representation error of the testing signals is: ',num2str(errorTesting_Pol)]);
+% % % CoefMatrix_Pol = OMP_non_normalized_atoms(Dictionary_Pol,TestSignal, param.T0);
+% % % errorTesting_Pol = sqrt(norm(TestSignal - Dictionary_Pol*CoefMatrix_Pol,'fro')^2/size(TestSignal,2));
+% % % disp(['The total representation error of the testing signals is: ',num2str(errorTesting_Pol)]);
 
         
 
