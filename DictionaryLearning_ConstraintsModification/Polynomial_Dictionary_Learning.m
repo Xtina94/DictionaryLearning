@@ -70,36 +70,9 @@ function [recovered_Dictionary,output, err_or] = Polynomial_Dictionary_Learning(
     end
     
     color_matrix = ['b', 'r', 'g', 'c', 'm', 'k', 'y'];
-    
-    %% Initializing the dictionary
-    % NOTE: I don't need it now, since I decided to initialize the sparsity
-    % matrix
-    
-% % %     if (strcmp(param.InitializationMethod,'Random_kernels'))
-% % %         [Dictionary(:,1 : param.J)] = initialize_dictionary_cri(param);
-% % %         
-% % %     elseif (strcmp(param.InitializationMethod,'GivenMatrix'))
-% % %         Dictionary(:,1 : param.J) = param.initialDictionary(:,1 : param.J);  %initialize with a given initialization dictionary
-% % %     else
-% % %         disp('Initialization method is not valid');
-% % %     end
-
     %%  Graph Dictionary Learning Algorithm
 
     CoefMatrix = initial_sparsity_mx;
-    
-    % Estimation of the beta vector (fixed vector)
-% % %     m = param.percentage;
-% % %     g_ker_beta = zeros(param.N, param.S);
-% % %     for i = 1 : param.S
-% % %         for n = 1 : param.N
-% % %             p = 0;
-% % %             for l = 0 : m
-% % %                 p = p +  param.beta_coefficients(l + 1)*lambda_powers{n}(l + 1);
-% % %             end
-% % %             g_ker_beta(n,i) = p;
-% % %         end
-% % %     end
     
     for iterNum = 1 : param.numIteration
         
@@ -132,7 +105,7 @@ function [recovered_Dictionary,output, err_or] = Polynomial_Dictionary_Learning(
             end
         end
 
-        % Dictionary update step
+        %% Dictionary update step
         
         r = 0;
         for j = 1 : param.S
@@ -151,7 +124,7 @@ function [recovered_Dictionary,output, err_or] = Polynomial_Dictionary_Learning(
             disp(['Iteration   ',num2str(iterNum),'   Total error is: ',num2str(output.totalError(iterNum-1))]);
         end
     
-        % Sparse Coding Step (OMP)
+        %% Sparse Coding Step (OMP)
         CoefMatrix = OMP_non_normalized_atoms(Dictionary,Y, param.T0); 
         
     end
@@ -168,11 +141,3 @@ function [recovered_Dictionary,output, err_or] = Polynomial_Dictionary_Learning(
     recovered_Dictionary = Dictionary;
     err_or = err;
 end
-
-
-
-
-
-
-
-

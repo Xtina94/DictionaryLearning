@@ -12,6 +12,7 @@ close all
 load testdata.mat
 load reference_dictionary.mat
 load initial_sparsity_mx.mat
+load SampleSignal.mat
 
 %% Set the parameters
 
@@ -61,6 +62,12 @@ for j=1:param.N
      end
 end
     
+%% Generate the original kernels
+output = generate_kernels(param, param.percentage);
+
+%% Generate the original signal
+SampleSignal = generate_signal(output, param);
+
 %% Polynomial Dictionary Learning Algorithm 
 
 param.InitializationMethod =  'Random_kernels';
@@ -74,14 +81,13 @@ smoothed_TrainSignal = smooth2a(TrainSignal,20,20);
 % initial_sparsity_mx = sparsity_matrix_initialize(param,smoothed_TrainSignal);
 
 % Coefficient initialization
-
-param.beta_coefficients = initialize_kernels(param);
+param.beta_coefficients = output.coefficients_beta;
 
 %% Dictionary initialization and update step
 
 disp('Starting to train the dictionary');
 
-[Dictionary_Pol, output_Pol, err]  = Polynomial_Dictionary_Learning(TrainSignal, param, initial_sparsity_mx);
+[Dictionary_Pol, output_Pol, err]  = Polynomial_Dictionary_Learning(SampleSignal, param, initial_sparsity_mx);
 
 %% Dictionary testing step
 
