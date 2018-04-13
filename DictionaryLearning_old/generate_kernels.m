@@ -14,7 +14,7 @@ lambda_powers = param.lambda_power_matrix;
 
 for i = 1:S
     for j = 1:length(coefficients(i,:))
-        coefficients(i,j) = ((-1)^(randi(10,1))*rand(1));
+        coefficients(i,j) = ((1)^(randi(10,1))*rand(1));
     end
 end
 

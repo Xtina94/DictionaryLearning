@@ -4,8 +4,8 @@ alpha_coefficients = zeros(param.S,max(param.K)+1);
 
 for s = 1:param.S
     for i = 1:param.K(s)+1
-        alpha_coefficients(s,i) = output.alpha((s-1)*param.K(s)+i);
-% % %         alpha_coefficients(s,i) = output.coefficients(i,s);
+% % %         alpha_coefficients(s,i) = output.alpha((s-1)*param.K(s)+i);
+        alpha_coefficients(s,i) = output.coefficients(i,s);
     end
 end
 
