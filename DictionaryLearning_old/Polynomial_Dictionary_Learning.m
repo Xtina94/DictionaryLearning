@@ -82,7 +82,7 @@ if (strcmp(param.InitializationMethod,'Random_kernels'))
     
 elseif (strcmp(param.InitializationMethod,'GivenMatrix'))
      Dictionary = param.initial_dictionary;
-% % %      Dictionary(:,1 : param.J) = param.initialDictionary(:,1 : param.J);  %initialize with a given initialization dictionary
+% % %     Dictionary(:,1 : param.J) = param.initialDictionary(:,1 : param.J);  %initialize with a given initialization dictionary
 else 
     display('Initialization method is not valid')
 end

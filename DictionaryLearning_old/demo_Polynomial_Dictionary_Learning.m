@@ -80,13 +80,13 @@ param.quadratic = 0; % solve the quadratic program using interior point methods
 
 disp('Starting to train the dictionary');
 
-[Dictionary_Pol, output_Pol]  = Polynomial_Dictionary_Learning(TrainSignal, param);
+[Dictionary_Pol, output_Pol]  = Polynomial_Dictionary_Learning(SampleSignal, param);
 
 %%%%%%%%%%%%%%%Parte riguardante il segnale campione%%%%%%%%%%%%%
 % % % 
 % % % output_CoefKernels = generate_kernels(param);
 % % % param.TrainSignal = TrainSignal;
-% % % [SampleSignal, initial_dictionary] = generate_signal(output_CoefKernels,param);
+% % %  [SampleSignal, initial_dictionary] = generate_signal(output_CoefKernels,param);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
