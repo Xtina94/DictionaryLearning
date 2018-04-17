@@ -107,7 +107,7 @@ for iterNum = 1 : param.numIteration
            if (iterNum == 1)
             disp('solving the quadratic problem with YALMIP...')
            end
-            alpha = coefficient_update_interior_point(Y,CoefMatrix,param,'sedumi');
+            alpha = coefficient_update_interior_point(Y,CoefMatrix,param,'sdpt3');
        else
            if (iterNum == 1)
             disp('solving the quadratic problem with ADMM...')
