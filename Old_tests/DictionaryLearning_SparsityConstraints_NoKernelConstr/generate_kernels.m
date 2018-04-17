@@ -8,7 +8,6 @@ function output = generate_kernels(param)
 
 S = param.S;
 K = max(param.K);
-% % % m = param.percentage;
 
 coefficients = zeros(S,K+1);
 lambda_powers = param.lambda_power_matrix;
@@ -18,6 +17,7 @@ for i = 1:S
         coefficients(i,j) = ((1)^(randi(10,1))*rand(1));
     end
 end
+
 output.coefficients = coefficients';
 output.kernels = zeros(param.N,param.S);
 for s = 1:S

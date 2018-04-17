@@ -91,9 +91,10 @@ disp('Starting to train the dictionary');
 %% Making the TestSignal smooth
 
 % % % smoothed_signal = smooth_signal(TestSignal, L);
+smoothed_signal = smooth2a(TestSignal,15,15);
 
 CoefMatrix_Pol = OMP_non_normalized_atoms(Dictionary_Pol,TestSignal, param.T0);
-errorTesting_Pol = sqrt(norm(TestSignal - Dictionary_Pol*CoefMatrix_Pol,'fro')^2/size(TestSignal,2));
+errorTesting_Pol = sqrt(norm(smoothed_signal - Dictionary_Pol*CoefMatrix_Pol,'fro')^2/size(TestSignal,2));
 disp(['The total representation error of the testing signals is: ',num2str(errorTesting_Pol)]);
 
 

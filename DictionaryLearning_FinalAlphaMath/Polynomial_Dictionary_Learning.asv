@@ -94,22 +94,7 @@ color_matrix = ['b', 'r', 'g', 'c', 'm', 'k', 'y'];
 
 CoefMatrix = param.initial_sparsity_mx;
 
-%%%%%%%%%%%%%%%%%%%% Attempt with my own kernels %%%%%%%%%%%%%%%%%
-% % % [param.beta_coefficients, rts] = retrieve_betas(param);
-% % % output_kernels = generate_kernels(param);
-% % % alpha = output_kernels.coefficients;
-% % % r = 0;
-% % % for j = 1 : param.S
-% % %     D = zeros(param.N);
-% % %     for ii = 0 : param.K(j)
-% % %         D = D +  alpha(ii + 1 + r) * Laplacian_powers{ii + 1};
-% % %     end
-% % %     r = sum(param.K(1:j)) + j;
-% % %     Dictionary(:,1 + (j - 1) * param.N : j * param.N) = D;
-% % % end
-% % % 
-% % % Y = Dictionary*CoefMatrix;
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+initial_kernels = 
 
 for iterNum = 1 : param.numIteration
     
