@@ -92,17 +92,15 @@ color_matrix = ['b', 'r', 'g', 'c', 'm', 'k', 'y'];
 %%  Graph Dictionary Learning Algorithm
 %%----------------------------------------------------
 
-CoefMatrix = param.initial_sparsity_mx;
-
 for iterNum = 1 : param.numIteration
     
-    %% Coefficients update step
+    %% Coefficients updat
           
        if (param.quadratic == 0)
            if (iterNum == 1)
             disp('solving the quadratic problem with YALMIP...')
            end
-            alpha = coefficient_update_interior_point(Y,CoefMatrix,param,'sdpt3');
+            alpha = coefficient_update_interior_point(Y,CoefMatrix,param,'sedumi');
        else
            if (iterNum == 1)
             disp('solving the quadratic problem with ADMM...')
@@ -134,8 +132,8 @@ for iterNum = 1 : param.numIteration
               hold off
         end
 
-        %% Dictionary update step
-        
+      
+       
         r = 0;
         for j = 1 : param.S
             D = zeros(param.N);
@@ -146,7 +144,11 @@ for iterNum = 1 : param.numIteration
             Dictionary(:,1 + (j - 1) * param.N : j * param.N) = D;
         end
         
+
+
+    %%---------------------------------------------------
     %% Plot the progress
+    %%--------------------------------------------------
 
     if (iterNum>1 && param.displayProgress)
              output.totalError(iterNum - 1) = sqrt(sum(sum((Y-Dictionary * CoefMatrix).^2))/numel(Y));
