@@ -46,8 +46,7 @@ m = param.percentage;
 % % % alpha = alpha_polynomial;
 
 % % % gammaCoeff = rand(K-m+1,1);
-gammaCoeff = sdpvar(K-m+1,1);
-alpha = polynomial_construct(param, gammaCoeff);
+alpha = polynomial_construct(param);
 
 %% Verify alpha goes to 0 for the roots of the polynomial
 
@@ -59,7 +58,7 @@ for s = 0:param.S-1
         end
     end
 end
-prova1 = vand_eig*alpha;
+% % % prova1 = vand_eig*alpha;
 
 %% Set up the elements for the optimization problem
 

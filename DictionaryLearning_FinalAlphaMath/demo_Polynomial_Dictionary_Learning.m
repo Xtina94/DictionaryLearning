@@ -88,7 +88,7 @@ disp(['The total representation error of the testing signals is: ',num2str(error
 
 %% Generating the SampleSignal
 
-load SampleSignal.mat
+% % % load SampleSignal.mat
 % % % SampleSignal = Dictionary_Pol*output_Pol.CoefMatrix;
         
 
