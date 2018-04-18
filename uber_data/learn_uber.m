@@ -84,12 +84,12 @@ lon = mean([lon1 lon2], 2);
 
 
 %% construct geographical graphs
-figure();
+figure('Name','gaussian_knn');
 geo = gaussian_knn(lon,lat,6);
 wgPlot(geo+diag(ones(param.N,1)),[lon,lat],'vertexWeight',diag(ones(param.N,1)) );
 g = plot_google_map('maptype','roadmap');
 
-figure();
+figure('Name','gaussian_nedge');
 geo_gk = gaussian_nedge(lon,lat,4*29);
 wgPlot(geo_gk+diag(ones(param.N,1)),[lon,lat],'vertexWeight',diag(ones(param.N,1)) );
 g = plot_google_map('maptype','roadmap');
@@ -124,6 +124,7 @@ uber_graph = treshold_by_edge_number(param.Laplacian, 4*29);
 [learned_dictionary, param] = construct_temp_dict(uber_graph,param);
 x = OMP_non_normalized_atoms(learned_dictionary,param.y, param.T0);
 uber_W = learned_W.*(uber_graph~=0);
-figure();
+
+figure('Name','Tresholded W');
 wgPlot(uber_W+diag(ones(param.N,1)),[lon,lat],'vertexWeight',diag(ones(param.N,1)) );
 g = plot_google_map('maptype','roadmap');

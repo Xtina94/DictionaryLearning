@@ -91,7 +91,7 @@ color_matrix = ['b', 'r', 'g', 'c', 'm', 'k', 'y'];
 %%----------------------------------------------------
 %%  Graph Dictionary Learning Algorithm
 %%----------------------------------------------------
-
+param.initial_sparsity_mx = sparsity_matrix_initialize(param,Y);
 CoefMatrix = param.initial_sparsity_mx;
 
 %%%%%%%%%%%%%%%%%%%% Attempt with my own kernels %%%%%%%%%%%%%%%%%

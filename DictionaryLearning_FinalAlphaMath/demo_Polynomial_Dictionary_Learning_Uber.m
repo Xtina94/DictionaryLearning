@@ -11,50 +11,24 @@
 % Available at:  http://arxiv.org/pdf/1401.0887.pdf
 
 close all
+% % % load initial_dictionary.mat
+load TestSignal.mat
+load learned_W.mat
+load uber.mat
+load lat.mat
+load lon.mat
+param.percentage = 12;
 
-load testdata.mat
-load reference_dictionary.mat
-load SampleSignal.mat
+%% Compute the Laplacian and the normalized Laplacian operator 
 
-%------------------------------------------------------    
-%%---- Set the paremeters-------- 
-%------------------------------------------------------
-
-param.N = 100; % number of nodes in the graph
-param.S = 4;  % number of subdictionaries 
-param.J = param.N * param.S; % total number of atoms 
-
-%%% My changings %%%
-number_sub = ones(1,param.S);
-param.K = 20.*number_sub;
-% % % param.initialDictionary = reference_dictionary;
-%%%
-
-%param.K = [20 20 20 20]; % polynomial degree of each subdictionary
-param.T0 = 4; % sparsity level in the training phase
-param.c = 1; % spectral control parameters
-param.epsilon = 0.02; % we assume that epsilon_1 = epsilon_2 = epsilon
-param.mu = 1e-2; % polynomial regularizer paremeter
-
-
-%------------------------------------------------------    
-%%---- Plot the random graph-------- 
-%------------------------------------------------------
-% % % figure()   
-% % % gplot(A,[XCoords YCoords])
-
-%------------------------------------------------------------  
-%%- Compute the Laplacian and the normalized Laplacian operator 
-%------------------------------------------------------------
-
-L = diag(sum(W,2)) - W; % combinatorial Laplacian
+L = param.Laplacian;
+W = learned_W;
 param.Laplacian = (diag(sum(W,2)))^(-1/2)*L*(diag(sum(W,2)))^(-1/2); % normalized Laplacian
 [param.eigenMat, param.eigenVal] = eig(param.Laplacian); % eigendecomposition of the normalized Laplacian
 [param.lambda_sym,index_sym] = sort(diag(param.eigenVal)); % sort the eigenvalues of the normalized Laplacian in descending order
 
-%------------------------------------------------------------ 
 %%------ Precompute the powers of the Laplacian -------------
-%------------------------------------------------------------ 
+
 for k=0 : max(param.K)
     param.Laplacian_powers{k + 1} = param.Laplacian^k;
 end
@@ -66,12 +40,12 @@ for j=1:param.N
      end
 end
     
-         
-%%---------------------------------------------------------
-param.InitializationMethod =  'GivenMatrix';
+param.InitializationMethod =  'Random_kernels';
+SampleSignal = param.y;
+
 %%---- Polynomial Dictionary Learning Algorithm -----------
-%%---------------------------------------------------------
-param.initial_dictionary = initial_dictionary;
+
+
 param.displayProgress = 1;
 param.numIteration = 8;
 param.plot_kernels = 1; % plot the learned polynomial kernels after each iteration
@@ -89,8 +63,10 @@ disp('Starting to train the dictionary');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-CoefMatrix_Pol = OMP_non_normalized_atoms(Dictionary_Pol,TestSignal, param.T0);
-errorTesting_Pol = sqrt(norm(TestSignal - Dictionary_Pol*CoefMatrix_Pol,'fro')^2/size(TestSignal,2));
+% % % smoothed_signal = smooth2a(TestSignal,15,15);
+
+CoefMatrix_Pol = OMP_non_normalized_atoms(Dictionary_Pol,TestSignal(1:29,:), param.T0);
+errorTesting_Pol = sqrt(norm(TestSignal(1:29,:) - Dictionary_Pol*CoefMatrix_Pol,'fro')^2/size(TestSignal,2));
 disp(['The total representation error of the testing signals is: ',num2str(errorTesting_Pol)]);
 
         
