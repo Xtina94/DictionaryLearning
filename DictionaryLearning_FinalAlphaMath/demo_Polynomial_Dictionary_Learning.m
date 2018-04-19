@@ -36,7 +36,6 @@ param.c = 1; % spectral control parameters
 param.epsilon = 0.02; % we assume that epsilon_1 = epsilon_2 = epsilon
 param.mu = 1e-2; % polynomial regularizer paremeter
 
-
 param.percentage = 15;
 
 %------------------------------------------------------    
@@ -81,20 +80,14 @@ param.quadratic = 0; % solve the quadratic program using interior point methods
 
 %% Initialization of the sparsity matrix
 
-% % % param.initial_sparsity_mx = sparsity_matrix_initialize(param,TrainSignal);
+% % % param.initial_sparsity_mx = sparsity_matrix_initialize(param,SampleSignal);
 
 disp('Starting to train the dictionary');
 
 [Dictionary_Pol, output_Pol]  = Polynomial_Dictionary_Learning(SampleSignal, param);
-% % % [Dictionary_Pol, output_Pol]  = Polynomial_Dictionary_Learning(SampleSignal, param);
-
-%% Making the TestSignal smooth
-
-% % % smoothed_signal = smooth_signal(TestSignal, L);
-smoothed_signal = smooth2a(TestSignal,15,15);
 
 CoefMatrix_Pol = OMP_non_normalized_atoms(Dictionary_Pol,TestSignal, param.T0);
-errorTesting_Pol = sqrt(norm(smoothed_signal - Dictionary_Pol*CoefMatrix_Pol,'fro')^2/size(TestSignal,2));
+errorTesting_Pol = sqrt(norm(TestSignal - Dictionary_Pol*CoefMatrix_Pol,'fro')^2/size(TestSignal,2));
 disp(['The total representation error of the testing signals is: ',num2str(errorTesting_Pol)]);
 
 

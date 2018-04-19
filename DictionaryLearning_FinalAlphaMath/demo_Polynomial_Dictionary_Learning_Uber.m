@@ -11,13 +11,13 @@
 % Available at:  http://arxiv.org/pdf/1401.0887.pdf
 
 close all
-% % % load initial_dictionary.mat
+load initial_sparsity_mx_uber
 load TestSignal.mat
 load learned_W.mat
 load uber.mat
 load lat.mat
 load lon.mat
-param.percentage = 12;
+param.percentage = 15;
 
 %% Compute the Laplacian and the normalized Laplacian operator 
 
@@ -42,6 +42,8 @@ end
     
 param.InitializationMethod =  'Random_kernels';
 SampleSignal = param.y;
+param.initial_sparsity_mx_uber = initial_sparsity_mx_uber;
+% % % param.initial_sparsity_mx = sparsity_matrix_initialize(param,SampleSignal);
 
 %%---- Polynomial Dictionary Learning Algorithm -----------
 

@@ -91,8 +91,7 @@ color_matrix = ['b', 'r', 'g', 'c', 'm', 'k', 'y'];
 %%----------------------------------------------------
 %%  Graph Dictionary Learning Algorithm
 %%----------------------------------------------------
-param.initial_sparsity_mx = sparsity_matrix_initialize(param,Y);
-CoefMatrix = param.initial_sparsity_mx;
+CoefMatrix = param.initial_sparsity_mx_uber;
 
 %%%%%%%%%%%%%%%%%%%% Attempt with my own kernels %%%%%%%%%%%%%%%%%
 % % % [param.beta_coefficients, rts] = retrieve_betas(param);
@@ -111,6 +110,28 @@ CoefMatrix = param.initial_sparsity_mx;
 % % % Y = Dictionary*CoefMatrix;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%% Obtaining the beta coefficients
+m = param.percentage;
+K = max(param.K);
+[param.beta_coefficients, rts] = retrieve_betas(param);
+% % % betas = param.beta_coefficients;
+
+% % % gammaCoeff = rand(K-m+1,1);
+% % % alpha = polynomial_construct(param,gammaCoeff);
+param.alpha = polynomial_construct(param);
+
+%% Verify alpha goes to 0 for the roots of the polynomial
+
+vand_eig = zeros(m,param.S*(K+1));
+for s = 0:param.S-1
+    for i = 1:K+1
+        for j = 1:m
+            vand_eig(j,i+s*(K+1)) = rts(j)^(i-1);
+        end
+    end
+end
+prova1 = double(vand_eig*param.alpha);
+
 for iterNum = 1 : param.numIteration
     
     %% Coefficients update step
@@ -127,8 +148,13 @@ for iterNum = 1 : param.numIteration
             [Q1,Q2, B, h] = compute_ADMM_entries(Y, param, Laplacian_powers, CoefMatrix);
              alpha = coefficient_upadate_ADMM(Q1, Q2, B, h);
        end
-    
-        
+       K = max(param.K);
+       alpha_mx = zeros(K+1,param.S);
+       
+       for s = 1:param.S
+           alpha_mx(:,s) = alpha((s-1)*(K+1)+1:s*(K+1));
+       end
+
         if (param.plot_kernels == 1) 
             g_ker = zeros(param.N, param.S);
             r = 0;
@@ -175,12 +201,12 @@ for iterNum = 1 : param.numIteration
 
 end
 
-              figure()
-              hold on
-              for s = 1 : param.S
-                  plot(lambda_sym,g_ker(:,s),num2str(color_matrix(s)));
-              end
-              hold off
+figure()
+hold on
+for s = 1 : param.S
+    plot(lambda_sym,g_ker(:,s),num2str(color_matrix(s)));
+end
+hold off
 
 
 output.CoefMatrix = CoefMatrix;

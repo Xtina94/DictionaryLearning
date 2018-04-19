@@ -11,7 +11,7 @@
 % Available at:  http://arxiv.org/pdf/1401.0887.pdf
 
 close all
-load initial_dictionary.mat
+load initial_dictionary_uber.mat
 load TestSignal.mat
 
 load learned_W.mat
@@ -40,8 +40,9 @@ for j=1:param.N
      end
 end
     
-param.InitializationMethod =  'Random_kernels';
+param.InitializationMethod =  'GivenMatrix';
 SampleSignal = param.y;
+param.initial_dictionary_uber = initial_dictionary_uber;
 
 %%---- Polynomial Dictionary Learning Algorithm -----------
 

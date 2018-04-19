@@ -15,6 +15,7 @@ close all
 load testdata.mat
 load reference_dictionary.mat
 load SampleSignal.mat
+load initial_dictionary.mat
 
 %------------------------------------------------------    
 %%---- Set the paremeters-------- 

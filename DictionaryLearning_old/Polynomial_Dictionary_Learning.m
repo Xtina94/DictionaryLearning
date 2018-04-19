@@ -67,7 +67,7 @@ end
 
 if (~isfield(param,'InitializationMethod'))
     %param.InitializationMethod = 'Random_kernels';
-    param.InitializationMethod = 'GivenMatrix';
+    param.InitializationMethod = 'Random_kernels';
 end
 
 color_matrix = ['b', 'r', 'g', 'c', 'm', 'k', 'y'];
@@ -78,10 +78,10 @@ color_matrix = ['b', 'r', 'g', 'c', 'm', 'k', 'y'];
 
 if (strcmp(param.InitializationMethod,'Random_kernels')) 
     [Dictionary(:,1 : param.J)] = initialize_dictionary(param);
-   
-    
+    param.initialized_dictionary = Dictionary;
+       
 elseif (strcmp(param.InitializationMethod,'GivenMatrix'))
-     Dictionary = param.initial_dictionary;
+     Dictionary = param.initial_dictionary_uber;
 % % %     Dictionary(:,1 : param.J) = param.initialDictionary(:,1 : param.J);  %initialize with a given initialization dictionary
 else 
     display('Initialization method is not valid')
@@ -91,7 +91,6 @@ end
 %%----------------------------------------------------
 %%  Graph Dictionary Learning Algorithm
 %%----------------------------------------------------
-
 
 for iterNum = 1 : param.numIteration
 %%----------------------------------------------------
