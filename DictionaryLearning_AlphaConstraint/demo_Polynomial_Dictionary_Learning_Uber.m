@@ -20,7 +20,7 @@ load uber_param.mat
 param = uber_param;
 param.percentage = 12;
 
-TrainSignal = param.y;
+TrainSignal = param.y(:,1:80);
 TestSignal = param.y(:,81:size(param.y,2));
 
 %% Compute the Laplacian and the normalized Laplacian operator 
@@ -39,7 +39,7 @@ for j=1:param.N
      end
 end
     
-param.InitializationMethod =  'GivenMatrix';
+param.InitializationMethod =  'Random_kernels';
 param.initial_dictionary_uber = learned_dictionary;
 SampleSignal = param.y;
 

@@ -10,11 +10,8 @@ function alpha = coefficient_update_interior_point(Data,CoefMatrix,param,sdpsolv
 % sdpt3: http://www.math.nus.edu.sg/~mattohkc/sdpt3.html
 % YALMIP: http://users.isy.liu.se/johanl/yalmip/
 
-% =========================================================================
+%% Set parameterss
 
-%-----------------------------------------------
-% Set parameters
-%-----------------------------------------------
 N = param.N;
 c = param.c;
 epsilon = param.epsilon;
@@ -24,47 +21,9 @@ q = sum(param.K)+S;
 K = max(param.K);
 Laplacian_powers = param.Laplacian_powers;
 Lambda = param.lambda_power_matrix;
-m = param.percentage;
-
-% % % %% Obtaining the beta coefficients
-% % % m = param.percentage;
-% % % [param.beta_coefficients, rts] = retrieve_betas(param);
-% % % 
-% % % % % % gammaCoeff = rand(K-m+1,1);
-% % % % % % alpha = polynomial_construct(param,gammaCoeff);
-% % % alpha = polynomial_construct(param);
-% % % 
-% % % %% Verify alpha goes to 0 for the roots of the polynomial
-% % % 
-% % % vand_eig = zeros(m,param.S*(K+1));
-% % % for s = 0:param.S-1
-% % %     for i = 1:K+1
-% % %         for j = 1:m
-% % %             vand_eig(j,i+s*(K+1)) = rts(j)^(i-1);
-% % %         end
-% % %     end
-% % % end
-% % % prova1 = double(vand_eig*alpha);
-
-%% Set up the elements for the optimization problem
-
-alpha = polynomial_construct(param);
-
-%% Verify alpha goes to 0 for the roots of the polynomial
-
-vand_eig = zeros(m,param.S*(K+1));
-for s = 0:param.S-1
-    for i = 1:K+1
-        for j = 1:m
-            vand_eig(j,i+s*(K+1)) = param.rts(j)^(i-1);
-        end
-    end
-end
-prova1 = double(vand_eig*param.alpha);
-
-jolly = param.percentage;
+alpha = param.alpha_vector;
+jolly = param.percentage + 16;
 B1 = sparse(kron(eye(S),Lambda));
-% % % B1 = B1(1:param.N-jolly,:);
 B2 = kron(ones(1,S),Lambda);
 B2 = B2(1:param.N-jolly,:);
 
@@ -84,16 +43,11 @@ PhiPhiT = Phi*Phi';
 l1 = length(B1*alpha);
 l2 = length(B2*alpha);
 
-%-----------------------------------------------
-% Define the Objective Function
-%-----------------------------------------------
-
+%% Objective function
 
 X = norm(Data,'fro')^2 - 2*YPhi*alpha + alpha'*(PhiPhiT + mu*eye(size(PhiPhiT,2)))*alpha;
 
-%-----------------------------------------------
-% Define Constraints
-%-----------------------------------------------
+%% Contraints
 
 F = (B1*alpha <= c*ones(l1,1))...
     + (-B1*alpha <= 0*ones(l1,1))...
@@ -101,9 +55,8 @@ F = (B1*alpha <= c*ones(l1,1))...
     + (-B2*alpha <= -(c-epsilon)*ones(l2,1));
 
 % % % F = [(B1*alpha <= 1*ones(l1,1)), (-B1*alpha <= 0*ones(l1,1)), (B2*alpha <= (c+epsilon)*ones(l2,1)), (-B2*alpha <= -(c-epsilon)*ones(l2,1))];
-%---------------------------------------------------------------------
-% Solve the SDP using the YALMIP toolbox 
-%---------------------------------------------------------------------
+
+%% Solving the SDP
 
 if strcmp(sdpsolver,'sedumi')
     solvesdp(F,X,sdpsettings('solver','sedumi','sedumi.eps',0,'sedumi.maxiter',200))

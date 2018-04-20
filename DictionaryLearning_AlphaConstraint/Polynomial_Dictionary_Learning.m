@@ -96,9 +96,24 @@ m = param.percentage;
 K = max(param.K);
 [param.beta_coefficients, param.rts] = retrieve_betas(param);
 
+%% Set up the elements for the optimization problem
+
+param.alpha_vector = polynomial_construct(param);
+
+%% Verify alpha goes to 0 for the roots of the polynomial
+
+vand_eig = zeros(m,param.S*(K+1));
+for s = 0:param.S-1
+    for i = 1:K+1
+        for j = 1:m
+            vand_eig(j,i+s*(K+1)) = param.rts(j)^(i-1);
+        end
+    end
+end
+
+% % % prova1 = double(vand_eig*param.alpha_vector);
 % % % gammaCoeff = rand(K-m+1,1);
 % % % alpha = polynomial_construct(param,gammaCoeff);
-
 
 for iterNum = 1 : param.numIteration
     
@@ -111,7 +126,8 @@ for iterNum = 1 : param.numIteration
            if (iterNum == 1)
             disp('solving the quadratic problem with YALMIP...')
            end
-            alpha = coefficient_update_interior_point(Y,CoefMatrix,param,'sedumi');
+            alpha = coefficient_update_interior_point(Y,CoefMatrix,param,'sdpt3');
+% % %             alpha = alpha*1e4;
        else
            if (iterNum == 1)
             disp('solving the quadratic problem with ADMM...')
@@ -160,6 +176,8 @@ for iterNum = 1 : param.numIteration
             Dictionary(:,1 + (j - 1) * param.N : j * param.N) = D;
         end
         
+% % %         Dictionary = 1e4*Dictionary;
+        
     %% Plot the progress
 
     if (iterNum>1 && param.displayProgress)
@@ -167,7 +185,6 @@ for iterNum = 1 : param.numIteration
              disp(['Iteration   ',num2str(iterNum),'   Total error is: ',num2str(output.totalError(iterNum-1))]);
     end
     
-
 end
 
 figure()
