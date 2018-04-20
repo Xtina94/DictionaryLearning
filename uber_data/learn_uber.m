@@ -57,7 +57,7 @@ param.c = 1; % spectral control parameters
 param.epsilon = 0.05;%0.02; % we assume that epsilon_1 = epsilon_2 = epsilon
 %kaj ne bi ovaj epsilon gore trebao biti jako velik?
 param.mu = 1;%1e-2; % polynomial regularizer paremeter
-param.y = X;
+param.y = X(:,1:80);
 param.y_size = size(param.y,2);
 
 %% generate dictionary polynomial coefficients from heat kernel
@@ -69,19 +69,24 @@ disp(param.alpha);
 
 %% compute coordinates
 for i = 2 : numel(zone_list)
+    % Trova gli indici in data2{4} corrispondenti alla zona i-esima
     [rn, ~] = find(strcmp(data2{4},zone_list(i)));
+    % Fai la media dei valori appartenenti alla stessa zona
     lat2(i-1,1) = mean(data2{2}(rn));
     lon2(i-1,1) = mean(data2{3}(rn));   
 end
+
+% Alla fine saltano fuori 29 zone e quindi 29x29 coordinate
  
 for i = 2 : numel(zone_list)
     [rn, ~] = find(strcmp(data1{4},zone_list(i)));
     lat1(i-1,1) = mean(data1{2}(rn));
     lon1(i-1,1) = mean(data1{3}(rn));
 end
+% le coordinate finali sono una media fra i valori di due giornate
+% consecutive
 lat = mean([lat1 lat2], 2);
 lon = mean([lon1 lon2], 2);
-
 
 %% construct geographical graphs
 figure('Name','gaussian_knn');

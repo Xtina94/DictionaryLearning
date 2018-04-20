@@ -1,4 +1,5 @@
-clear;close all
+clear;
+close all
 %% load data
 input1 = 'uber/uber_aug14_zone.csv';
 fid = fopen(input1);

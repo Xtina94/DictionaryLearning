@@ -94,23 +94,11 @@ end
 %% Obtaining the beta coefficients
 m = param.percentage;
 K = max(param.K);
-[param.beta_coefficients, rts] = retrieve_betas(param);
+[param.beta_coefficients, param.rts] = retrieve_betas(param);
 
 % % % gammaCoeff = rand(K-m+1,1);
 % % % alpha = polynomial_construct(param,gammaCoeff);
-param.alpha = polynomial_construct(param);
 
-%% Verify alpha goes to 0 for the roots of the polynomial
-
-vand_eig = zeros(m,param.S*(K+1));
-for s = 0:param.S-1
-    for i = 1:K+1
-        for j = 1:m
-            vand_eig(j,i+s*(K+1)) = rts(j)^(i-1);
-        end
-    end
-end
-prova1 = double(vand_eig*param.alpha);
 
 for iterNum = 1 : param.numIteration
     
@@ -123,7 +111,7 @@ for iterNum = 1 : param.numIteration
            if (iterNum == 1)
             disp('solving the quadratic problem with YALMIP...')
            end
-            alpha = coefficient_update_interior_point(Y,CoefMatrix,param,'sdpt3');
+            alpha = coefficient_update_interior_point(Y,CoefMatrix,param,'sedumi');
        else
            if (iterNum == 1)
             disp('solving the quadratic problem with ADMM...')
@@ -152,12 +140,12 @@ for iterNum = 1 : param.numIteration
                 r = sum(param.K(1:i)) + i;
             end
             
-              figure()
-              hold on
-              for s = 1 : param.S
-                  plot(lambda_sym,g_ker(:,s),num2str(color_matrix(s)));
-              end
-              hold off
+% % %               figure()
+% % %               hold on
+% % %               for s = 1 : param.S
+% % %                   plot(lambda_sym,g_ker(:,s),num2str(color_matrix(s)));
+% % %               end
+% % %               hold off
         end
 
         %% Dictionary update step

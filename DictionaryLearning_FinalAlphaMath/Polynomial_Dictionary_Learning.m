@@ -169,12 +169,12 @@ for iterNum = 1 : param.numIteration
                 r = sum(param.K(1:i)) + i;
             end
             
-              figure()
-              hold on
-              for s = 1 : param.S
-                  plot(lambda_sym,g_ker(:,s),num2str(color_matrix(s)));
-              end
-              hold off
+% % %               figure()
+% % %               hold on
+% % %               for s = 1 : param.S
+% % %                   plot(lambda_sym,g_ker(:,s),num2str(color_matrix(s)));
+% % %               end
+% % %               hold off
         end
 
         %% Dictionary update step

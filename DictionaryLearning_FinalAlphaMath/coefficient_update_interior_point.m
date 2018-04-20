@@ -48,9 +48,12 @@ Lambda = param.lambda_power_matrix;
 %% Set up the elements for the optimization problem
 
 alpha = param.alpha;
-
+% % % jolly = param.percentage;
+jolly = 8;
 B1 = sparse(kron(eye(S),Lambda));
+B1 = B1(1:param.N-jolly,:);
 B2 = kron(ones(1,S),Lambda);
+B2 = B2(1:param.N-jolly,:);
 
 Phi = zeros(S*(K+1),1);
 for i = 1 : N
@@ -79,7 +82,7 @@ X = norm(Data,'fro')^2 - 2*YPhi*alpha + alpha'*(PhiPhiT + mu*eye(size(PhiPhiT,2)
 % Define Constraints
 %-----------------------------------------------
 % % % F = (-B1*alpha <= 0*ones(l1,1));
-F = (B1*alpha <= c*ones(l1,1)) + (-B1*alpha <= 0*ones(l1,1));
+F = [(B1*alpha <= c*ones(l1,1)), (-B1*alpha <= 0*ones(l1,1)), (B2*alpha <= (c+epsilon)*ones(l2,1)), (-B2*alpha <= -(c-epsilon)*ones(l2,1))];
 
 %---------------------------------------------------------------------
 % Solve the SDP using the YALMIP toolbox 

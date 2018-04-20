@@ -17,7 +17,7 @@ load learned_W.mat
 load uber.mat
 load lat.mat
 load lon.mat
-param.percentage = 15;
+param.percentage = 12;
 
 %% Compute the Laplacian and the normalized Laplacian operator 
 

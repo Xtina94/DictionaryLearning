@@ -11,13 +11,17 @@
 % Available at:  http://arxiv.org/pdf/1401.0887.pdf
 
 close all
-load initial_dictionary_uber.mat
-load TestSignal.mat
-
+load learned_dictionary_uber.mat
 load learned_W.mat
-load uber.mat
-load lat.mat
-load lon.mat
+load uber_param.mat
+% % % load lat.mat
+% % % load lon.mat
+
+param = uber_param;
+param.percentage = 12;
+
+TrainSignal = param.y;
+TestSignal = param.y(:,81:size(param.y,2));
 
 %%- Compute the Laplacian and the normalized Laplacian operator 
 
@@ -42,7 +46,7 @@ end
     
 param.InitializationMethod =  'GivenMatrix';
 SampleSignal = param.y;
-param.initial_dictionary_uber = initial_dictionary_uber;
+param.initial_dictionary_uber = learned_dictionary;
 
 %%---- Polynomial Dictionary Learning Algorithm -----------
 
