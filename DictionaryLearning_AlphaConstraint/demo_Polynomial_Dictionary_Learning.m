@@ -55,6 +55,9 @@ param.Laplacian = (diag(sum(W,2)))^(-1/2)*L*(diag(sum(W,2)))^(-1/2); % normalize
 [param.eigenMat, param.eigenVal] = eig(param.Laplacian); % eigendecomposition of the normalized Laplacian
 [param.lambda_sym,index_sym] = sort(diag(param.eigenVal)); % sort the eigenvalues of the normalized Laplacian in descending order
 
+%% Analyse the spectrum of the signal
+spectrum = spectral_rep(param.eigenVal);
+
 % % % smoothed_signal = smooth_signal(TestSignal, L);
 
 %% Precompute the powers of the Laplacian 
