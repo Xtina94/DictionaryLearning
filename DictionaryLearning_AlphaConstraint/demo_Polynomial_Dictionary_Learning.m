@@ -59,6 +59,7 @@ param.Laplacian = (diag(sum(W,2)))^(-1/2)*L*(diag(sum(W,2)))^(-1/2); % normalize
 % % % %%%%%%%
 % % % %% Redistributing the eigenValues composition of the Laplacian
 % % % nEigV = length(param.eigenVal); %Number of eigenvalues
+<<<<<<< Updated upstream
 % % % param.eigenvalues_vector = param.eigenVal*ones(nEigV,1);
 % % % param.eigenvalues_vector = sort(param.eigenvalues_vector);
 % % % eigenVal = param.eigenvalues_vector(1:nEigV-param.percentage);
@@ -75,6 +76,13 @@ param.Laplacian = (diag(sum(W,2)))^(-1/2)*L*(diag(sum(W,2)))^(-1/2); % normalize
 % % % end
 % % % 
 % % % param.eigenvalues_vector(1:nEigV-param.percentage) = eigenVal;
+=======
+% % % 
+% % % eigenVal = param.eigenVal(1:nEigV-param.percentage);
+% % % eigenVal(length(eigenVal)-floor(length(eigenVal)/4)+1:length(eigenVal)) = eigenVal(length(eigenVal)-2*floor(length(eigenVal)/4)+1:length(eigenVal)-floor(length(eigenVal)/4));
+% % % eigenVal(length(eigenVal)-2*floor(length(eigenVal)/4)+1:length(eigenVal)-floor(length(eigenVal)/4)) = eigenVal(floor(length(eigenVal)/4)+1:length(eigenVal)-2*floor(length(eigenVal)/4));
+% % % eigenVal(floor(length(eigenVal)/4)+1:length(eigenVal)-2*floor(length(eigenVal)/4)) = eigenVal(1:floor(length(eigenVal)/4));
+>>>>>>> Stashed changes
 % % % %%%%%%%
 %% Analyse the spectrum of the signal
 % % % spectrum = spectral_rep(param.eigenvalues_vector');
@@ -94,7 +102,7 @@ for j=1:param.N
      end
 end
     
-param.InitializationMethod =  'GivenMatrix';
+param.InitializationMethod =  'Random_kernels';
 
 %%---- Polynomial Dictionary Learning Algorithm -----------
 

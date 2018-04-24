@@ -77,7 +77,7 @@ color_matrix = ['b', 'r', 'g', 'c', 'm', 'k', 'y'];
 %%-----------------------------------------------
 
 if (strcmp(param.InitializationMethod,'Random_kernels')) 
-    [Dictionary(:,1 : param.J)] = initialize_dictionary(param);
+    Dictionary(:,1 : param.J) = initialize_dictionary(param);
 % % %     initial_dictionary_uber = Dictionary;
     
 elseif (strcmp(param.InitializationMethod,'GivenMatrix'))

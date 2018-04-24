@@ -69,7 +69,7 @@ end
     
          
 %%---------------------------------------------------------
-param.InitializationMethod =  'GivenMatrix';
+param.InitializationMethod =  'Random_kernels';
 %%---- Polynomial Dictionary Learning Algorithm -----------
 %%---------------------------------------------------------
 param.initial_dictionary = initial_dictionary;
