@@ -81,7 +81,7 @@ if (strcmp(param.InitializationMethod,'Random_kernels'))
 % % %     initial_dictionary_uber = Dictionary;
     
 elseif (strcmp(param.InitializationMethod,'GivenMatrix'))
-     Dictionary = param.initial_dictionary_uber;
+     Dictionary = param.initial_dictionary;
 else 
     display('Initialization method is not valid')
 end

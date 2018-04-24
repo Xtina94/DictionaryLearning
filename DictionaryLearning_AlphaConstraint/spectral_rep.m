@@ -1,7 +1,7 @@
-function spectrum = spectral_rep(eigenvalues)
+function spectrum = spectral_rep(eigenvalues_vector)
     % Obtaining a spectral representation of the signal
     % Frequencies = eigenvalues of the graph laplacian
-    eigenvalues_vector = eigenvalues*ones(length(eigenvalues),1);
+% % %     eigenvalues_vector = eigenvalues*ones(length(eigenvalues),1);
     eigenvalues_vector = sort(eigenvalues_vector);
     i = 1;
     j = 1;

@@ -56,17 +56,28 @@ param.Laplacian = (diag(sum(W,2)))^(-1/2)*L*(diag(sum(W,2)))^(-1/2); % normalize
 [param.lambda_sym,index_sym] = sort(diag(param.eigenVal)); % sort the eigenvalues of the normalized Laplacian in descending order
 
 
-%%%%%%%
-%% Redistributing the eigenValues composition of the Laplacian
-nEigV = length(param.eigenVal); %Number of eigenvalues
-
-eigenVal = param.eigenVal(1:nEigV-param.percentage);
-eigenVal(length(eigenVal)-floor(length(eigenVal)/4)+1:length(eigenVal)) = eigenVal(length(eigenVal)-2*floor(length(eigenVal)/4)+1:length(eigenVal)-floor(length(eigenVal)/4));
-eigenVal(length(eigenVal)-2*floor(length(eigenVal)/4)+1:length(eigenVal)-floor(length(eigenVal)/4)) = eigenVal(floor(length(eigenVal)/4)+1:length(eigenVal)-2*floor(length(eigenVal)/4));
-eigenVal(floor(length(eigenVal)/4)+1:length(eigenVal)-2*floor(length(eigenVal)/4)) = eigenVal(1:floor(length(eigenVal)/4));
-%%%%%%%
+% % % %%%%%%%
+% % % %% Redistributing the eigenValues composition of the Laplacian
+% % % nEigV = length(param.eigenVal); %Number of eigenvalues
+% % % param.eigenvalues_vector = param.eigenVal*ones(nEigV,1);
+% % % param.eigenvalues_vector = sort(param.eigenvalues_vector);
+% % % eigenVal = param.eigenvalues_vector(1:nEigV-param.percentage);
+% % % eigenVal_1 = eigenVal(1:floor(length(eigenVal)/7));
+% % % section = length(eigenVal_1);
+% % % eigenVal_2 = eigenVal(3*section+1:4*section);
+% % % eigenVal_3 = eigenVal(5*section+1:6*section);
+% % % eigenVal(1:3*section) = [eigenVal_1 eigenVal_1 eigenVal_1];
+% % % eigenVal(3*section+1:5*section) = [eigenVal_2 eigenVal_2];
+% % % i = 1;
+% % % while 6*section+i <= length(eigenVal) && i <= length(eigenVal_3)
+% % %     eigenVal(6*section+i) = eigenVal_3(i);
+% % %     i = i+1;
+% % % end
+% % % 
+% % % param.eigenvalues_vector(1:nEigV-param.percentage) = eigenVal;
+% % % %%%%%%%
 %% Analyse the spectrum of the signal
-spectrum = spectral_rep(param.eigenVal);
+% % % spectrum = spectral_rep(param.eigenvalues_vector');
 
 % % % smoothed_signal = smooth_signal(TestSignal, L);
 
