@@ -11,11 +11,17 @@
 % Available at:  http://arxiv.org/pdf/1401.0887.pdf
 
 close all
+clear all
 
-load testdata.mat
-load initial_sparsity_mx.mat
-load SampleSignal.mat
-load initial_dictionary.mat
+% load testdata.mat
+% load initial_sparsity_mx.mat
+% load SampleSignal.mat
+% load initial_dictionary.mat
+load X_smooth.mat
+load SampleWeight.mat
+
+SampleSignal = X_smooth(:,1:900);
+TestSignal = X_smooth(:,901:1000);
 
 %------------------------------------------------------    
 %%---- Set the paremeters-------- 
@@ -27,7 +33,7 @@ param.J = param.N * param.S; % total number of atoms
 
 %%% My changings %%%
 number_sub = ones(1,param.S);
-param.K = 20.*number_sub;
+param.K = 10.*number_sub;
 % % % param.initialDictionary = reference_dictionary;
 %%%
 
@@ -36,9 +42,9 @@ param.T0 = 4; % sparsity level in the training phase
 param.c = 1; % spectral control parameters
 param.epsilon = 0.02; % we assume that epsilon_1 = epsilon_2 = epsilon
 param.mu = 1e-2; % polynomial regularizer paremeter
-param.initial_dictionary = initial_dictionary;
+% param.initial_dictionary = initial_dictionary;
 
-param.percentage = 15;
+param.percentage = 5;
 
 %------------------------------------------------------    
 %%---- Plot the random graph-------- 
@@ -56,10 +62,9 @@ param.Laplacian = (diag(sum(W,2)))^(-1/2)*L*(diag(sum(W,2)))^(-1/2); % normalize
 [param.lambda_sym,index_sym] = sort(diag(param.eigenVal)); % sort the eigenvalues of the normalized Laplacian in descending order
 
 
-% % % %%%%%%%
-% % % %% Redistributing the eigenValues composition of the Laplacian
+%%%%%%%
+%% Redistributing the eigenValues composition of the Laplacian
 % % % nEigV = length(param.eigenVal); %Number of eigenvalues
-<<<<<<< Updated upstream
 % % % param.eigenvalues_vector = param.eigenVal*ones(nEigV,1);
 % % % param.eigenvalues_vector = sort(param.eigenvalues_vector);
 % % % eigenVal = param.eigenvalues_vector(1:nEigV-param.percentage);
@@ -76,16 +81,12 @@ param.Laplacian = (diag(sum(W,2)))^(-1/2)*L*(diag(sum(W,2)))^(-1/2); % normalize
 % % % end
 % % % 
 % % % param.eigenvalues_vector(1:nEigV-param.percentage) = eigenVal;
-=======
 % % % 
-% % % eigenVal = param.eigenVal(1:nEigV-param.percentage);
-% % % eigenVal(length(eigenVal)-floor(length(eigenVal)/4)+1:length(eigenVal)) = eigenVal(length(eigenVal)-2*floor(length(eigenVal)/4)+1:length(eigenVal)-floor(length(eigenVal)/4));
-% % % eigenVal(length(eigenVal)-2*floor(length(eigenVal)/4)+1:length(eigenVal)-floor(length(eigenVal)/4)) = eigenVal(floor(length(eigenVal)/4)+1:length(eigenVal)-2*floor(length(eigenVal)/4));
-% % % eigenVal(floor(length(eigenVal)/4)+1:length(eigenVal)-2*floor(length(eigenVal)/4)) = eigenVal(1:floor(length(eigenVal)/4));
->>>>>>> Stashed changes
-% % % %%%%%%%
+
+%%%%%%%
+
 %% Analyse the spectrum of the signal
-% % % spectrum = spectral_rep(param.eigenvalues_vector');
+% spectrum = spectral_rep(param.eigenvalues_vector');
 
 % % % smoothed_signal = smooth_signal(TestSignal, L);
 

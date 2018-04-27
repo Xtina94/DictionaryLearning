@@ -12,10 +12,15 @@
 
 close all
 
-load testdata.mat
-load reference_dictionary.mat
-load SampleSignal.mat
-load initial_dictionary.mat
+% load testdata.mat
+% load reference_dictionary.mat
+% load SampleSignal.mat
+% load initial_dictionary.mat
+load SampleWeight.mat
+load X_smooth.mat
+
+SampleSignal= X_smooth(:,1:900);
+TestSignal = X_smooth(:,901:1000);
 
 %------------------------------------------------------    
 %%---- Set the paremeters-------- 
@@ -72,7 +77,7 @@ end
 param.InitializationMethod =  'Random_kernels';
 %%---- Polynomial Dictionary Learning Algorithm -----------
 %%---------------------------------------------------------
-param.initial_dictionary = initial_dictionary;
+% param.initial_dictionary = initial_dictionary;
 param.displayProgress = 1;
 param.numIteration = 8;
 param.plot_kernels = 1; % plot the learned polynomial kernels after each iteration
