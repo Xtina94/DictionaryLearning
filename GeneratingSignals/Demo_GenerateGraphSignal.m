@@ -9,15 +9,21 @@
 
 close all;
 
-m = 100; %number of nodes
+m = 2; %number of nodes
 l = 1000; %signal length
-sigma = 20; %std for Random Geometric Graph
-threshold = 0.8133; %threshold for the weigths
+sigma = 0.2; %std for Random Geometric Graph
+threshold = 0.6; %threshold for the weigths
 
 %% Generating the starting signal
-
-[X,W,mn] = random_geometric(sigma,threshold,m,l);
-
+N = 1000;
+% [X,W,mn] = random_geometric(sigma,threshold,m,l);
+% X = [rand(N,1), rand(N,1)];
+X = zeros(m,l);
+    for i = 1:m
+        X(i,:) = rand(1,l);
+    end
+    X = X';
+W  = computeWeightMatrix(X,sigma,threshold);
 %% Generating the Laplacian and its decomposition
 
 L = diag(sum(W,2)) - W;
