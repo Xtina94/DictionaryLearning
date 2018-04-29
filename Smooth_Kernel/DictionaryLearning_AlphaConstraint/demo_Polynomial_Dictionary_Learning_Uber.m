@@ -12,27 +12,39 @@
 
 close all
 load learned_dictionary_uber.mat
-load learned_W.mat
-load uber_param.mat
-% % % load lat.mat
-% % % load lon.mat
+load UberData.mat
 
-param = uber_param;
+param.N = size(X,1); % number of nodes in the graph
+param.S = 2;  % number of subdictionaries 
+param.J = param.N * param.S; % total number of atoms 
+number_sub = ones(1,param.S);
+param.K = 15.*number_sub;
+param.T0 = 4; % sparsity level in the training phase
+param.c = 1; % spectral control parameters
+param.epsilon = 0.5; % we assume that epsilon_1 = epsilon_2 = epsilon
+param.mu = 1e-2; % polynomial regularizer paremeter
+
 param.percentage = 12;
-
-TrainSignal = param.y(:,1:80);
-TestSignal = param.y(:,81:size(param.y,2));
+param.signal = X(:,1:80);
+TrainSignal = param.signal;
+TestSignal = X(:,81:size(X,2));
 
 %% Compute the Laplacian and the normalized Laplacian operator 
 
-L = param.Laplacian; %Already normalized laplacian
 W = learned_W;
+L = diag(sum(W,2)) - W; % combinatorial Laplacian
+param.Laplacian = (diag(sum(W,2)))^(-1/2)*L*(diag(sum(W,2)))^(-1/2); % normalized Laplacian
 [param.eigenMat, param.eigenVal] = eig(param.Laplacian); % eigendecomposition of the normalized Laplacian
 [param.lambda_sym,index_sym] = sort(diag(param.eigenVal)); % sort the eigenvalues of the normalized Laplacian in descending order
 
+%% Precompute the powers of the Laplacian
+
+for k = 0 : max(param.K)
+    param.Laplacian_powers{k + 1} = param.Laplacian^k;
+end
 
 %% Analyse the spectrum of the signal
-spectrum = spectral_rep(param.eigenVal);
+% % % spectrum = spectral_rep(param.eigenVal);
 
 %%------ Precompute the powers of the Lambdas -------------
     
@@ -45,7 +57,6 @@ end
     
 param.InitializationMethod =  'Random_kernels';
 param.initial_dictionary_uber = learned_dictionary;
-SampleSignal = param.y;
 
 %%---- Polynomial Dictionary Learning Algorithm -----------
 

@@ -9,21 +9,15 @@
 
 close all;
 
-m = 2; %number of nodes
+m = 100; %number of nodes
 l = 1000; %signal length
-sigma = 0.2; %std for Random Geometric Graph
-threshold = 0.6; %threshold for the weigths
+sigma = 20; %std for Random Geometric Graph
+threshold = 0.819; %threshold for the weigths
 
 %% Generating the starting signal
 N = 1000;
-% [X,W,mn] = random_geometric(sigma,threshold,m,l);
-% X = [rand(N,1), rand(N,1)];
-X = zeros(m,l);
-    for i = 1:m
-        X(i,:) = rand(1,l);
-    end
-    X = X';
-W  = computeWeightMatrix(X,sigma,threshold);
+[X,W,mn] = random_geometric(sigma,threshold,m,l);
+% W  = computeWeightMatrix(X,sigma,threshold);
 %% Generating the Laplacian and its decomposition
 
 L = diag(sum(W,2)) - W;
@@ -35,7 +29,10 @@ Laplacian = (diag(sum(W,2)))^(-1/2)*L*(diag(sum(W,2)))^(-1/2);
 
 % Tykhonov regularization
 
-X_smooth = tykhonov(X,eigenVect,lambda_sym,10);
+X_smooth = tykhonov(X,eigenVect,lambda_sym,10,m);
+
+
+save(filename,X_smooth,W,Laplacian,eigenVal,eigenVect,lambda_sym);
 
 
 

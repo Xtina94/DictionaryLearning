@@ -1,21 +1,15 @@
 function [X,W,mn] = random_geometric(sigma, threshold, m, l)
-X = zeros(l,m);
+X = zeros(m,l);
     for i = 1:m
-        X(:,i) = rand(l,1);
+        X(i,:) = rand(1,l);
     end
     W = zeros(m,m);
     d = zeros(1,l);
     
-    Dist = pdist2(X,X,'euclidean');
-    func_rbf = @(x) exp(-x.^2/(2*sigma^2));
-    
     mn = zeros(m,1);
     for i = 1:m
         for j = 1:m
-            d(1,:) = (X(i,:) - X(j,:)).^2;
-            di = sqrt(sum(d));
-            c = -(di.^2)/(2*(sigma^2));
-            W(i,j) = func_rbf(Dist(i,j));
+            c = -(norm(X(i,:) - X(j,:))^2)/(2*(sigma^2));
             W(i,j) = exp(c);
             if W(i,j) < threshold
                 W(i,j) = 0;
