@@ -126,7 +126,7 @@ for iterNum = 1 : param.numIteration
            if (iterNum == 1)
             disp('solving the quadratic problem with YALMIP...')
            end
-            alpha = coefficient_update_interior_point(Y,CoefMatrix,param,'sdpt3');
+            [alpha, objective] = coefficient_update_interior_point(Y,CoefMatrix,param,'sdpt3');
 % % %             alpha = alpha*1e4;
        else
            if (iterNum == 1)
@@ -188,12 +188,15 @@ for iterNum = 1 : param.numIteration
 end
 
 figure()
+grid on
 hold on
 for s = 1 : param.S
     plot(lambda_sym,g_ker(:,s),num2str(color_matrix(s)));
 end
 hold off
+grid off
 
+output.objective = objective;
 output.CoefMatrix = CoefMatrix;
 output.alpha =  alpha;
 recovered_Dictionary = Dictionary;

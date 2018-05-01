@@ -1,5 +1,5 @@
 
-function alpha = coefficient_update_interior_point(Data,CoefMatrix,param,sdpsolver)
+function [alpha, objective] = coefficient_update_interior_point(Data,CoefMatrix,param,sdpsolver)
 
 % =========================================================================
    %%  Update the polynomial coefficients using interior point methods
@@ -22,7 +22,7 @@ K = max(param.K);
 Laplacian_powers = param.Laplacian_powers;
 Lambda = param.lambda_power_matrix;
 alpha = param.alpha_vector;
-jolly = param.percentage -5;
+jolly = param.percentage + 17;
 B1 = sparse(kron(eye(S),Lambda));
 B2 = kron(ones(1,S),Lambda);
 B2 = B2(1:param.N-jolly,:);
@@ -50,9 +50,10 @@ X = norm(Data,'fro')^2 - 2*YPhi*alpha + alpha'*(PhiPhiT + mu*eye(size(PhiPhiT,2)
 %% Contraints
 
 F = (B1*alpha <= c*ones(l1,1))...
-    + (-B1*alpha <= 0*ones(l1,1));
-% % %     + (B2*alpha <= (c+epsilon)*ones(l2,1))...
-% % %     + (-B2*alpha <= -(c-epsilon)*ones(l2,1));
+    + (-B1*alpha <= -epsilon*ones(l1,1))...
+    + (B2*alpha <= (c+(100*epsilon))*ones(l2,1))...
+    + (-B2*alpha <= -(c-(100*epsilon))*ones(l2,1));
+
 
 % % % F = [(B1*alpha <= 1*ones(l1,1)), (-B1*alpha <= 0*ones(l1,1)), (B2*alpha <= (c+epsilon)*ones(l2,1)), (-B2*alpha <= -(c-epsilon)*ones(l2,1))];
 
@@ -69,6 +70,6 @@ else
     error('??? unknown solver');
 end
 
-double(X);
+objective = double(X);
 
 alpha=double(alpha);
