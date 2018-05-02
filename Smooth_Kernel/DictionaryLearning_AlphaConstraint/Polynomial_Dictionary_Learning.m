@@ -196,6 +196,7 @@ end
 hold off
 grid off
 
+output.g_ker = g_ker;
 output.objective = objective;
 output.CoefMatrix = CoefMatrix;
 output.alpha =  alpha;

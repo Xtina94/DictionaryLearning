@@ -21,7 +21,7 @@ number_sub = ones(1,param.S);
 param.K = 15.*number_sub;
 param.T0 = 4; % sparsity level in the training phase
 param.c = 1; % spectral control parameters
-param.epsilon = 0.003; % we assume that epsilon_1 = epsilon_2 = epsilon
+param.epsilon = 0.005; % we assume that epsilon_1 = epsilon_2 = epsilon
 param.mu = 1e-2; % polynomial regularizer paremeter
 
 param.percentage = 8;
