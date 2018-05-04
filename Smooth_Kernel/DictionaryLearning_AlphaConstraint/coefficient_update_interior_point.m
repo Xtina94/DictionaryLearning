@@ -22,11 +22,11 @@ K = max(param.K);
 Laplacian_powers = param.Laplacian_powers;
 Lambda = param.lambda_power_matrix;
 alpha = param.alpha_vector;
-jolly = param.percentage+8;
+thresh = param.percentage+5;
 B1 = sparse(kron(eye(S),Lambda));
 B2 = kron(ones(1,S),Lambda);
-B2 = B2(1:param.N-jolly,:);
-B3 = sparse(kron(eye(S),Lambda(1:param.N-jolly,:)));
+B2 = B2(1:param.N-thresh,:);
+B3 = sparse(kron(eye(S),Lambda(1:param.N-thresh,:)));
 
 Phi = zeros(S*(K+1),1);
 for i = 1 : N
@@ -52,7 +52,7 @@ X = norm(Data,'fro')^2 - 2*YPhi*alpha + alpha'*(PhiPhiT + mu*eye(size(PhiPhiT,2)
 %% Contraints
 
 F = (B1*alpha <= c*ones(l1,1))...
-    + (-B3*alpha <= -(epsilon/100)*ones(l3,1))...
+    + (-B3*alpha <= -0.01*epsilon*ones(l3,1))...
     + (B2*alpha <= (c+(100*epsilon))*ones(l2,1))...
     + (-B2*alpha <= -(c-(100*epsilon))*ones(l2,1));
 

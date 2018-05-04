@@ -21,7 +21,7 @@ number_sub = ones(1,param.S);
 param.K = 15.*number_sub;
 param.T0 = 4; % sparsity level in the training phase
 param.c = 1; % spectral control parameters
-param.epsilon = 0.005; % we assume that epsilon_1 = epsilon_2 = epsilon
+param.epsilon = 0.0025; % we assume that epsilon_1 = epsilon_2 = epsilon
 param.mu = 1e-2; % polynomial regularizer paremeter
 
 param.percentage = 8;
@@ -83,7 +83,14 @@ CoefMatrix_Pol = OMP_non_normalized_atoms(Dictionary_Pol,TestSignal, param.T0);
 errorTesting_Pol = sqrt(norm(TestSignal - Dictionary_Pol*CoefMatrix_Pol,'fro')^2/size(TestSignal,2));
 disp(['The total representation error of the testing signals is: ',num2str(errorTesting_Pol)]);
 
-        
+sum_kernels = sum(output_Pol.g_ker,2);
+
+%% Save results to file
+filename = 'Output_results_Uber';
+totalError = output_Pol.totalError;
+alpha_coeff = output_Pol.alpha;
+g_ker = output_Pol.g_ker;
+save(filename,'Dictionary_Pol','totalError','alpha_coeff', 'g_ker','CoefMatrix_Pol','errorTesting_Pol','TrainSignal','TestSignal','sum_kernels');     
 
 
 

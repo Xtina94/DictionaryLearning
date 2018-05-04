@@ -43,7 +43,7 @@ param.K = 20.*number_sub;
 %param.K = [20 20 20 20]; % polynomial degree of each subdictionary
 param.T0 = 4; % sparsity level in the training phase
 param.c = 1; % spectral control parameters
-param.epsilon = 0.25; % we assume that epsilon_1 = epsilon_2 = epsilon
+param.epsilon = 0.28; % we assume that epsilon_1 = epsilon_2 = epsilon
 param.mu = 1e-2; % polynomial regularizer paremeter
 param.percentage = 15;
 
@@ -107,9 +107,16 @@ errorTesting_Pol = sqrt(norm(TestSignal - Dictionary_Pol*CoefMatrix_Pol,'fro')^2
 disp(['The total representation error of the testing signals is: ',num2str(errorTesting_Pol)]);
 sum_kernels = sum(output_Pol.g_ker,2);
 
+%% Save results to file
 filename = 'Output_results';
-save(filename,'Dictionary_Pol','output_Pol','CoefMatrix_Pol','errorTesting_Pol','TrainSignal','TestSignal','sum_kernels');
+totalError = output_Pol.totalError;
+alpha_coeff = output_Pol.alpha;
+g_ker = output_Pol.g_ker;
+save(filename,'Dictionary_Pol','totalError','alpha_coeff', 'g_ker','CoefMatrix_Pol','errorTesting_Pol','TrainSignal','TestSignal','sum_kernels');
 
-
+% filename2 = strcat('m',num2str(param.percentage),'_e',num2str(param.epsilon),'_thr53.txt');
+% fileID = fopen(filename2,'w+');
+% fprintf(fileID,num2str(errorTesting_Pol));
+% fclose(fileID);
 
 

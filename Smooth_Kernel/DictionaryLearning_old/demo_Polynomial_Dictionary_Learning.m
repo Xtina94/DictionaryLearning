@@ -12,12 +12,12 @@
 
 close all
 
-% load testdata.mat
+load testdata.mat
 % load reference_dictionary.mat
 % load SampleSignal.mat
 % load initial_dictionary.mat
-load SampleWeight.mat
-load X_smooth.mat
+% load SampleWeight.mat
+% load X_smooth.mat
 % % % load SyntheticData.mat
 
 % % % param.Laplacian = Laplacian;
@@ -25,9 +25,10 @@ load X_smooth.mat
 % % % param.eigneVal = eigenVal;
 % % % param.lambda_sym = lambda_sym;
 
-SampleSignal= X_smooth(:,1:900);
-TestSignal = X_smooth(:,901:1000);
+% % % SampleSignal= X_smooth(:,1:900);
+% % % TestSignal = X_smooth(:,901:1000);
 
+SampleSignal = TrainSignal;
 %------------------------------------------------------    
 %%---- Set the paremeters-------- 
 %------------------------------------------------------
@@ -105,7 +106,11 @@ CoefMatrix_Pol = OMP_non_normalized_atoms(Dictionary_Pol,TestSignal, param.T0);
 errorTesting_Pol = sqrt(norm(TestSignal - Dictionary_Pol*CoefMatrix_Pol,'fro')^2/size(TestSignal,2));
 disp(['The total representation error of the testing signals is: ',num2str(errorTesting_Pol)]);
 
-        
+%% Save results to file
+filename = 'Output_results';
+totalError = output_Pol.totalError;
+alpha_coeff = output_Pol.alpha;
+save(filename,'Dictionary_Pol','totalError','alpha_coeff','CoefMatrix_Pol','errorTesting_Pol','TrainSignal','TestSignal');        
 
 
 

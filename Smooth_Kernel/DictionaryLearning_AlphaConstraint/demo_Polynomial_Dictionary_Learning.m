@@ -13,15 +13,17 @@
 close all
 clear all
 
-% load testdata.mat
+load testdata.mat
 % load initial_sparsity_mx.mat
 % load SampleSignal.mat
 % load initial_dictionary.mat
-load X_smooth.mat
-load SampleWeight.mat
+% load X_smooth.mat
+% load SampleWeight.mat
 
-SampleSignal = X_smooth(:,1:900);
-TestSignal = X_smooth(:,901:1000);
+% SampleSignal = X_smooth(:,1:900);
+% TestSignal = X_smooth(:,901:1000);
+
+SampleSignal = TrainSignal;
 
 %------------------------------------------------------    
 %%---- Set the paremeters-------- 
@@ -33,7 +35,7 @@ param.J = param.N * param.S; % total number of atoms
 
 %%% My changings %%%
 number_sub = ones(1,param.S);
-param.K = 10.*number_sub;
+param.K = 20.*number_sub;
 % % % param.initialDictionary = reference_dictionary;
 %%%
 
@@ -44,7 +46,7 @@ param.epsilon = 0.02; % we assume that epsilon_1 = epsilon_2 = epsilon
 param.mu = 1e-2; % polynomial regularizer paremeter
 % param.initial_dictionary = initial_dictionary;
 
-param.percentage = 5;
+param.percentage = 15;
 
 %------------------------------------------------------    
 %%---- Plot the random graph-------- 
@@ -122,11 +124,15 @@ errorTesting_Pol = sqrt(norm(TestSignal - Dictionary_Pol*CoefMatrix_Pol,'fro')^2
 disp(['The total representation error of the testing signals is: ',num2str(errorTesting_Pol)]);
 
 
-%% Generating the SampleSignal
+sum_kernels = sum(output_Pol.g_ker,2);
 
-% % % load SampleSignal.mat
-% % % SampleSignal = Dictionary_Pol*output_Pol.CoefMatrix;
-        
+%% Save results to file
+filename = 'Output_results';
+totalError = output_Pol.totalError;
+alpha_coeff = output_Pol.alpha;
+g_ker = output_Pol.g_ker;
+save(filename,'Dictionary_Pol','totalError','alpha_coeff', 'g_ker','CoefMatrix_Pol','errorTesting_Pol','TrainSignal','TestSignal','sum_kernels');
+
 
 
 

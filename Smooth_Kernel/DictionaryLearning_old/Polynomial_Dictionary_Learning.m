@@ -130,15 +130,16 @@ for iterNum = 1 : param.numIteration
                 r = sum(param.K(1:i)) + i;
             end
             
-              figure()
-              hold on
-              for s = 1 : param.S
-                  plot(lambda_sym,g_ker(:,s),num2str(color_matrix(s)));
-              end
-              hold off
+% % %               figure()
+% % %               hold on
+% % %               for s = 1 : param.S
+% % %                   plot(lambda_sym(2:length(lambda_sym)),g_ker(2:length(lambda_sym),s),num2str(color_matrix(s)));
+% % %               end
+% % %               hold off
         end
-
-      
+% % %         
+% % %         filename = strcat('Kernels','_e',num2str(param.epsilon*100));
+% % %         saveas(gcf,filename,'bmp');
        
         r = 0;
         for j = 1 : param.S
@@ -164,12 +165,15 @@ for iterNum = 1 : param.numIteration
 
 end
 
-              figure()
-              hold on
-              for s = 1 : param.S
-                  plot(lambda_sym,g_ker(:,s),num2str(color_matrix(s)));
-              end
-              hold off
+figure()
+hold on
+for s = 1 : param.S
+    plot(lambda_sym(2:length(lambda_sym)),g_ker(2:length(lambda_sym),s),num2str(color_matrix(s)));
+end
+hold off
+
+filename = strcat('Kernels','_e',num2str(param.epsilon*100));
+saveas(gcf,filename,'bmp');
 
 
 output.CoefMatrix = CoefMatrix;

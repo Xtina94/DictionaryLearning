@@ -191,10 +191,13 @@ figure()
 grid on
 hold on
 for s = 1 : param.S
-    plot(lambda_sym,g_ker(:,s),num2str(color_matrix(s)));
+    plot(lambda_sym(2:length(lambda_sym)),g_ker(2:length(lambda_sym),s),num2str(color_matrix(s)));
 end
 hold off
 grid off
+
+filename = strcat('Kernels','_e',num2str(param.epsilon*100),'_m',num2str(param.percentage));
+saveas(gcf,filename,'bmp');
 
 output.g_ker = g_ker;
 output.objective = objective;
