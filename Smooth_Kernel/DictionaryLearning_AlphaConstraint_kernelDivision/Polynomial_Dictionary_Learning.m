@@ -50,8 +50,6 @@ end
 %%----------------------------------------------------
 
 %% Obtaining the beta coefficients
-m = param.percentage;
-K = max(param.K);
 [param.beta_coefficients_low, param.beta_coefficients_high, param.rts_low, param.rts_high] = retrieve_betas(param);
 
 %% Set up the elements for the optimization problem
@@ -81,18 +79,18 @@ for iterNum = 1 : param.numIteration
        end
        K = max(param.K);
        
-       alpha_mx_low = zeros(K+1,param.S);
-       alpha_mx_high = zeros(K+1,param.S);
-       
-       for s_low = floor(param.S/2)+1 : param.S
-           alpha_mx_low(:,s_low) = alpha_low((s_low-1)*(K+1)+1:s_low*(K+1));
-       end
-       
-       for s_high = 1 : floor(param.S/2)
-           alpha_mx_high(:,s_high) = alpha_high((s_high-1)*(K+1)+1:s_high*(K+1));
-       end
+% % %        alpha_mx_low = zeros(K+1,param.S);
+% % %        alpha_mx_high = zeros(K+1,param.S);
+% % %        
+% % %        for s_low = floor(param.S/2) : param.S
+% % %            alpha_mx_low(:,s_low) = alpha_low((s_low-1)*(K+1)+1:s_low*(K+1));
+% % %        end
+% % %        
+% % %        for s_high = 1 : floor(param.S/2)
+% % %            alpha_mx_high(:,s_high) = alpha_high((s_high-1)*(K+1)+1:s_high*(K+1));
+% % %        end
 
-       alpha = [alpha_high, alpha_low];
+       alpha = [alpha_low alpha_high];
         if (param.plot_kernels == 1) 
             g_ker = zeros(param.N, param.S);
             r = 0;

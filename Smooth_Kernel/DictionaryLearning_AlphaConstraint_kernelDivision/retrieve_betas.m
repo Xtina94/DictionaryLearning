@@ -19,8 +19,8 @@ function [beta_coefficients_low, beta_coefficients_high, rts_low, rts_high] = re
     lambdas = param.lambda_sym;
     
     while img_dim_low >= m || img_dim_high >= m
-        rts_low =  lambdas(length(lambdas)-m+1:length(lambdas),1);
-        rts_high =  lambdas(1:m+1,1);        
+        rts_low = lambdas(length(lambdas)-m+1:length(lambdas),1);
+        rts_high = lambdas(1:m,1);        
         for i = 1:m+1
             for j = 1:m
                 vand_eig_low(j,i) = rts_low(j)^(i-1);
