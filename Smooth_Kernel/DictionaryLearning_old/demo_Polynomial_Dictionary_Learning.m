@@ -81,7 +81,7 @@ end
     
          
 %%---------------------------------------------------------
-param.InitializationMethod =  'Random_kernels';
+param.InitializationMethod =  'Heat_kernels';
 %%---- Polynomial Dictionary Learning Algorithm -----------
 %%---------------------------------------------------------
 % param.initial_dictionary = initial_dictionary;

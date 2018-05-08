@@ -1,4 +1,4 @@
-function alpha_coefficients = polynomial_construct(param)
+function alpha_coefficients = polynomial_construct_low(param)
 
 K = max(param.K);
 m = param.percentage;

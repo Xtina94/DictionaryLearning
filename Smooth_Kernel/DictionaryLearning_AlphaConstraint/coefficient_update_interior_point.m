@@ -21,17 +21,19 @@ q = sum(param.K)+S;
 K = max(param.K);
 Laplacian_powers = param.Laplacian_powers;
 Lambda = param.lambda_power_matrix;
-alpha = param.alpha_vector;
 thresh = param.percentage+5;
+
+%% Low part
 B1 = sparse(kron(eye(S),Lambda));
-B2 = kron(ones(1,S),Lambda);
-B2 = B2(1:param.N-thresh,:);
+B2 = kron(ones(1,S),Lambda(1:param.N-thresh,:));
 B3 = sparse(kron(eye(S),Lambda(1:param.N-thresh,:)));
+
+alpha = param.alpha_vector;
 
 Phi = zeros(S*(K+1),1);
 for i = 1 : N
          r = 0;
-        for s = 1 : S
+        for s = floor(S/2+1) : S
             for k = 0 : K
                 Phi(k + 1 + r,(i - 1)*size(Data,2) + 1 : i*size(Data,2)) = Laplacian_powers{k+1}(i,:)*CoefMatrix((s - 1)*N+1 : s*N,1 : end);
             end
@@ -74,4 +76,4 @@ end
 
 objective = double(X);
 
-alpha=double(alpha);
+alpha = double(alpha);

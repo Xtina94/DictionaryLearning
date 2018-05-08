@@ -17,7 +17,7 @@ function [beta_coefficients, rts] = retrieve_betas(param)
     lambdas = param.lambda_sym;
     
     while img_dim >= m
-        rts =  lambdas(length(lambdas)-m+1:length(lambdas),1);
+        rts =  lambdas(length(lambdas)-m+1:length(lambdas),1); 
         for i = 1:m+1
             for j = 1:m
                 vand_eig(j,i) = rts(j)^(i-1);
@@ -31,8 +31,7 @@ function [beta_coefficients, rts] = retrieve_betas(param)
     
     %% retrieving the kernel of the Vandermonde matrix
     
-    betas = null(vand_eig);
-    
+    betas = null(vand_eig);    
     i = 1;
     
     if betas(1,1) > 0

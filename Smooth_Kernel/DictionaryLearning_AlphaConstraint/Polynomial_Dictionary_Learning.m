@@ -79,7 +79,10 @@ color_matrix = ['b', 'r', 'g', 'c', 'm', 'k', 'y'];
 if (strcmp(param.InitializationMethod,'Random_kernels')) 
     Dictionary(:,1 : param.J) = initialize_dictionary(param);
 % % %     initial_dictionary_uber = Dictionary;
-    
+        
+elseif (strcmp(param.InitializationMethod,'Heat_kernels'))
+     Dictionary = param.generate_coefficients(param);
+     
 elseif (strcmp(param.InitializationMethod,'GivenMatrix'))
      Dictionary = param.initial_dictionary;
 else 
@@ -102,14 +105,14 @@ param.alpha_vector = polynomial_construct(param);
 
 %% Verify alpha goes to 0 for the roots of the polynomial
 
-vand_eig = zeros(m,param.S*(K+1));
-for s = 0:param.S-1
-    for i = 1:K+1
-        for j = 1:m
-            vand_eig(j,i+s*(K+1)) = param.rts(j)^(i-1);
-        end
-    end
-end
+% % % vand_eig = zeros(m,param.S*(K+1));
+% % % for s = 0:param.S-1
+% % %     for i = 1:K+1
+% % %         for j = 1:m
+% % %             vand_eig(j,i+s*(K+1)) = param.rts(j)^(i-1);
+% % %         end
+% % %     end
+% % % end
 
 % % % prova1 = double(vand_eig*param.alpha_vector);
 % % % gammaCoeff = rand(K-m+1,1);
@@ -136,9 +139,10 @@ for iterNum = 1 : param.numIteration
              alpha = coefficient_upadate_ADMM(Q1, Q2, B, h);
        end
        K = max(param.K);
+       
        alpha_mx = zeros(K+1,param.S);
        
-       for s = 1:param.S
+       for s = floor(param.S/2)+1 : param.S
            alpha_mx(:,s) = alpha((s-1)*(K+1)+1:s*(K+1));
        end
 
