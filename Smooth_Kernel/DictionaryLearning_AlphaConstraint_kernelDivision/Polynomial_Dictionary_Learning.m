@@ -53,9 +53,16 @@ end
 [param.beta_coefficients_low, param.beta_coefficients_high, param.rts_low, param.rts_high] = retrieve_betas(param);
 
 %% Set up the elements for the optimization problem
+n_low = 2;
+n_high = 2;
+K = max(param.K);
 
-param.alpha_vector_low = polynomial_construct_low(param);
-param.alpha_vector_high = polynomial_construct_high(param);
+for i = 1:n_low
+    param.alpha_vector_low((i-1)*(K+1)+1:i*(K+1),1) = polynomial_construct_low(param);
+end
+for i = 1:n_high
+    param.alpha_vector_high((i-1)*(K+1)+1:i*(K+1),1) = polynomial_construct_high(param);
+end
 
 for iterNum = 1 : param.numIteration
     
@@ -68,7 +75,7 @@ for iterNum = 1 : param.numIteration
            if (iterNum == 1)
             disp('solving the quadratic problem with YALMIP...')
            end
-            [alpha_low, alpha_high, objective_low, objective_high] = coefficient_update_interior_point(Y,CoefMatrix,param,'sdpt3');
+            [alpha, objective_low, objective_high] = coefficient_update_interior_point(Y,CoefMatrix,param,n_low,n_high,'sdpt3');
 % % %             alpha = alpha*1e4;
        else
            if (iterNum == 1)
@@ -77,7 +84,6 @@ for iterNum = 1 : param.numIteration
             [Q1,Q2, B, h] = compute_ADMM_entries(Y, param, Laplacian_powers, CoefMatrix);
              alpha = coefficient_upadate_ADMM(Q1, Q2, B, h);
        end
-       K = max(param.K);
        
 % % %        alpha_mx_low = zeros(K+1,param.S);
 % % %        alpha_mx_high = zeros(K+1,param.S);
@@ -90,7 +96,6 @@ for iterNum = 1 : param.numIteration
 % % %            alpha_mx_high(:,s_high) = alpha_high((s_high-1)*(K+1)+1:s_high*(K+1));
 % % %        end
 
-       alpha = [alpha_low alpha_high];
         if (param.plot_kernels == 1) 
             g_ker = zeros(param.N, param.S);
             r = 0;

@@ -42,7 +42,7 @@ param.K = 20.*number_sub;
 %param.K = [20 20 20 20]; % polynomial degree of each subdictionary
 param.T0 = 4; % sparsity level in the training phase
 param.c = 1; % spectral control parameters
-param.epsilon = 0.02; % we assume that epsilon_1 = epsilon_2 = epsilon
+param.epsilon = 0.5; % we assume that epsilon_1 = epsilon_2 = epsilon
 param.mu = 1e-2; % polynomial regularizer paremeter
 % param.initial_dictionary = initial_dictionary;
 
