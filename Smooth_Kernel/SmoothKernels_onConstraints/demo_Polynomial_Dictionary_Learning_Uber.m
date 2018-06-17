@@ -50,7 +50,7 @@ for j=1:param.N
      end
 end
     
-param.InitializationMethod =  'GivenMatrix';
+param.InitializationMethod =  'Random_kernels';
 param.initial_dictionary_uber = learned_dictionary;
 
 %% Polynomial Dictionary Learning Algorithm
@@ -70,7 +70,7 @@ disp(['The total representation error of the testing signals is: ',num2str(error
 sum_kernels = sum(output_Pol.g_ker,2);
 
 %% Save results to file
-filename = 'Output_results_Uber';
+filename = 'Output_results_Uber.mat';
 totalError = output_Pol.totalError;
 alpha_coeff = output_Pol.alpha;
 g_ker = output_Pol.g_ker;
