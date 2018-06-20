@@ -1,6 +1,6 @@
-function [recovered_Dictionary,output] = Polynomial_Dictionary_Learning(Y, param)
+function [recovered_Dictionary,output,g_ker] = Polynomial_Dictionary_Learning(Y, param)
 
-% Set Parameters
+% Set parameters
 
 lambda_sym = param.lambda_sym;
 lambda_powers = param.lambda_powers;
@@ -23,93 +23,85 @@ if (~isfield(param,'numIteration'))
 end
 
 if (~isfield(param,'InitializationMethod'))
-    %param.InitializationMethod = 'Random_kernels';
     param.InitializationMethod = 'Random_kernels';
 end
 
 color_matrix = ['b', 'r', 'g', 'c', 'm', 'k', 'y'];
  
-%%-----------------------------------------------
-%% Initializing the dictionary
-%%-----------------------------------------------
+% Initializing the dictionary
 
 if (strcmp(param.InitializationMethod,'Random_kernels')) 
     [Dictionary(:,1 : param.J)] = initialize_dictionary(param);
-    param.initialized_dictionary = Dictionary;
-       
+   
+    
 elseif (strcmp(param.InitializationMethod,'GivenMatrix'))
-     Dictionary = param.initial_dictionary_uber;
-% % %     Dictionary(:,1 : param.J) = param.initialDictionary(:,1 : param.J);  %initialize with a given initialization dictionary
+        Dictionary(:,1 : param.J) = param.initialDictionary(:,1 : param.J);  %initialize with a given initialization dictionary
 else 
     display('Initialization method is not valid')
 end
 
 
-%%----------------------------------------------------
-%%  Graph Dictionary Learning Algorithm
-%%----------------------------------------------------
+% Graph dictionary learning algorithm
 
 cpuTime = zeros(1,param.numIteration);
 for iterNum = 1 : param.numIteration
 
-    %sparse coding step
+    % OMP step
+      CoefMatrix = OMP_non_normalized_atoms(Dictionary,Y, param.T0);
     
-    CoefMatrix = OMP_non_normalized_atoms(Dictionary,Y, param.T0);
-    
-    %Dicitonary update step
-    
-    if (param.quadratic == 0)
-        if (iterNum == 1)
+    % Dicitonary update step
+          
+       if (param.quadratic == 0)
+           if (iterNum == 1)
             disp('solving the quadratic problem with YALMIP...')
-        end
-        [alpha, diagnostics] = coefficient_update_interior_point(Y,CoefMatrix,param,'sdpt3');
-        cpuTime(iterNum) = diagnostics.solveroutput.info.cputime;
-    else
-        if (iterNum == 1)
+           end
+            [alpha, diagnostics] = coefficient_update_interior_point(Y,CoefMatrix,param,'sdpt3');
+            cpuTime(iterNum) = diagnostics.solveroutput.info.cputime;
+       else
+           if (iterNum == 1)
             disp('solving the quadratic problem with ADMM...')
-        end
-        [Q1,Q2, B, h] = compute_ADMM_entries(Y, param, Laplacian_powers, CoefMatrix);
-        alpha = coefficient_upadate_ADMM(Q1, Q2, B, h);
-    end
+           end
+            [Q1,Q2, B, h] = compute_ADMM_entries(Y, param, Laplacian_powers, CoefMatrix);
+             alpha = coefficient_upadate_ADMM(Q1, Q2, B, h);
+       end
     
-    if (param.plot_kernels == 1) 
-        g_ker = zeros(param.N, param.S);
+        
+        if (param.plot_kernels == 1) 
+            g_ker = zeros(param.N, param.S);
+            r = 0;
+            for i = 1 : param.S
+                for n = 1 : param.N
+                p = 0;
+                for l = 0 : param.K(i)
+                    p = p +  alpha(l + 1 + r)*lambda_powers{n}(l + 1);
+                end
+                g_ker(n,i) = p;
+                end
+                r = sum(param.K(1:i)) + i;
+            end
+        end
         r = 0;
-        for i = 1 : param.S
-            for n = 1 : param.N
-            p = 0;
-            for l = 0 : param.K(i)
-                p = p +  alpha(l + 1 + r)*lambda_powers{n}(l + 1);
+        for j = 1 : param.S
+            D = zeros(param.N);
+            for ii = 0 : param.K(j)
+                D = D +  alpha(ii + 1 + r) * Laplacian_powers{ii + 1};
             end
-            g_ker(n,i) = p;
-            end
-            r = sum(param.K(1:i)) + i;
+            r = sum(param.K(1:j)) + j;
+            Dictionary(:,1 + (j - 1) * param.N : j * param.N) = D;
         end
-        param.kernel = g_ker;            
-    end
 
-    r = 0;
-    for j = 1 : param.S
-        D = zeros(param.N);
-        for ii = 0 : param.K(j)
-            D = D +  alpha(ii + 1 + r) * Laplacian_powers{ii + 1};
-        end
-        r = sum(param.K(1:j)) + j;
-        Dictionary(:,1 + (j - 1) * param.N : j * param.N) = D;
+    if (iterNum>1 && param.displayProgress)
+             output.totalError(iterNum - 1) = sqrt(sum(sum((Y-Dictionary * CoefMatrix).^2))/numel(Y));
+             disp(['Iteration   ',num2str(iterNum),'   Total error is: ',num2str(output.totalError(iterNum-1))]);
     end
     
-    if (iterNum>1 && param.displayProgress)
-        output.totalError(iterNum - 1) = sqrt(sum(sum((Y-Dictionary * CoefMatrix).^2))/numel(Y));
-        disp(['Iteration   ',num2str(iterNum),'   Total error is: ',num2str(output.totalError(iterNum-1))]);
-    end
+
 end
 
 output.cpuTime = cpuTime;
 output.CoefMatrix = CoefMatrix;
 output.alpha =  alpha;
-output.g_ker = g_ker;
 recovered_Dictionary = Dictionary;
-
 
 function Initial_Dictionary = initialize_dictionary(param)
 
@@ -185,7 +177,7 @@ for i = 1 : N
         end
 end
 
-YPhi = (Phi*(reshape(Y',1,[]))')';
+YPhi = (Phi*vec(Y'))';
 PhiPhiT = Phi*Phi';
 
 Q2 = YPhi;

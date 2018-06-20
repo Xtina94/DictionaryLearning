@@ -5,10 +5,10 @@ close all
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\Optimizers'); %Folder conatining the yalmip tools
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\Comparison_datasets\'); %Folder containing the copmarison datasets
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\'); %Folder containing the training and verification dataset
-path = 'C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DictionaryLearning\ThroughConstraints\Results\'; %Folder containing the results to save
+path = 'C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DictionaryLearning\AddingThirdKernel\Results\'; %Folder containing the results to save
 
 %% Loaging the required dataset
-flag = 3;
+flag = 1;
 switch flag
     case 1
         load ComparisonDorina.mat
@@ -25,7 +25,7 @@ end
 
 switch flag
     case 1 %Dorina
-        param.S = 4;  % number of subdictionaries 
+        param.S = 5;  % number of subdictionaries 
         param.epsilon = 0.02; % we assume that epsilon_1 = epsilon_2 = epsilon
         degree = 20;
         param.N = 100; % number of nodes in the graph
@@ -34,7 +34,7 @@ switch flag
         param.percentage = 15;
         param.thresh = param.percentage+60;
     case 2 %Cristina
-        param.S = 2;  % number of subdictionaries 
+        param.S = 3;  % number of subdictionaries 
         param.epsilon = 0.02; % we assume that epsilon_1 = epsilon_2 = epsilon
         degree = 15;
         param.N = 100; % number of nodes in the graph
@@ -43,7 +43,7 @@ switch flag
         param.percentage = 8;
         param.thresh = param.percentage+60;
     case 3 %Uber
-        param.S = 2;
+        param.S = 3;
         param.epsilon = 0.2; % we assume that epsilon_1 = epsilon_2 = epsilon
         degree = 15;
         param.N = 29; % number of nodes in the graph
@@ -83,7 +83,7 @@ end
 
 param.InitializationMethod =  'Random_kernels';
 param.displayProgress = 1;
-param.numIteration = 3;
+param.numIteration = 20;
 param.plot_kernels = 1; % plot thelearned polynomial kernels after each iteration
 param.quadratic = 0; % solve the quadratic program using interior point methods
 
@@ -98,9 +98,9 @@ disp(['The total representation error of the testing signals is: ',num2str(error
 %% Compute the l-2 norms
 
 lambda_norm = 'is 0 since here we are learning only the kernels'; %norm(comp_eigenVal - eigenVal);
-alpha_norm = norm(comp_alpha - output_Pol.alpha);
-X_norm = norm(comp_X - CoefMatrix_Pol);
-D_norm = norm(comp_D - Dictionary_Pol);
+alpha_norm = norm(comp_alpha - output_Pol.alpha(1:(param.S - 1)*(degree + 1)));
+X_norm = norm(comp_X - CoefMatrix_Pol(1:(param.S - 1)*param.N,:));
+D_norm = norm(comp_D - Dictionary_Pol(:,1:(param.S - 1)*param.N));
 W_norm = 'is 0 since here we are learning only the kernels';
 
 %% Compute the average CPU_time
@@ -122,7 +122,7 @@ save(filename,'ds','Dictionary_Pol','learned_alpha','CoefMatrix_Pol','errorTesti
 figure('Name','Final Kernels')
 hold on
 for s = 1 : param.S
-    plot(param.lambda_sym,param.kernel(:,s));
+    plot(param.lambda_sym,output_Pol.kernel(:,s));
 end
 hold off
 

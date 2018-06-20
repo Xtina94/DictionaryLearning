@@ -1,8 +1,7 @@
 function [recovered_Dictionary,output] = Polynomial_Dictionary_Learning(Y, param)
 
+path = 'C:\Users\Cristina\Documents\GitHub\OrganizedFiles\Graph&DictLearning\AddingThirdKernel\Results\'; %Folder containing the results to save
 % Set Parameters
-
-lambda_sym = param.lambda_sym;
 lambda_powers = param.lambda_powers;
 Laplacian_powers = param.Laplacian_powers;
 
@@ -26,8 +25,6 @@ if (~isfield(param,'InitializationMethod'))
     %param.InitializationMethod = 'Random_kernels';
     param.InitializationMethod = 'Random_kernels';
 end
-
-color_matrix = ['b', 'r', 'g', 'c', 'm', 'k', 'y'];
  
 %%-----------------------------------------------
 %% Initializing the dictionary
@@ -41,7 +38,7 @@ elseif (strcmp(param.InitializationMethod,'GivenMatrix'))
      Dictionary = param.initial_dictionary_uber;
 % % %     Dictionary(:,1 : param.J) = param.initialDictionary(:,1 : param.J);  %initialize with a given initialization dictionary
 else 
-    display('Initialization method is not valid')
+    disp('Initialization method is not valid');
 end
 
 
@@ -51,7 +48,9 @@ end
 
 cpuTime = zeros(1,param.numIteration);
 for iterNum = 1 : param.numIteration
-
+    
+    param.big_epoch = iterNum;
+    
     %sparse coding step
     
     CoefMatrix = OMP_non_normalized_atoms(Dictionary,Y, param.T0);
@@ -62,8 +61,8 @@ for iterNum = 1 : param.numIteration
         if (iterNum == 1)
             disp('solving the quadratic problem with YALMIP...')
         end
-        [alpha, diagnostics] = coefficient_update_interior_point(Y,CoefMatrix,param,'sdpt3');
-        cpuTime(iterNum) = diagnostics.solveroutput.info.cputime;
+        [alpha, cpuTm] = coefficient_update_interior_point(Y,CoefMatrix,param,'sdpt3');
+        cpuTime(iterNum) = cpuTm;
     else
         if (iterNum == 1)
             disp('solving the quadratic problem with ADMM...')
@@ -85,8 +84,25 @@ for iterNum = 1 : param.numIteration
             end
             r = sum(param.K(1:i)) + i;
         end
-        param.kernel = g_ker;            
+        output.kernel = g_ker;            
     end
+    
+    % Save the representation of the learned kernels without constraints
+    % yet
+    
+    if iterNum == 6
+        figure('Name','Kernels learned without constraints')
+        hold on
+        for s = 1 : param.S
+            plot(param.lambda_sym,output.kernel(:,s));
+        end
+        hold off
+        
+        filename = [path,'Intermediate_kernel_plot.png'];
+        saveas(gcf,filename);
+    end
+    
+    %% Construct the new dictionary
 
     r = 0;
     for j = 1 : param.S
