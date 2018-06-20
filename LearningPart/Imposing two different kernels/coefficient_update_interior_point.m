@@ -68,15 +68,15 @@ X = norm(Data,'fro')^2 - 2*YPhi*alpha + alpha'*(PhiPhiT + mu*eye(size(PhiPhiT,2)
 
 for i = 1:param.S
     sub_alpha(:,i) = alpha((i-1)*(param.K+1)+1:i*(param.K+1),1);
-    if mod(i,2) ==  0% supposing a HF kernel
-        B3{i} = kron(eye(1),Lambda(1:param.percentage,:));
-        B1{i} = kron(eye(1),Lambda(size(Lambda,1) - thresh + 1:size(Lambda,1),:));
-        B2{i} = kron(ones(1),Lambda(size(Lambda,1)- thresh + 1:size(Lambda,1),:));
-    else % and a LF one
+% % %     if mod(i,2) ==  0% supposing a HF kernel
+% % %         B3{i} = kron(eye(1),Lambda(1:param.percentage,:));
+% % %         B1{i} = kron(eye(1),Lambda(size(Lambda,1) - thresh + 1:size(Lambda,1),:));
+% % %         B2{i} = kron(ones(1),Lambda(size(Lambda,1)- thresh + 1:size(Lambda,1),:));
+% % %     else % and a LF one
         B3{i} = kron(eye(1),Lambda(size(Lambda,1)-param.percentage+1:size(Lambda,1),:));
         B1{i} = kron(eye(1),Lambda(1:thresh,:));
         B2{i} = kron(ones(1),Lambda(1:thresh,:));
-    end
+% % %     end
     l3(i) = length(B3{i}*sub_alpha(:,i));
     l1(i) = length(B1{i}*sub_alpha(:,i));
     l2(i) = length(B2{i}*sub_alpha(:,i));

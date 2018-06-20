@@ -11,32 +11,61 @@
 % Available at:  http://arxiv.org/pdf/1401.0887.pdf
 
 close all
+clear all
+
 load learned_dictionary_uber.mat
-load UberData.mat
+param.flag = 2;
+switch param.flag
+    case 1 %Uber data
+        load UberData.mat
+        param.N = size(X,1); % number of nodes in the graph
+        param.S = 2;  % number of subdictionaries
+        param.J = param.N * param.S; % total number of atoms
+        number_sub = ones(1,param.S);
+        param.K = 15.*number_sub;
+        param.T0 = 4; % sparsity level in the training phase
+        param.c = 1; % spectral control parameters
+        param.epsilon = 0.05; % we assume that epsilon_1 = epsilon_2 = epsilon
+        param.mu = 1e-2; % polynomial regularizer paremeter
+        
+        param.percentage = 9;
+        param.signal = X(:,1:90);
+        TrainSignal = param.signal;
+        TestSignal = X(:,91:size(X,2));
+        
+        % Compute the Laplacian and the normalized Laplacian operator
+        
+        W = learned_W;
+        L = diag(sum(W,2)) - W; % combinatorial Laplacian
+        param.Laplacian = (diag(sum(W,2)))^(-1/2)*L*(diag(sum(W,2)))^(-1/2); % normalized Laplacian
+        [param.eigenMat, param.eigenVal] = eig(param.Laplacian); % eigendecomposition of the normalized Laplacian
+        [param.lambda_sym,index_sym] = sort(diag(param.eigenVal)); % sort the eigenvalues of the normalized Laplacian in descending order
 
-param.N = size(X,1); % number of nodes in the graph
-param.S = 2;  % number of subdictionaries 
-param.J = param.N * param.S; % total number of atoms 
-number_sub = ones(1,param.S);
-param.K = 15.*number_sub;
-param.T0 = 4; % sparsity level in the training phase
-param.c = 1; % spectral control parameters
-param.epsilon = 0.05; % we assume that epsilon_1 = epsilon_2 = epsilon
-param.mu = 1e-2; % polynomial regularizer paremeter
-
-param.percentage = 9;
-param.signal = X(:,1:80);
-TrainSignal = param.signal;
-TestSignal = X(:,81:size(X,2));
-
-%% Compute the Laplacian and the normalized Laplacian operator 
-
-W = learned_W;
-L = diag(sum(W,2)) - W; % combinatorial Laplacian
-param.Laplacian = (diag(sum(W,2)))^(-1/2)*L*(diag(sum(W,2)))^(-1/2); % normalized Laplacian
-[param.eigenMat, param.eigenVal] = eig(param.Laplacian); % eigendecomposition of the normalized Laplacian
-[param.lambda_sym,index_sym] = sort(diag(param.eigenVal)); % sort the eigenvalues of the normalized Laplacian in descending order
-
+    case 2
+        load TikData.mat
+        X = X_smooth;
+        param.N = size(X,1); % number of nodes in the graph
+        param.S = 2;  % number of subdictionaries
+        param.J = param.N * param.S; % total number of atoms
+        number_sub = ones(1,param.S);
+        param.K = 15.*number_sub;
+        param.T0 = 4; % sparsity level in the training phase
+        param.c = 1; % spectral control parameters
+        param.epsilon = 0.5; % we assume that epsilon_1 = epsilon_2 = epsilon
+        param.mu = 1e-2; % polynomial regularizer paremeter
+        
+        param.percentage = 9;
+        param.signal = X(:,1:900);
+        TrainSignal = param.signal;
+        TestSignal = X(:,901:size(X,2));
+        
+         %% Compute the Laplacian and the normalized Laplacian operator
+        param.Laplacian = Laplacian;
+        param.eigenMat = eigenVect;
+        param.eigenVal = eigenVal; % eigendecomposition of the normalized Laplacian
+        [param.lambda_sym,index_sym] = sort(diag(param.eigenVal)); % sort the eigenvalues of the normalized Laplacian in descending order
+        
+end
 %% Precompute the powers of the Laplacian
 
 for k = 0 : max(param.K)
@@ -64,18 +93,27 @@ disp('Starting to train the dictionary');
 
 [Dictionary_Pol, output_Pol]  = Polynomial_Dictionary_Learning(TrainSignal, param);
 
-CoefMatrix_Pol = OMP_non_normalized_atoms(Dictionary_Pol,TestSignal(1:29,:), param.T0);
-errorTesting_Pol = sqrt(norm(TestSignal(1:29,:) - Dictionary_Pol*CoefMatrix_Pol,'fro')^2/size(TestSignal,2));
+CoefMatrix_Pol = OMP_non_normalized_atoms(Dictionary_Pol,TestSignal, param.T0);
+errorTesting_Pol = sqrt(norm(TestSignal - Dictionary_Pol*CoefMatrix_Pol,'fro')^2/size(TestSignal,2));
 disp(['The total representation error of the testing signals is: ',num2str(errorTesting_Pol)]);
 sum_kernels = sum(output_Pol.g_ker,2);
 
 %% Save results to file
-filename = 'Output_results_Uber.mat';
-totalError = output_Pol.totalError;
-alpha_coeff = output_Pol.alpha;
-g_ker = output_Pol.g_ker;
-save(filename,'Dictionary_Pol','totalError','alpha_coeff', 'g_ker','CoefMatrix_Pol','errorTesting_Pol','TrainSignal','TestSignal','sum_kernels');
 
+switch param.flag
+    case 1 %Uber
+        filename = 'Output_results_Uber.mat';
+        totalError = output_Pol.totalError;
+        alpha_coeff = output_Pol.alpha;
+        g_ker = output_Pol.g_ker;
+        save(filename,'Dictionary_Pol','totalError','alpha_coeff', 'g_ker','CoefMatrix_Pol','errorTesting_Pol','TrainSignal','TestSignal','sum_kernels');
+    case 2 %Tikhonov
+        filename = 'Output_results_TikData.mat';
+        totalError = output_Pol.totalError;
+        alpha_coeff = output_Pol.alpha;
+        g_ker = output_Pol.g_ker;
+        save(filename,'Dictionary_Pol','totalError','alpha_coeff', 'g_ker','CoefMatrix_Pol','errorTesting_Pol','TrainSignal','TestSignal','sum_kernels');
+end
 % filename2 = strcat('m',num2str(param.percentage),'_e',num2str(param.epsilon*100),'_thr53.pdf');
 % fileID = fopen(filename2,'w');
 % fprintf(fileID,num2str(errorTesting_Pol));

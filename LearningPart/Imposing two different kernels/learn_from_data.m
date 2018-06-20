@@ -2,11 +2,12 @@ clear all
 close all
 addpath(genpath(pwd))
 path = 'C:\Users\Cristina\Documents\GitHub\DictionaryLearning\LearningPart\Imposing two different kernels\Results\';
+addpath('C:\Users\Cristina\Documents\GitHub\DictionaryLearning\LearningPart\Imposing two different kernels\DataSets');
 
 % load data in variable X here (it should be a matrix #nodes x #signals)
-for repetitions = 1:4 
+for repetitions = 1:1
     attempt_n = repetitions;
-    flag = 2;
+    flag = 1;
     switch flag
         case 1
             % For synthetic data
@@ -15,6 +16,8 @@ for repetitions = 1:4
             param.K = [20 20]; % polynomial degree of each subdictionary
             param.percentage = 12;
             param.epsilon = 0.55; %0.02; % we assume that epsilon_1 = epsilon_2 = epsilon
+            L = diag(sum(W,2)) - W; % combinatorial Laplacian
+            true_Laplacian = (diag(sum(W,2)))^(-1/2)*L*(diag(sum(W,2)))^(-1/2); % normalized Laplacian
         case 2
             % For Uber
             param.S = 2;  % number of subdictionaries
@@ -32,14 +35,22 @@ for repetitions = 1:4
             L = diag(sum(learned_W,2)) - learned_W; % combinatorial Laplacian
             true_Laplacian = (diag(sum(learned_W,2)))^(-1/2)*L*(diag(sum(learned_W,2)))^(-1/2); % normalized Laplacian
         case 3
-            % For Tikhonov regularization synthetic data
-            load TikData.mat
-            TestSignal = X_smooth(:,901:1000);
-            TrainSignal = X_smooth(:,1:900);
+            load DataSet_kernels_LF.mat
+            TestSignal = Y(:,901:1000);
+            TrainSignal = Y(:,1:900);
             param.S = 2;  % number of subdictionaries
             param.K = [15 15]; % polynomial degree of each subdictionary
             param.percentage = 8;
-            param.epsilon = 0.2; %0.02; % we assume that epsilon_1 = epsilon_2 = epsilon
+            param.epsilon = 0.55; %0.02; % we assume that epsilon_1 = epsilon_2 = epsilon
+            
+            L = diag(sum(W,2)) - W; % combinatorial Laplacian
+            true_Laplacian = (diag(sum(W,2)))^(-1/2)*L*(diag(sum(W,2)))^(-1/2); % normalized Laplacian
+     
+            load Comparison_values_LF_v2.mat
+            reference_kernels = alpha;
+            reference_sparsity = X;
+            reference_D = my_D;
+            reference_W = W;
         case 4
             % For heat regularization synthetic data
             load HeatData.mat
@@ -174,15 +185,6 @@ for repetitions = 1:4
     fullfile = [path,filename];
     saveas(gcf,fullfile,'png');
 
-    filename = strcat('Uber_FinalKernels','_e',num2str(param.epsilon*100),'_m',num2str(param.percentage),'_epoch',num2str(big_epoch));
-    fullfile = [path,filename];
-    saveas(gcf,fullfile,'png');
-
-
-    filename = strcat('Uber_KernelsBehavior','_e',num2str(param.epsilon*100),'_m',num2str(param.percentage),'_epoch',num2str(big_epoch));
-    fullfile = [path,filename];
-    saveas(gcf,fullfile,'png')
-
     CoefMatrix_Pol = OMP_non_normalized_atoms(learned_dictionary,TestSignal, param.T0);
     errorTesting_Pol = sqrt(norm(TestSignal - learned_dictionary*CoefMatrix_Pol,'fro')^2/size(TestSignal,2));
     disp(['The total representation error of the testing signals is: ',num2str(errorTesting_Pol)]);
@@ -196,7 +198,7 @@ for repetitions = 1:4
     final_W = learned_W.*(final_Laplacian~=0);
 
     %% Save results to file
-    filename = 'Output_results_Uber';
+    filename = [path,'Output_results_attempt',num2str(attempt_n)];
     alpha_coeff = zeros(K+1,2);
     for i = 1:param.S
         alpha_coeff(:,i) = param.alpha{i};
@@ -210,6 +212,6 @@ for repetitions = 1:4
 
     learned_Laplacian = param.Laplacian;
     [optPrec, optRec, opt_Lapl] = precisionRecall(true_Laplacian, learned_Laplacian);
-    filename = strcat(path,'ouput_PrecisionRecall',num2str(attempt_n),'.mat');
+    filename = strcat(path,'ouput_PrecisionRecall_attempt',num2str(attempt_n),'.mat');
     save(filename,'opt_Lapl','optPrec','optRec','errorTesting_Pol');
 end

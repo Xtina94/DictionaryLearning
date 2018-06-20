@@ -25,9 +25,15 @@ alpha = sdpvar(q,1);
 K = max(param.K);
 Laplacian_powers = param.Laplacian_powers;
 Lambda = param.lambda_power_matrix;
-param.thresh = param.percentage+3;
-thresh = param.thresh;
 
+switch param.flag
+    case 1
+        param.thresh = param.percentage+3;
+        thresh = param.thresh;      
+    case 2
+        param.thresh = param.percentage+85;
+        thresh = param.thresh; 
+end
 B1 = sparse(kron(eye(S),Lambda(1:size(Lambda,1)-thresh,:)));
 B2 = kron(ones(1,S),Lambda(1:size(Lambda,1)- thresh,:));
 B3 = sparse(kron(eye(S),Lambda(size(Lambda,1)-param.percentage+1:size(Lambda,1),:)));
