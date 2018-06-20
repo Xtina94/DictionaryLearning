@@ -13,16 +13,19 @@
 clear all
 close all
 
-load testdata.mat
+% load testdata.mat
+load DataSet_kernels.mat
+TestSignal = Y(:,1:400);
+TrainSignal = Y(:,401:1000);
 
 %------------------------------------------------------    
 %%---- Set the paremeters-------- 
 %------------------------------------------------------
 
 param.N = 100; % number of nodes in the graph
-param.S = 4;  % number of subdictionaries 
+param.S = 2;  % number of subdictionaries 
 param.J = param.N * param.S; % total number of atoms 
-param.K = [20 20 20 20]; % polynomial degree of each subdictionary
+param.K = [15 15]; % polynomial degree of each subdictionary
 param.T0 = 4; % sparsity level in the training phase
 param.c = 1; % spectral control parameters
 param.epsilon = 0.02; % we assume that epsilon_1 = epsilon_2 = epsilon
@@ -32,8 +35,8 @@ param.mu = 1e-2; % polynomial regularizer paremeter
 %------------------------------------------------------    
 %%---- Plot the random graph-------- 
 %------------------------------------------------------
-figure()   
-gplot(A,[XCoords YCoords])
+% figure()   
+% gplot(A,[XCoords YCoords])
 
 %------------------------------------------------------------  
 %%- Compute the Laplacian and the normalized Laplacian operator 
@@ -65,7 +68,7 @@ end
 %%---------------------------------------------------------
 param.InitializationMethod =  'Random_kernels';
 param.displayProgress = 1;
-param.numIteration = 25;
+param.numIteration = 8;
 param.plot_kernels = 1; % plot thelearned polynomial kernels after each iteration
 param.quadratic = 0; % solve the quadratic program using interior point methods
 
