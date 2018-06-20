@@ -1,24 +1,5 @@
 function [alpha, my_max, cpuTime] = coefficient_update_interior_point(Data,CoefMatrix,param,sdpsolver,big_epoch,my_max,flag)
 
-switch flag 
-    case 1
-        % For sinthetic data 
-        param.thresh = param.percentage + 65;
-    case 2
-        % For Uber data
-        param.thresh = param.percentage + 10;
-    case 3
-        % For Tikhonov regularized data
-        param.thresh = param.percentage + 65;
-    case 4
-        % For Heat regularized data
-        param.thresh = param.percentage + 65;
-    case 5
-        % For Taylor approx kernel data
-        param.thresh = param.percentage + 65;
-end
-
-
 N = param.N;
 c = param.c;
 epsilon = param.epsilon;
@@ -133,16 +114,16 @@ end
 %---------------------------------------------------------------------
 
 if strcmp(sdpsolver,'sedumi')
-    solvesdp(F,X,sdpsettings('solver','sedumi','sedumi.eps',0,'sedumi.maxiter',200))
+    diagnostics = optimize(F,X,sdpsettings('solver','sedumi','sedumi.eps',0,'sedumi.maxiter',200));
 elseif strcmp(sdpsolver,'sdpt3')
-    solvesdp(F,X,sdpsettings('solver','sdpt3'));
+    diagnostics = optimize(F,X,sdpsettings('solver','sdpt3'));
     elseif strcmp(sdpsolver,'mosek')
-    solvesdp(F,X,sdpsettings('solver','mosek'));
+    diagnostics = optimize(F,X,sdpsettings('solver','mosek'));
     %sdpt3;
 else
     error('??? unknown solver');
 end
 
 double(X);
-
-alpha=double(alpha);
+cpuTime = diagnostics.solveroutput.info.cputime;
+alpha = double(alpha);
