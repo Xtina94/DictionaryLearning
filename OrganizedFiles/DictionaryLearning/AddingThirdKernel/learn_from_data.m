@@ -144,7 +144,7 @@ for attempt_index = 1:attempt_n
         else
             % Set up the elements for the optimization problem
             %Optimize with regard to alpha
-            [temp_alpha, my_max] = coefficient_update_interior_point(param.y,x,param,'sdpt3',big_epoch,my_max,flag);
+            [temp_alpha, my_max] = coefficient_update_interior_point(param.y,x,param,'sdpt3');
             for j = 1:param.S
                 param.alpha{j} = temp_alpha((j-1)*(K+1)+1:j*(K+1))';
             end

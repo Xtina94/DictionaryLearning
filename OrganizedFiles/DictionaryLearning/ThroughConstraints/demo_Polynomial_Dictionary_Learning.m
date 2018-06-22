@@ -8,7 +8,7 @@ addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\'); %Folder 
 path = 'C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DictionaryLearning\ThroughConstraints\Results\'; %Folder containing the results to save
 
 %% Loaging the required dataset
-flag = 3;
+flag = 1;
 switch flag
     case 1
         load ComparisonDorina.mat
@@ -26,13 +26,13 @@ end
 switch flag
     case 1 %Dorina
         param.S = 4;  % number of subdictionaries 
-        param.epsilon = 0.02; % we assume that epsilon_1 = epsilon_2 = epsilon
+        param.epsilon = 0.05; % we assume that epsilon_1 = epsilon_2 = epsilon
         degree = 20;
         param.N = 100; % number of nodes in the graph
         ds = 'Dataset used: Synthetic data from Dorina';
         ds_name = 'Dorina';
         param.percentage = 15;
-        param.thresh = param.percentage+60;
+        param.thresh = param.percentage+65;
     case 2 %Cristina
         param.S = 2;  % number of subdictionaries 
         param.epsilon = 0.02; % we assume that epsilon_1 = epsilon_2 = epsilon
@@ -122,7 +122,7 @@ save(filename,'ds','Dictionary_Pol','learned_alpha','CoefMatrix_Pol','errorTesti
 figure('Name','Final Kernels')
 hold on
 for s = 1 : param.S
-    plot(param.lambda_sym,param.kernel(:,s));
+    plot(param.lambda_sym,output_Pol.g_ker(:,s));
 end
 hold off
 

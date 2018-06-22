@@ -8,7 +8,7 @@ addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\'); %Folder 
 path = 'C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DictionaryLearning\AddingThirdKernel\Results\'; %Folder containing the results to save
 
 %% Loaging the required dataset
-flag = 1;
+flag = 3;
 switch flag
     case 1
         load ComparisonDorina.mat
