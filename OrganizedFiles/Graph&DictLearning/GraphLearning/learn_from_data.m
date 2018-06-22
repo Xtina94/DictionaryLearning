@@ -6,9 +6,10 @@ close all
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\Optimizers'); %Folder conatining the yalmip tools
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\Comparison_datasets\'); %Folder containing the copmarison datasets
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\'); %Folder containing the training and verification dataset
+addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\GeneratingKernels\Results'); %Folder conatining the heat kernel coefficietns
 path = 'C:\Users\Cristina\Documents\GitHub\OrganizedFiles\Graph&DictLearning\GraphLearning\Results\'; %Folder containing the results to save
 
-flag = 1;
+flag = 4;
 switch flag
     case 1 %Dorina
         load DataSetDorina.mat
@@ -19,6 +20,10 @@ switch flag
     case 3 %Cristina
         load DatasetLF.mat
         load ComparisonLF.mat;
+    case 4 %1 Heat kernel
+        load DataSetHeat.mat;
+        load ComparisonHeat.mat;
+        load LF_heatKernel.mat;
 end
 
 switch flag
@@ -54,6 +59,16 @@ switch flag
         ds_name = 'Uber';
         param.percentage = 8;
         param.thresh = param.percentage+6;
+    case 4 %Heat kernel
+        Y = TrainSignal;
+        K = 15;
+        param.S = 1;  % number of subdictionaries 
+        param.epsilon = 0.2; % we assume that epsilon_1 = epsilon_2 = epsilon
+        param.N = 100; % number of nodes in the graph
+        ds = 'Dataset used: data from Heat kernel';
+        ds_name = 'Heat';
+        param.percentage = 8;
+        param.thresh = param.percentage+6;
 end
 
 param.N = size(Y,1); % number of nodes in the graph
@@ -66,28 +81,42 @@ param.y = Y; %signals
 param.y_size = size(param.y,2);
 param.T0 = 4; %sparsity level (# of atoms in each signals representation)
 
-%% generate dictionary polynomial coefficients from heat kernel
+%% generate dictionary polynomial coefficients from heat kernel if I don't already have them
 
-for i = 1:param.S
-    if mod(i,2) ~= 0
-        param.t(i) = 2; %heat kernel coefficients
-    else
-        param.t(i) = 1; % Inverse of the heat kernel coefficients
+if flag == 4
+    param.alpha = LF_heatKernel;
+else
+    for i = 1:param.S
+        if mod(i,2) ~= 0
+            param.t(i) = 2; %heat kernel coefficients
+        else
+            param.t(i) = 1; %Inverse of the heat kernel coefficients
+        end
+    end
+    param.alpha = generate_coefficients(param);
+    disp(param.alpha);
+    
+    for i = 1:param.S
+        param.alpha{i} = comp_alpha((i-1)*(K+1) + 1:i*(K+1),1);
     end
 end
-param.alpha = generate_coefficients(param);
-disp(param.alpha);
 
-for i = 1:param.S
-    param.alpha{i} = comp_alpha((i-1)*(K+1) + 1:i*(K+1),1);
+%% Initialise W: 
+%  Since my synthetic signal has a W generate from geometric gaussian distribution, I initialize it in the same way
+
+uniform_values = unifrnd(0,1,[1,param.N]);
+sigma = 0.2;
+if flag == 4
+    [initial_W,L] = random_geometric(sigma,param.N,uniform_values,0.6);
+    param.Laplacian = L;
+else
+    [param.Laplacian, initial_W] = init_by_weight(param.N);
 end
 
-%% initialise learned data: in our case we start from learning alphas so we initialize the dictionary
-[param.Laplacian, initial_W] = init_by_weight(param.N);
 [initial_dictionary, param] = construct_dict(param); %Saved laplacian powers and lambda powers here
 grad_desc = 2; %gradient descent parameter, it decreases with epochs
 
-for big_epoch = 1:5      
+for big_epoch = 1:10      
     if big_epoch == 1
         learned_dictionary = initial_dictionary;
         learned_W = initial_W;
@@ -96,21 +125,19 @@ for big_epoch = 1:5
     %% optimise with regard to x
     disp(['Epoch... ',num2str(big_epoch)]);
     X = OMP_non_normalized_atoms(learned_dictionary,param.y, param.T0);
-    
-    %% optimize with regard to alphas
-    if mod(big_epoch,2) ~= 0
+% % %     X = comp_train_X;
+
     %% optimise with regard to W
-        maxEpoch = 1; %number of graph updating steps before updating sparse codes (x) again
-        beta = 10^(-2); %graph sparsity penalty
-        old_L = param.Laplacian;
-        [param.Laplacian, learned_W] = update_graph(X, grad_desc, beta, maxEpoch, param, learned_dictionary, learned_W);
-        [learned_dictionary, param] = construct_dict(param);
-        grad_desc = grad_desc*0.985; %gradient descent decreasing
-    end
+    maxEpoch = 1; %number of graph updating steps before updating sparse codes (x) again
+    beta = 10^(-2); %graph sparsity penalty
+    old_L = param.Laplacian;
+    [param.Laplacian, learned_W] = update_graph(X, grad_desc, beta, maxEpoch, param, learned_dictionary, learned_W);
+    [learned_dictionary, param] = construct_dict(param);
+    grad_desc = grad_desc*0.985; %gradient descent decreasing
 end
 
 %% At the end of the cycle I have:
-% param.alpha --> the learned coefficients;
+% param.alpha --> the original coefficients;
 % X           --> the learned sparsity mx;
 % learned_W   --> the learned W from the old D and alpha coeff;
 % learned_dictionary --> the learned final dictionary;
@@ -119,13 +146,14 @@ end
 %% Estimate the final reproduction error
 
 X = OMP_non_normalized_atoms(learned_dictionary,TestSignal, param.T0);
+% % % X = comp_X;
 errorTesting_Pol = sqrt(norm(TestSignal - learned_dictionary*X,'fro')^2/size(TestSignal,2));
 disp(['The total representation error of the testing signals is: ',num2str(errorTesting_Pol)]);
 
 %%
 %constructed graph needs to be tresholded, otherwise it's too dense
 %fix the number of desired edges here at nedges
-nedges = 4*29;
+nedges = 4*param.N;
 final_Laplacian = treshold_by_edge_number(param.Laplacian, nedges);
 final_W = learned_W.*(final_Laplacian~=0);
 
@@ -136,18 +164,20 @@ final_W = learned_W.*(final_Laplacian~=0);
 
 %% Compute the l-2 norms
 
-lambda_norm = norm(comp_eigenVal - param.lambda_sym);
-alpha_norm = '0 since the alphas do not change here'; %norm(comp_alpha - param.alpha);
+% % % lambda_norm = norm(comp_eigenVal - param.lambda_sym);
+% % % alpha_norm = '0 since the alphas do not change here'; %norm(comp_alpha - param.alpha);
 X_norm = norm(comp_X - X);
-D_norm = norm(comp_D - learned_dictionary);
-W_norm = norm(comp_W - learned_W);
-W_norm_thr = norm(comp_W - final_W); %The thresholded adjacency matrix
+% % % D_norm = norm(comp_D - learned_dictionary);
+W_norm_FRO = sqrt(norm(comp_W - learned_W,'fro')^2/size(comp_W,2)); %Frobenius norm
+W_norm_thr_FRO = sqrt(norm(comp_W - final_W,'fro')^2/size(comp_W,2)); %Frobenius norm of the thresholded adjacency matrix
+W_norm = norm(comp_W - learned_W); %Normal norm
+W_norm_thr = norm(comp_W - final_W); %Normal norm of the thresholded adjacency matrix
 
 %% Save the results to file
 
 % The norms
 filename = [path,'Norms.mat'];
-save(filename,'lambda_norm','alpha_norm','X_norm','D_norm','W_norm');
+save(filename,'W_norm_thr','W_norm','W_norm_FRO','W_norm_thr_FRO','X_norm');
 
 % The Output data
 filename = [path,'Output.mat'];

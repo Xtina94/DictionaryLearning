@@ -1,25 +1,33 @@
 clear all
 close all
-path = 'C:\Users\Cristina\Documents\GitHub\OrganizedFiles\GeneratingKernels\Results\';
-addpath(path);
+addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\GeneratingKernels\Results\');
+path = 'C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\';
 
-flag = 1;
+flag = 3;
 switch flag
     case 1
         load '2LF_kernels.mat'
         alpha_1 = alpha_2;
         alpha_2 = alpha_5;
         kernels_type = 'LF';
+        n_kernels = 2;
+        k = 15; %polynomial degree
     case 2
         load '2HF_kernels.mat'
         load 'Output_results.mat'
         alpha_1 = alpha_coeff(:,1);
         alpha_2 = alpha_coeff(:,2);
         kernels_type = 'HF';
+        n_kernels = 2;
+        k = 15; %polynomial degree
+    case 3
+        load 'LF_heatKernel.mat'
+        alpha_1 = LF_heatKernel;
+        kernels_type = 'Heat';
+        n_kernels = 1;
+        k = 15; %polynomial degree
 end
 
-n_kernels = 2;
-k = 15; %polynomial degree
 comp_alpha = zeros(k+1,n_kernels);
 for i = 1:n_kernels
     comp_alpha(:,i) = eval(strcat('alpha_',num2str(i)));
@@ -62,7 +70,7 @@ end
 %% Generate the sparsity matrix
 
 t0 = n_kernels;
-X = generate_sparsity(t0,m,l);
+X = Generate_sparsity(t0,m,l);
 
 temp = comp_alpha(:,1);
 for i = 2:n_kernels
@@ -75,10 +83,13 @@ Y = comp_D*X;
 TestSignal = Y(:,1:400);
 TrainSignal = Y(:,401:1000);
 comp_X = X(:,601:1000);
+comp_train_X = X(:,1:600);
 filename = strcat(path,'DataSet',num2str(kernels_type),'.mat');
 save(filename,'TestSignal','TrainSignal','W');
 
 comp_W = W;
 
-filename = strcat(path,'ComparisonLF.mat');
-save(filename,'comp_alpha','comp_D','comp_X','comp_W','comp_eigenVal');
+%% Save the results to file
+
+filename = strcat(path,'Comparison_datasets\Comparison',num2str(kernels_type),'.mat');
+save(filename,'comp_alpha','comp_D','comp_X','comp_train_X','comp_W','comp_eigenVal');

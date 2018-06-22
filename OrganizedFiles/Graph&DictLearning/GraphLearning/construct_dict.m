@@ -1,6 +1,6 @@
 function [ learned_dictionary, param ] = construct_dict( param )
-%construct dictionary and save Laplacian powers
-for k=0 : max(param.K)
+    %construct dictionary and save Laplacian powers
+    for k=0 : max(param.K)
         param.Laplacian_powers{k + 1} = param.Laplacian^k;
     end
 
@@ -9,8 +9,8 @@ for k=0 : max(param.K)
     end
 
     for k = 1 : max(param.K)+1
-        for i=1:param.S
-            learned_dict{i} = learned_dict{i} + param.alpha{i}(k)*param.Laplacian_powers{k};
+        for i = 1:param.S
+            learned_dict{i} = learned_dict{i} + param.alpha(k,i)*param.Laplacian_powers{k};
         end
     end
 

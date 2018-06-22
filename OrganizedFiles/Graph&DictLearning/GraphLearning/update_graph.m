@@ -14,18 +14,18 @@ for epoch =1:maxEpoch
     learned_D = diag(sum(learned_W,2));
     learned_D_powers{1} = learned_D^(-0.5);
     learned_D_powers{2} = learned_D^(-1);
-    for s=1:param.S
-        for k=0:K
-            C=zeros(param.N,param.N);
-            B=zeros(param.N,param.N);
-            for r=0:k-1 
+    for s = 1:param.S
+        for k = 0:K
+            C = zeros(param.N,param.N);
+            B = zeros(param.N,param.N);
+            for r = 0:k-1 
                 A = learned_D_powers{1}*param.Laplacian_powers{k-r}*x((s-1)*param.N+1:s*param.N,:)*(estimated_y - param.y)'*param.Laplacian_powers{r+1} * learned_D_powers{1};
-                B=B+learned_D_powers{1}*learned_W*A*learned_D_powers{1};
-                C=C-2*A';
-                B=B+A*learned_W*learned_D_powers{2};
+                B = B+learned_D_powers{1}*learned_W*A*learned_D_powers{1};
+                C = C-2*A';
+                B = B+A*learned_W*learned_D_powers{2};
             end
             B = ones(size(B)) * (B .* eye_N);
-            C = param.alpha{s}(k+1)*(C+B);
+            C = param.alpha(k+1,s)*(C+B);
             der_all_new = der_all_new + C;
         end            
     end
