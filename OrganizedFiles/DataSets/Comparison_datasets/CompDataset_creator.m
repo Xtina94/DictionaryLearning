@@ -6,7 +6,7 @@ addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\'); %Folder 
 path = ('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\Comparison_datasets\');
 
 %% Loading the required dataset
-flag = 1;
+flag = 2;
 switch flag
     case 1
         load testdata.mat
@@ -81,6 +81,7 @@ disp(['The total representation error of the testing signals is: ',num2str(error
 %% Save the results to file
 
 % The Output data
+comp_train_X = output_Pol.CoefMatrix;
 comp_X = CoefMatrix_Pol;
 comp_W = W;
 comp_D = Dictionary_Pol;
@@ -88,7 +89,7 @@ comp_eigenVal = param.eigenVal;
 comp_alpha = output_Pol.alpha;
 
 filename = [path,'Comparison',num2str(ds_name),'.mat'];
-save(filename,'comp_X','comp_W','comp_D','comp_eigenVal','comp_alpha');
+save(filename,'comp_X','comp_W','comp_D','comp_eigenVal','comp_alpha','comp_train_X');
 
 % The kernels plot
 figure('Name','Comparison Kernels')

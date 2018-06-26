@@ -1,6 +1,6 @@
-function [alpha, cpuTime] = coefficient_update_interior_point(Data,CoefMatrix,param,sdpsolver)
+function [alpha, cpuTime, param] = coefficient_update_interior_point(Data,CoefMatrix,param,sdpsolver,g_ker)
 
-my_max = zeros(1,param.S);
+my_max = param.max;
 N = param.N;
 c = param.c;
 epsilon = param.epsilon;
@@ -56,22 +56,20 @@ X = norm(Data,'fro')^2 - 2*YPhi*alpha + alpha'*(PhiPhiT + mu*eye(size(PhiPhiT,2)
 high_freq_thr = ceil((length(param.lambda_sym))/2); 
 
 % Find the maximum of the kernel functions
-if param.numIteration < 7 && param.numIteration > 1
+
+if param.big_epoch < 7 && param.big_epoch > 1
     for i = 1:param.S
-        kernel_vect = param.kernel(:,i);
-        my_max(i) = find(param.kernel == max(kernel_vect(2:length(kernel_vect))),1);
-        if my_max(i) > length(param.kernel)
-            my_max(i) = my_max(i) - length(param.kernel);
+        kernel_vect = g_ker(:,i);
+        my_max(i) = find(kernel_vect == max(kernel_vect(2:length(kernel_vect))),1);
+        if my_max(i) > length(kernel_vect)
+            my_max(i) = my_max(i) - length(kernel_vect);
         end
     end
 end
 
-% % % F = (BA*alpha <= c*ones(la,1))...
-% % %     + (-BA*alpha <= -0.001*epsilon*ones(la,1))...
-% % %     + (BB*alpha <= (c+0.1*epsilon)*ones(lb,1))...
-% % %     + (-BB*alpha <= ((c-0.1*epsilon)*ones(lb,1)));
+param.max = my_max;
     
-if param.big_epoch < 7
+if param.big_epoch > 21
     F = (BA*alpha <= c*ones(la,1))...
         + (-BA*alpha <= -0.001*epsilon*ones(la,1))...
         + (BB*alpha <= (c+0.1*epsilon)*ones(lb,1))...
@@ -79,12 +77,12 @@ if param.big_epoch < 7
 else
     for i = 1:param.S
         sub_alpha(:,i) = alpha((i-1)*(param.K+1)+1:i*(param.K+1),1);
-        if my_max(i) < high_freq_thr                   %it means that we're facing a low frequency kernel
-%         if mod(i,2) ==  0                              %supposing a HF kernel
+%         if my_max(i) > high_freq_thr                   %it means that we're facing a high frequency kernel
+        if mod(i,2) ==  0                              %supposing a HF kernel
             B3{i} = kron(eye(1),Lambda(1:param.percentage,:));
             B1{i} = kron(eye(1),Lambda(size(Lambda,1) - thresh + 1:size(Lambda,1),:));
             B2{i} = kron(ones(1),Lambda(size(Lambda,1)- thresh + 1:size(Lambda,1),:));
-        else                                          %otherwise we're having a high frequency kernel
+        else                                          %otherwise we're having a low frequency kernel
             B3{i} = kron(eye(1),Lambda(size(Lambda,1)-param.percentage+1:size(Lambda,1),:));
             B1{i} = kron(eye(1),Lambda(1:thresh,:));
             B2{i} = kron(ones(1),Lambda(1:thresh,:));

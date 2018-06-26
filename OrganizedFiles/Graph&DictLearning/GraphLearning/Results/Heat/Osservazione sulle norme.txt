@@ -1,0 +1,14 @@
+W_norm         = la norma fra la W orginale e quella ottenuta alla fine tramite l'algoritmo di graph learning
+norm_initial_W = la norma fra la W originale e quella ottenuta per inizializzazione
+norm_temp_W    = la norma fra la W ottenuta per ottimizzazione con graph learning allo step i e quella ottenuta allo step i + 1
+
+I risultati mostrano che una volta inizializzata la matrice, l'algoritmo non di dissocia molto dai risultati delle iterazioni precedenti però allo stesso tempo questo significa che se inizializziamo una W che ha una natura molto diversa da quella effettivamente avuta nella W originale, allora l'algoritmo di graph learning non è in grado di convergere verso la W originale, ma si mantiene intorno al punto di inizializzazione. In questo modo quindi otteniamo un risultato molto diverso.
+
+X_norm_test  = la norma fra la X ottenuta per OMP sul segnale di test e la parte di X originale riguardante il segnale di test
+X_norm_train = la norma fra la X ottenuta per OMP sul segnale di train e la parte di X originale riguardante il segnale di test
+total_X_norm = la norma fra la X originale in toto e la X ottenuta per OMP in toto
+
+Si nota dai dati come OMP ottenga un risultato disreto per quanto riguarda l'apprendimento della X per il segnale di test, mentre si distanzia un bel po' dalla soluzione ottimale nel caso del segnale di train. Questo porta di conseguenza ad avere alti risultati per la norma della differenza fra le X totali dal momento che l'OMP sul segnale di train propaga l'errore.
+
+
+Non serve a niente...

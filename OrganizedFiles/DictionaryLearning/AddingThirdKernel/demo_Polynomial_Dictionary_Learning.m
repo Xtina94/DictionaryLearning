@@ -8,7 +8,7 @@ addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\'); %Folder 
 path = 'C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DictionaryLearning\AddingThirdKernel\Results\'; %Folder containing the results to save
 
 %% Loaging the required dataset
-flag = 3;
+flag = 1;
 switch flag
     case 1
         load ComparisonDorina.mat
@@ -83,7 +83,7 @@ end
 
 param.InitializationMethod =  'Random_kernels';
 param.displayProgress = 1;
-param.numIteration = 20;
+param.numIteration = 12;
 param.plot_kernels = 1; % plot thelearned polynomial kernels after each iteration
 param.quadratic = 0; % solve the quadratic program using interior point methods
 

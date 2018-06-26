@@ -36,7 +36,7 @@ end
 m = 100;
 l = 1000;
 
-%% Obtaining the corresponding weight and Laplacian matrices + the eigen decomposiotion parameters
+%% Obtaining the corresponding weight and Laplacian matrices + the eigen decomposition parameters
 
 uniform_values = unifrnd(0,1,[1,m]);
 sigma = 0.2;
@@ -70,7 +70,7 @@ end
 %% Generate the sparsity matrix
 
 t0 = n_kernels;
-X = Generate_sparsity(t0,m,l);
+X = Generate_sparsity(t0,m,n_kernels*m);
 
 temp = comp_alpha(:,1);
 for i = 2:n_kernels
@@ -80,10 +80,10 @@ comp_alpha = temp;
 
 %% Generate the signal through Y = DX
 Y = comp_D*X;
-TestSignal = Y(:,1:400);
-TrainSignal = Y(:,401:1000);
-comp_X = X(:,601:1000);
-comp_train_X = X(:,1:600);
+TrainSignal = Y(:,1:80);
+TestSignal = Y(:,81:100);
+comp_X = X(:,81:100);
+comp_train_X = X(:,1:80);
 filename = strcat(path,'DataSet',num2str(kernels_type),'.mat');
 save(filename,'TestSignal','TrainSignal','W');
 
