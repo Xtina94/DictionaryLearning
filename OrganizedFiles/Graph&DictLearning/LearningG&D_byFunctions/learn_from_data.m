@@ -3,9 +3,11 @@ close all
 
 %% Adding the paths
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\Optimizers'); %Folder conatining the yalmip tools
-addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\GeneratingKernels\Results'); %Folder conatining the heat kernel coefficietns
+addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\GeneratingKernels\Results'); %Folder containing the heat kernel coefficietns
+addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\Comparison_datasets\'); %Folder containing the copmarison datasets
+addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\'); %Folder containing the training and verification dataset
 
-flag = 1;
+flag = 3;
 
 switch flag
     case 1 %Dorina
@@ -17,7 +19,6 @@ switch flag
     case 3 %Uber
         load DataSetUber.mat
         load ComparisonUber.mat
-
     case 4 %1 Heat kernel
         load DataSetHeat.mat;
         load ComparisonHeat.mat;
@@ -74,10 +75,13 @@ norm_initial_W = norm(initial_W - comp_W);
 
 %% Initialize D
 [initial_dictionary(:,1 : param.J)] = initialize_dictionary(param);
+norm_init_D = norm(initial_dictionary - comp_D);
+norm_init_D_def = 'norm(initial_dictionary - comp_D)';
+init_D_diff = (initial_dictionary - comp_D);
 % load 'trial_dict.mat'
 % initial_dictionary = Dictionary;
 
-for big_epoch = 1:60      
+for big_epoch = 1:80   
     
     param.iterN = big_epoch;
     if big_epoch == 1
@@ -94,7 +98,7 @@ for big_epoch = 1:60
     % Keep track of the evolution of X
     X_norm_train(big_epoch) = norm(X - comp_train_X);
     
-    if mod(big_epoch,5) ~= 0
+    if mod(big_epoch,8) ~= 0
                      %------optimize with respect to alpha------%
 
          [param,cpuTm] = coefficient_update_interior_point(Y,X,param,'sdpt3',g_ker);
@@ -115,9 +119,16 @@ for big_epoch = 1:60
         [learned_dictionary, param] = construct_dict(param);
         grad_desc = grad_desc*0.985; %gradient descent decreasing
         
-        % Keep track of the evolution of X
+        % Keep track of the evolution of W
         norm_temp_W(big_epoch) = norm(learned_W - comp_W);        
     end
+    
+    % Keep track of the evolution of D
+    D_norm_train_def = 'norm(learned_dictionary - comp_D)';
+    D_norm_train(big_epoch) = norm(learned_dictionary - comp_D);
+    
+    % Analyse the structural difference between learned Dictionaries
+    D_diff{big_epoch} = (learned_dictionary - comp_D);
 end
 
 %% At the end of the cycle I have:
@@ -185,16 +196,26 @@ total_X = [X_train X];
 total_X_norm = norm(total_X - [comp_train_X comp_X]);
 W_norm = norm(comp_W - learned_W); %Normal norm
 W_norm_thr = norm(comp_W - final_W); %Normal norm of the thresholded adjacency matrix
+
+% Write down the definition of the norms for better clearance
+norm_initial_W_def = 'norm(initial_W - comp_W)';
+norm_temp_W_def = 'norm(learned_W - comp_W)';
+X_norm_train_def = 'norm(X - comp_train_X)';
+W_norm_thr_def = 'norm(comp_W - final_W) --> Normal norm of the thresholded adjacency matrix';
+W_norm_def = 'norm(comp_W - learned_W)';
+total_X_norm_def = 'norm(total_X - [comp_train_X comp_X])';
+X_norm_test_def = 'norm(X - comp_X)';
 % % % norm_temp_X(big_epoch + 1) = norm(X - temp_X);
 % % % W_norm_FRO = sqrt(norm(comp_W - learned_W,'fro')^2/size(comp_W,2)); %Frobenius norm
 % % % W_norm_thr_FRO = sqrt(norm(comp_W - final_W,'fro')^2/size(comp_W,2)); %Frobenius norm of the thresholded adjacency matrix
 
 %% Graphically represent the behavior od the learned entities
 
-figure('name','Behavior of the X (blue line) and the W (orange line)')
+figure('name','Behavior of the X_norm_train (blue line) and the D_norm_train (orange line)')
 hold on
-plot(1:60,X_norm_train)
-% plot(1:10,norm_temp_W)
+grid on
+plot(1:80,X_norm_train);
+plot(1:80,D_norm_train);
 hold off
 
 filename = [path,'behaviorX_','.png'];
@@ -205,7 +226,9 @@ saveas(gcf,filename);
 norm_temp_W = norm_temp_W';
 X_norm_train = X_norm_train';
 filename = [path,'\Norms_',num2str(ds_name),'.mat'];
-save(filename,'W_norm_thr','W_norm','X_norm_train','norm_temp_W','X_norm_test','norm_initial_W','total_X_norm');
+save(filename,'W_norm_thr','W_norm_thr_def','W_norm_def','W_norm','X_norm_train','X_norm_train_def','norm_temp_W',...
+    'norm_temp_W_def','X_norm_test','X_norm_test_def','norm_initial_W','norm_initial_W_def',...
+    'total_X_norm','total_X_norm_def','D_norm_train','D_norm_train_def','norm_init_D', 'norm_init_D_def');
 
 % The Output data
 filename = [path,'\Output_',num2str(ds_name),'.mat'];

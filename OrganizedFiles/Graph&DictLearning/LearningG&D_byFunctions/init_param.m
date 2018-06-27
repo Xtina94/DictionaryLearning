@@ -1,9 +1,5 @@
 function [A,B,S,epsilon,degree,N,ds,ds_name,percentage,thresh] = init_param(flag,TrainSignal)
 
-% Adding the paths
-addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\Comparison_datasets\'); %Folder containing the copmarison datasets
-addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\'); %Folder containing the training and verification dataset
-
 switch flag
     case 1 %Dorina
         A = TrainSignal;
