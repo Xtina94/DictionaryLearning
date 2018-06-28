@@ -10,7 +10,7 @@ addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\GeneratingKernels\Res
 path = 'C:\Users\Cristina\Documents\GitHub\OrganizedFiles\Graph&DictLearning\GraphLearning\Results\'; %Folder containing the results to save
 
 %%
-flag = 1;
+flag = 4;
 switch flag
     case 1 %Dorina
         load DataSetDorina.mat
