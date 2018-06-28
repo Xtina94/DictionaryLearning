@@ -1,4 +1,4 @@
-function [learned_Laplacian, learned_W] = update_graph(x, alpha, beta, maxEpoch, param,original_Laplacian, learned_W) 
+function [learned_Laplacian, learned_W] = update_graph(x, alpha, beta, maxEpoch, param, learned_W) 
 %graph updating step by gradient descent
 
 param.Laplacian = param.Laplacian;
@@ -25,7 +25,7 @@ for epoch =1:maxEpoch
                 B = B+A*learned_W*learned_D_powers{2};
             end
             B = ones(size(B)) * (B .* eye_N);
-            C = param.alpha(k+1,s)*(C+B);
+            C = param.alpha{s}(k+1)*(C+B);
             der_all_new = der_all_new + C;
         end            
     end

@@ -11,7 +11,9 @@ end
 %this will invert the graph of the polynomial -> we want to be able to
 %efficiently represent all frequencies of the signal (we're approximating
 %1-heat_kernel here)
-original_alpha{2} = - original_alpha{2};
-original_alpha{2}(1) = original_alpha{2}(1) + 1;
+for i = 2:2:param.S
+    original_alpha{i} = - original_alpha{i};
+    original_alpha{i}(1) = original_alpha{i}(1) + 1;
+end
 end
 

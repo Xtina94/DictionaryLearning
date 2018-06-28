@@ -7,25 +7,64 @@ addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\GeneratingKernels\Res
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\Comparison_datasets\'); %Folder containing the copmarison datasets
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\'); %Folder containing the training and verification dataset
 
-flag = 3;
+flag = 2;
 
 switch flag
     case 1 %Dorina
         load DataSetDorina.mat
         load ComparisonDorina.mat
-    case 2 %Cristina
-        load DatasetLF.mat
-        load ComparisonLF.mat;
-    case 3 %Uber
+    case 2 %Uber
         load DataSetUber.mat
         load ComparisonUber.mat
+    case 3 %Cristina
+        load DatasetLF.mat
+        load ComparisonLF.mat;
     case 4 %1 Heat kernel
         load DataSetHeat.mat;
         load ComparisonHeat.mat;
         load LF_heatKernel.mat;
 end
 
-[Y,K,param.S,param.epsilon,degree,param.N,ds,ds_name,param.percentage,param.thresh] = init_param(flag,TrainSignal);
+switch flag
+    case 1 %Dorina
+        Y = TrainSignal;
+        K = 20;
+        param.S = 4;  % number of subdictionaries         
+        param.epsilon = 0.05; % we assume that epsilon_1 = epsilon_2 = epsilon
+        degree = 20;
+        ds = 'Dataset used: Synthetic data from Dorina';
+        ds_name = 'Dorina';
+        param.percentage = 15;
+        param.thresh = param.percentage + 60;
+    case 2 %Uber
+        Y = TrainSignal;
+        K = 15;
+        param.S = 2;  % number of subdictionaries 
+        param.epsilon = 0.2; % we assume that epsilon_1 = epsilon_2 = epsilon
+        ds = 'Dataset used: data from Uber';
+        ds_name = 'Uber';
+        param.percentage = 8;
+        param.thresh = param.percentage + 6;
+    case 3 %Cristina
+        Y = TrainSignal;
+        K = 15;
+        param.S = 2;  % number of subdictionaries        
+        param.epsilon = 0.02; % we assume that epsilon_1 = epsilon_2 = epsilon
+        degree = 15;
+        ds = 'Dataset used: data from Cristina';
+        ds_name = 'Cristina';
+        param.percentage = 8;
+        param.thresh = param.percentage + 6;
+    case 4 %Heat kernel
+        X = TrainSignal;
+        K = 15;
+        param.S = 1;  % number of subdictionaries 
+        param.epsilon = 0.2; % we assume that epsilon_1 = epsilon_2 = epsilon
+        ds = 'Dataset used: data from Heat kernel';
+        ds_name = 'Heat';
+        param.percentage = 8;
+        param.thresh = param.percentage + 6;
+end
 
 param.N = size(Y,1); % number of nodes in the graph
 param.J = param.N * param.S; % total number of atoms 
@@ -35,11 +74,10 @@ param.epsilon = 0.05;%0.02; % we assume that epsilon_1 = epsilon_2 = epsilon
 param.mu = 1;%1e-2; % polynomial regularizer paremeter
 param.y = Y; %signals
 param.y_size = size(param.y,2);
-param.T0 = 4; %sparsity level (# of atoms in each signals representation)
+param.T0 = 6; %sparsity level (# of atoms in each signals representation)
 param.max = 0;
 grad_desc = 2; %gradient descent parameter, it decreases with epochs
 path = ['C:\Users\Cristina\Documents\GitHub\OrganizedFiles\Graph&DictLearning\LearningG&D_byFunctions\Results\',num2str(ds_name),'\']; %Folder containing the results to save
-
 
 %% Obtain the initial Laplacian and eigenValues for comparison
 temp = comp_alpha;
@@ -53,13 +91,16 @@ comp_lambdaPowerMx = out.lambdaPowerMx; comp_ker = out.ker; comp_eigenMat = out.
 
 %% Initialise W and Laplacian
 
-uniform_values = unifrnd(0,1,[1,param.N]);
-sigma = 0.2;
-if flag == 4
-    [param.Laplacian,initial_W] = random_geometric(sigma,param.N,uniform_values,0.6);
-else
-    [param.Laplacian,initial_W] = init_by_weight(param.N);
-end
+[param.Laplacian,initial_W] = init_by_weight(param.N);
+initial_Laplacian = param.Laplacian;
+
+% % % if flag == 4
+% % %     uniform_values = unifrnd(0,1,[1,param.N]);
+% % %     sigma = 0.2;
+% % %     [param.Laplacian,initial_W] = random_geometric(sigma,param.N,uniform_values,0.6);
+% % % else
+% % %     [param.Laplacian,initial_W] = init_by_weight(param.N);
+% % % end
 
 [param.eigenMat, param.eigenVal] = eig(param.Laplacian);
 [param.lambdaSym,indexSym] = sort(diag(param.eigenVal));
@@ -71,17 +112,18 @@ for i = 1:max(param.K) + 1
     param.Laplacian_powers{i} = param.Laplacian^(i-1);
 end
 
-norm_initial_W = norm(initial_W - comp_W);
+%% Initialize alphas
+
+for i = 1:param.S
+    param.alpha(:,i) = comp_alpha((i-1)*(max(param.K)+1) + 1:(max(param.K)+1)*i);
+end
 
 %% Initialize D
-[initial_dictionary(:,1 : param.J)] = initialize_dictionary(param);
-norm_init_D = norm(initial_dictionary - comp_D);
-norm_init_D_def = 'norm(initial_dictionary - comp_D)';
-init_D_diff = (initial_dictionary - comp_D);
-% load 'trial_dict.mat'
-% initial_dictionary = Dictionary;
 
-for big_epoch = 1:80   
+[initial_dictionary, param] = construct_dict(param);
+% % % [initial_dictionary(:,1 : param.J)] =  initialize_dictionary(param);
+
+for big_epoch = 1:8   
     
     param.iterN = big_epoch;
     if big_epoch == 1
@@ -98,7 +140,7 @@ for big_epoch = 1:80
     % Keep track of the evolution of X
     X_norm_train(big_epoch) = norm(X - comp_train_X);
     
-    if mod(big_epoch,8) ~= 0
+    if mod(big_epoch,9) == 0
                      %------optimize with respect to alpha------%
 
          [param,cpuTm] = coefficient_update_interior_point(Y,X,param,'sdpt3',g_ker);
@@ -113,13 +155,13 @@ for big_epoch = 1:80
         maxEpoch = 1; %number of graph updating steps before updating sparse codes (x) again
         beta = 10^(-2); %graph sparsity penalty
         old_L = param.Laplacian;
-        [param, learned_W] = update_graph(X, grad_desc, beta, maxEpoch, param, learned_dictionary, learned_W);
+        [param.Laplacian, learned_W] = update_graph(X, grad_desc, beta, maxEpoch, param, learned_W);
         
         % Re obtain D
         [learned_dictionary, param] = construct_dict(param);
         grad_desc = grad_desc*0.985; %gradient descent decreasing
         
-        % Keep track of the evolution of W
+        % Keep track of the evolution of X
         norm_temp_W(big_epoch) = norm(learned_W - comp_W);        
     end
     
@@ -191,6 +233,10 @@ saveas(gcf,filename);
 
 %% Compute the l-2 norms
 
+norm_init_D = norm(initial_dictionary - comp_D);
+norm_init_D_def = 'norm(initial_dictionary - comp_D)';
+init_D_diff = (initial_dictionary - comp_D);
+norm_initial_W = norm(initial_W - comp_W);
 X_norm_test = norm(X - comp_X);
 total_X = [X_train X];
 total_X_norm = norm(total_X - [comp_train_X comp_X]);
@@ -214,8 +260,8 @@ X_norm_test_def = 'norm(X - comp_X)';
 figure('name','Behavior of the X_norm_train (blue line) and the D_norm_train (orange line)')
 hold on
 grid on
-plot(1:80,X_norm_train);
-plot(1:80,D_norm_train);
+plot(1:8,X_norm_train);
+plot(1:8,D_norm_train);
 hold off
 
 filename = [path,'behaviorX_','.png'];
