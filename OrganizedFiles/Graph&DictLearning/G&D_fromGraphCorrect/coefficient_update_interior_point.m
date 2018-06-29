@@ -151,5 +151,5 @@ cpuTime = diagnostics.solveroutput.info.cputime;
 alpha = double(alpha);
 
 for i = 1:param.S
-    param.alpha(:,i) = alpha((param.K(i) + 1)*(i-1) + 1:(param.K(i) + 1)*i);
+    param.alpha{i} = alpha((param.K(i) + 1)*(i-1) + 1:(param.K(i) + 1)*i);
 end
