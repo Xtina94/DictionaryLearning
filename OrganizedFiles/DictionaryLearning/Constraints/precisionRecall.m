@@ -1,4 +1,4 @@
-function [ optPrec, optRec, opt_Lapl] = precisionRecall_gmm(true_Laplacian, learned_Laplacian, varargin)
+function [ optPrec, optRec, opt_Lapl] = precisionRecall(true_Laplacian, learned_Laplacian, varargin)
 %returns the precision and recall of edges recovery, and the thresholded 
 %Laplacian when the number of learned edges is around the number of 
 %original edges

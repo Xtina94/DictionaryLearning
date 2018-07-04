@@ -22,19 +22,27 @@ switch flag
         k = 15; %polynomial degree
     case 3
         load 'LF_heatKernel.mat'
-        alpha_1 = LF_heatKernel;
-        kernels_type = 'Heat';
         n_kernels = 1;
         k = 15; %polynomial degree
+        comp_alpha = zeros(k+1,n_kernels);
+        for i = 1:n_kernels
+            eval(['comp_alpha(:,',num2str(i),') = LF_HeatKernel(:,',num2str(i),')']);
+        end
+        kernels_type = 'Heat30';
+    case 4
+        load 'HeatKernel.mat'
+        n_kernels = 2;
+        k = 15; %polynomial degree
+        comp_alpha = zeros(k+1,n_kernels);
+        for i = 1:n_kernels
+            eval(['comp_alpha(:,',num2str(i),') = HeatKernel(:,',num2str(i),')']);
+        end
+        kernels_type = 'DoubleHeat';
 end
 
-comp_alpha = zeros(k+1,n_kernels);
-for i = 1:n_kernels
-    comp_alpha(:,i) = eval(strcat('alpha_',num2str(i)));
-end
-
-m = 100;
+m = 30;
 l = 1000;
+t0 = 4;
 
 %% Obtaining the corresponding weight and Laplacian matrices + the eigen decomposition parameters
 
@@ -69,27 +77,21 @@ end
 
 %% Generate the sparsity matrix
 
-t0 = n_kernels;
-X = Generate_sparsity(t0,m,n_kernels*m);
-
-temp = comp_alpha(:,1);
-for i = 2:n_kernels
-    temp = [temp; comp_alpha(:,i)];
-end
-comp_alpha = temp;
+X = Generate_sparsity(n_kernels,t0,m,l);
 
 %% Generate the signal through Y = DX
 Y = comp_D*X;
-TrainSignal = Y(:,1:80);
-TestSignal = Y(:,81:100);
-comp_X = X(:,81:100);
-comp_train_X = X(:,1:80);
+TrainSignal = Y(:,1:800);
+TestSignal = Y(:,801:1000);
+comp_X = X(:,801:1000);
+comp_train_X = X(:,1:800);
 filename = strcat(path,'DataSet',num2str(kernels_type),'.mat');
 save(filename,'TestSignal','TrainSignal','W');
 
 comp_W = W;
+comp_Laplacian = Laplacian;
 
 %% Save the results to file
 
 filename = strcat(path,'Comparison_datasets\Comparison',num2str(kernels_type),'.mat');
-save(filename,'comp_alpha','comp_D','comp_X','comp_train_X','comp_W','comp_eigenVal');
+save(filename,'comp_alpha','comp_D','comp_X','comp_train_X','comp_W','comp_Laplacian','comp_eigenVal');

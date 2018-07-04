@@ -1,4 +1,4 @@
-function [learned_Laplacian, learned_W] = update_graph(x, alpha, beta, maxEpoch, param, learned_W) 
+function [learned_Laplacian, learned_W, learned_eigenVal] = update_graph(x, alpha, beta, maxEpoch, param, learned_W) 
 %graph updating step by gradient descent
 
 param.Laplacian = param.Laplacian;
@@ -49,5 +49,6 @@ for epoch =1:maxEpoch
 
 end
 learned_Laplacian = param.Laplacian;
+learned_eigenVal = sort(eig(param.Laplacian));
 end
 

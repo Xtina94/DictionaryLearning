@@ -46,9 +46,6 @@ param.Laplacian = (diag(sum(W,2)))^(-1/2)*L*(diag(sum(W,2)))^(-1/2); % normalize
 [param.eigenMat, param.eigenVal] = eig(param.Laplacian); % eigendecomposition of the normalized Laplacian
 [param.lambda_sym,index_sym] = sort(diag(param.eigenVal)); % sort the eigenvalues of the normalized Laplacian in descending order
 
-if flag == 1
-    comp_eigenVal = param.eigenVal;
-end
 %% Compute the powers of the Laplacian
 
 for k=0 : max(param.K)
@@ -66,7 +63,7 @@ end
 
 param.InitializationMethod =  'Random_kernels';
 param.displayProgress = 1;
-param.numIteration = 8;
+param.numIteration = 30;
 param.plot_kernels = 1; % plot thelearned polynomial kernels after each iteration
 param.quadratic = 0; % solve the quadratic program using interior point methods
 
@@ -84,12 +81,13 @@ disp(['The total representation error of the testing signals is: ',num2str(error
 comp_train_X = output_Pol.CoefMatrix;
 comp_X = CoefMatrix_Pol;
 comp_W = W;
+comp_Laplacian = param.Laplacian;
 comp_D = Dictionary_Pol;
 comp_eigenVal = param.eigenVal;
 comp_alpha = output_Pol.alpha;
 
 filename = [path,'Comparison',num2str(ds_name),'.mat'];
-save(filename,'comp_X','comp_W','comp_D','comp_eigenVal','comp_alpha','comp_train_X');
+save(filename,'comp_X','comp_W','comp_Laplacian','comp_D','comp_eigenVal','comp_alpha','comp_train_X');
 
 % The kernels plot
 figure('Name','Comparison Kernels')
@@ -102,3 +100,5 @@ hold off
 filename = [path,'Comp_kernels_',num2str(ds_name),'.png'];
 saveas(gcf,filename);
 
+figure()
+surf(comp_train_X)

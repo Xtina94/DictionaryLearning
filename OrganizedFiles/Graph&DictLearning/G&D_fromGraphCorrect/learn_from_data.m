@@ -1,4 +1,4 @@
-clear all
+ clear all
 close all
 
 %% Adding the paths
@@ -6,9 +6,9 @@ addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\Optimizers'); %Folder
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\Comparison_datasets\'); %Folder containing the comparison datasets
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\'); %Folder containing the training and verification dataset
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\GeneratingKernels\Results'); %Folder conatining the heat kernel coefficients
-path = 'C:\Users\Cristina\Documents\GitHub\OrganizedFiles\Graph&DictLearning\G&D_fromGraphCorrect\Results\'; %Folder containing the results to save
+path = 'C:\Users\Cristina\Documents\GitHub\OrganizedFiles\Graph&DictLearning\G&D_fromGraphCorrect\Results\04.07.18\Smoothness\'; %Folder containing the results to save
 
-flag = 1;
+flag = 5;
 
 switch flag
     case 1 %Dorina
@@ -20,10 +20,14 @@ switch flag
     case 3 %Cristina
         load DatasetLF.mat
         load ComparisonLF.mat;
-    case 4 %1 Heat kernel
-        load DataSetHeat.mat;
-        load ComparisonHeat.mat;
+    case 4 %1 Heat kernel with 30 nodes
+        load DataSetHeat30.mat;
+        load ComparisonHeat30.mat;
         load LF_heatKernel.mat;
+    case 5
+        load DataSetDoubleHeat.mat;
+        load ComparisonDoubleHeat.mat;
+        load HeatKernel.mat;
 end
 
 switch flag
@@ -31,7 +35,7 @@ switch flag
         Y = TrainSignal;
         K = 20;
         param.S = 4;  % number of subdictionaries         
-        param.epsilon = 0.05; % we assume that epsilon_1 = epsilon_2 = epsilon
+        param.epsilon = 0.02; % we assume that epsilon_1 = epsilon_2 = epsilon
         degree = 20;
         ds = 'Dataset used: Synthetic data from Dorina';
         ds_name = 'Dorina';
@@ -41,7 +45,7 @@ switch flag
         Y = TrainSignal;
         K = 15;
         param.S = 2;  % number of subdictionaries 
-        param.epsilon = 0.2; % we assume that epsilon_1 = epsilon_2 = epsilon
+        param.epsilon = 0.02; % we assume that epsilon_1 = epsilon_2 = epsilon
         ds = 'Dataset used: data from Uber';
         ds_name = 'Uber';
         param.percentage = 8;
@@ -65,6 +69,15 @@ switch flag
         ds_name = 'Heat';        
         param.percentage = 8;
         param.thresh = param.percentage + 6;
+    case 5 %Heat kernel
+        Y = TrainSignal;
+        K = 15;
+        param.S = 2;  % number of subdictionaries 
+        param.epsilon = 0.2; % we assume that epsilon_1 = epsilon_2 = epsilon
+        ds = 'Dataset used: data from double Heat kernel';
+        ds_name = 'DoubleHeat';        
+        param.percentage = 8;
+        param.thresh = param.percentage + 6;
 end
 
 param.N = size(Y,1); % number of nodes in the graph
@@ -83,26 +96,16 @@ temp = comp_alpha;
 comp_alpha = zeros(K+1,param.S);
 for i = 1:param.S
     comp_alpha(:,i) = temp((K+1)*(i-1) + 1:(K+1)*i);
+    param.alpha{i} = comp_alpha(:,i);
 end
 
-if flag ~= 4
-    for i = 1:param.S
-        param.alpha{i} = comp_alpha(:,i);
-    end
-else
-    param.t(1) = 2; %heat kernel coefficients
-    param.t(2) = 1; %this heat kernel will be inverted to cover high frequency components
-    param.alpha = generate_coefficients(param);
-    disp(param.alpha);
-end
+% % %     for i = 1:param.S
+% % %         param.alpha{i} = randn(K+1,1); %comp_alpha(:,i);
+% % %     end
 
-%% Obtain the initial Laplacian and eigenValues for comparison
-out_L = diag(sum(comp_W,2)) - comp_W; % combinatorial Laplacian
-comp_Laplacian = (diag(sum(comp_W,2)))^(-1/2)*out_L*(diag(sum(comp_W,2)))^(-1/2); % normalized Laplacian
-[comp_eigenMat, comp_eigenVal] = eig(comp_Laplacian);
 [comp_lambdaSym,comp_indexSym] = sort(diag(comp_eigenVal));
-
 comp_lambdaPowerMx(:,2) = comp_lambdaSym;
+
 for i = 1:K+1
     comp_lambdaPowerMx(:,i) = comp_lambdaPowerMx(:,2).^(i-1);
     comp_Laplacian_powers{i} = comp_Laplacian^(i-1);
@@ -131,7 +134,7 @@ end
 %% Initialize D:
 [initial_dictionary, param] = construct_dict(param);
 
-maxIter = 30;
+maxIter = 60;
 X_norm_train = zeros(maxIter,1);
 D_norm_train = zeros(maxIter,1);
 norm_temp_W = zeros(maxIter,1);
@@ -152,7 +155,7 @@ for big_epoch = 1:maxIter
     disp(['Epoch... ',num2str(big_epoch)]);
     x = OMP_non_normalized_atoms(learned_dictionary,param.y, param.T0);
     
-    if mod(big_epoch+1,5) == 0
+    if mod(big_epoch,5) == 0
         %------optimize with respect to alpha------%
         
         [param,cpuTm] = coefficient_update_interior_point(Y,x,param,'sdpt3',g_ker);
@@ -163,7 +166,7 @@ for big_epoch = 1:maxIter
         maxEpoch = 1; %number of graph updating steps before updating sparse codes (x) again
         beta = 10^(-2); %graph sparsity penalty
         old_L = param.Laplacian;
-        [param.Laplacian, learned_W] = update_graph(x, alpha, beta, maxEpoch, param, learned_W);
+        [param.Laplacian, learned_W,param.lambda_sym] = update_graph(x, alpha, beta, maxEpoch, param, learned_W);
         alpha = alpha*0.985; %gradient descent decreasing
     end
     
@@ -181,13 +184,6 @@ for big_epoch = 1:maxIter
     X_norm_train(big_epoch) = norm(x - comp_train_X);
     norm_temp_W(big_epoch) = norm(learned_W - comp_W);
 end
-
-% % %         maxEpoch = 1; %number of graph updating steps before updating sparse codes (x) again
-% % %         beta = 10^(-2); %graph sparsity penalty
-% % %         old_L = param.Laplacian;
-% % %         [param.Laplacian, learned_W] = update_graph(x, alpha, beta, maxEpoch, param, learned_W);
-% % %         alpha = alpha*0.985; %gradient descent decreasing
-% % %         [learned_dictionary, param] = construct_dict(param);
         
 %% At the end of the cycle I have:
 % param.alpha --> the original coefficients;
@@ -224,6 +220,25 @@ W_norm = norm(comp_W - learned_W); %Normal norm
 W_norm_thr = norm(comp_W - final_W); %Normal norm of the thresholded adjacency matrix
 norm_initial_W = norm(initial_W - comp_W);
 norm_init_D = norm(initial_dictionary - comp_D);
+alpha_norm = zeros(param.S,1);
+alpha_diff = zeros(K+1,param.S);
+for i = 1:param.S
+    alpha_norm(i,1) = norm(comp_alpha(:,i) - param.alpha{i});
+    alpha_diff(:,i) = (comp_alpha(:,i) - param.alpha{i});
+end
+
+figure('Name','The different behavior of the alpha coefficients')
+for j = 1:param.S
+    subplot(1,param.S,j)
+    title(['Comp ker ',num2str(j),'  VS Learned ker ',num2str(j)]);
+    hold on
+    stem(comp_alpha(:,j))
+    stem(param.alpha{j})
+    hold off
+    legend('comparison kernel','learned kernel');
+end
+filename = [path,num2str(ds_name),'\AlphaCoeff_comparison','.png'];
+saveas(gcf,filename);
 
 %% Write down the definition of the norms for better clearance
 norm_initial_W_def = 'norm(initial_W - comp_W)';
@@ -234,6 +249,8 @@ W_norm_def = 'norm(comp_W - learned_W)';
 total_X_norm_def = 'norm(total_X - [comp_train_X comp_X])';
 X_norm_test_def = 'norm(X - comp_X)';
 norm_init_D_def = 'norm(initial_dictionary - comp_D)';
+alpha_norm_def = 'norm(comp_alpha(:,i) - param.alpha{i});';
+alpha_diff_def = '(comp_alpha(:,i) - param.alpha{i});';
 
 %% Graphically represent the behavior od the learned entities
 
@@ -261,14 +278,14 @@ for i = 1 : param.S
 end
 
 figure('Name','Comparison between the Kernels')
-subplot(1,2,1)
+subplot(2,1,1)
 title('Original kernels');
 hold on
 for s = 1 : param.S
     plot(comp_lambdaSym,comp_ker(:,s));
 end
 hold off
-subplot(1,2,2)
+subplot(2,1,2)
 title('learned kernels');
 hold on
 for s = 1 : param.S
@@ -285,7 +302,7 @@ saveas(gcf,filename);
 % The norms
 norm_temp_W = norm_temp_W';
 filename = [path,num2str(ds_name),'\Norms_',num2str(ds_name),'.mat'];
-save(filename,'W_norm_thr','W_norm','X_norm_train','norm_temp_W','X_norm_test','norm_initial_W','total_X_norm');
+save(filename,'W_norm_thr','W_norm','X_norm_train','norm_temp_W','X_norm_test','norm_initial_W','total_X_norm','alpha_norm','alpha_norm_def','alpha_diff','alpha_diff_def');
 
 % The Output data
 filename = [path,num2str(ds_name),'\Output_',num2str(ds_name),'.mat'];
@@ -296,8 +313,8 @@ save(filename,'ds','learned_dictionary','learned_W','final_W','Y','learned_eigen
 learned_L = diag(sum(learned_W,2)) - learned_W;
 learned_Laplacian = (diag(sum(learned_W,2)))^(-1/2)*learned_L*(diag(sum(learned_W,2)))^(-1/2);
 % % % learned_Laplacian = final_Laplacian;
-comp_L = diag(sum(comp_W,2)) - comp_W;
-comp_Laplacian = (diag(sum(comp_W,2)))^(-1/2)*comp_L*(diag(sum(comp_L,2)))^(-1/2);
+% % % comp_L = diag(sum(comp_W,2)) - comp_W;
+% % % comp_Laplacian = (diag(sum(comp_W,2)))^(-1/2)*comp_L*(diag(sum(comp_W,2)))^(-1/2);
 
 [optPrec, optRec, opt_Lapl] = precisionRecall(comp_Laplacian, learned_Laplacian);
 filename = [path,num2str(ds_name),'\ouput_PrecisionRecall_',num2str(ds_name),'.mat'];

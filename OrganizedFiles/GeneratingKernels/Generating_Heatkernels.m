@@ -27,27 +27,35 @@ end
 
 syms kernel;
 
-kernel1(x) = x^(0)*param.alpha(1,1);
-
-for j = 2:deg+1
-    kernel1(x) = kernel1(x) + x^(j-1)*param.alpha(j,1);
+for i = 1:param.S
+    eval(strcat('kernel_',num2str(i),'(x) = x^(0)*param.alpha(1,',num2str(i),')'));
 end
 
-kernels(:,1) = kernel1(0:0.0001:2);
+for i = 1:param.S
+    for j = 2:deg+1
+        eval(strcat('kernel_',num2str(i),'(x) = kernel_',num2str(i),...
+            '(x) + x^(',num2str(j),'-1)*param.alpha(',num2str(j),',1)'));
+    end
+end
+
+load comp_lambdaSym.mat;
+for i = 1:param.S
+    eval(strcat('kernels(:,',num2str(i),') = kernel_',num2str(i),'(lambdas)'));
+end
 
 figure('Name','Heat kernels representation')
 hold on
-plot(0:0.0001:2,kernels);
+plot(lambdas,kernels);
 hold off
 
 %% Save results to file
 
-filename = [path,'LF_heatKernel_plot.png'];
+filename = [path,'LF_HeatKernel_plot.png'];
 saveas(gcf,filename);
 
-LF_heatKernel = param.alpha(:,1);
-filename = [path,'LF_heatKernel.mat'];
-save(filename,'LF_heatKernel');
+LF_HeatKernel = param.alpha;
+filename = [path,'LF_HeatKernel.mat'];
+save(filename,'LF_HeatKernel');
 
 
 

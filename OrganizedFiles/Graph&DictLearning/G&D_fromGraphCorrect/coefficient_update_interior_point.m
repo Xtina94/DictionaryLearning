@@ -55,17 +55,18 @@ X = norm(Data,'fro')^2 - 2*YPhi*alpha + alpha'*(PhiPhiT + mu*eye(size(PhiPhiT,2)
 %% Set constraints
 % First learn the kernels for a couple of iterations, so that to foresee
 % the behavior
-if param.iterN > 0
+if param.iterN < 31
     F = (BA*alpha <= c*ones(la,1))...
         + (-BA*alpha <= -0.001*epsilon*ones(la,1))...
         + (BB*alpha <= (c+0.1*epsilon)*ones(lb,1))...
         + (-BB*alpha <= ((c-0.1*epsilon)*ones(lb,1)));
+%         + (alpha(1:8) >= 0.01);
 else
     %% Find the maximum of the kernel functions
     old_alpha = param.alpha;
     for i = 1 : param.S
         for n = 1:param.N
-            g_ker(n,i) = param.lambda_power_matrix(n,:)*old_alpha(:,i);
+            g_ker(n,i) = param.lambda_power_matrix(n,:)*old_alpha{i};
         end
     end
     high_freq_thr = ceil((length(param.lambda_sym))/2);
@@ -129,6 +130,7 @@ else
         + (-B2*alpha <= (c-1*epsilon)*ones(l2,1))...
         + (B3*alpha <= 0.001*epsilon*ones(l3,1))...
         + (-B3*alpha <= 0*ones(l3,1));
+%         + (alpha(1:8) >= 0.01);
 end
 
 %---------------------------------------------------------------------

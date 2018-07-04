@@ -10,7 +10,7 @@ addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\GeneratingKernels\Res
 path = 'C:\Users\Cristina\Documents\GitHub\OrganizedFiles\Graph&DictLearning\GraphLearning\Results\'; %Folder containing the results to save
 
 %%
-flag = 4;
+flag = 1;
 switch flag
     case 1 %Dorina
         load DataSetDorina.mat
@@ -170,7 +170,7 @@ learned_L = diag(sum(learned_W,2)) - learned_W;
 learned_Laplacian = (diag(sum(learned_W,2)))^(-1/2)*learned_L*(diag(sum(learned_W,2)))^(-1/2);
 
 comp_L = diag(sum(comp_W,2)) - comp_W;
-comp_Laplacian = (diag(sum(comp_W,2)))^(-1/2)*comp_L*(diag(sum(comp_L,2)))^(-1/2);
+comp_Laplacian = (diag(sum(comp_W,2)))^(-1/2)*comp_L*(diag(sum(comp_W,2)))^(-1/2);
 
 [optPrec, optRec, opt_Lapl] = precisionRecall(comp_Laplacian, learned_Laplacian);
 filename = [path,num2str(ds_name),'\ouput_PrecisionRecall_',num2str(ds_name),'.mat'];

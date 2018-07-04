@@ -4,10 +4,10 @@ close all
 %% Adding the paths
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\Optimizers'); %Folder conatining the yalmip tools
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\GeneratingKernels\Results'); %Folder containing the heat kernel coefficietns
-addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\Comparison_datasets\'); %Folder containing the copmarison datasets
+addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\Comparison_datasets\'); %Folder containing the comp55arison datasets
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\'); %Folder containing the training and verification dataset
 
-flag = 2;
+flag = 4;
 
 switch flag
     case 1 %Dorina
@@ -19,9 +19,9 @@ switch flag
     case 3 %Cristina
         load DatasetLF.mat
         load ComparisonLF.mat;
-    case 4 %1 Heat kernel
-        load DataSetHeat.mat;
-        load ComparisonHeat.mat;
+    case 4 %1 Heat kernel with 30 nodes
+        load DataSetHeat30.mat;
+        load ComparisonHeat30.mat;
         load LF_heatKernel.mat;
 end
 
@@ -56,7 +56,7 @@ switch flag
         param.percentage = 8;
         param.thresh = param.percentage + 6;
     case 4 %Heat kernel
-        X = TrainSignal;
+        Y = TrainSignal;
         K = 15;
         param.S = 1;  % number of subdictionaries 
         param.epsilon = 0.2; % we assume that epsilon_1 = epsilon_2 = epsilon
@@ -123,7 +123,7 @@ end
 [initial_dictionary, param] = construct_dict(param);
 % % % [initial_dictionary(:,1 : param.J)] =  initialize_dictionary(param);
 
-for big_epoch = 1:8   
+for big_epoch = 1:100
     
     param.iterN = big_epoch;
     if big_epoch == 1
@@ -140,7 +140,7 @@ for big_epoch = 1:8
     % Keep track of the evolution of X
     X_norm_train(big_epoch) = norm(X - comp_train_X);
     
-    if mod(big_epoch,9) == 0
+    if mod(big_epoch,8) ~= 0
                      %------optimize with respect to alpha------%
 
          [param,cpuTm] = coefficient_update_interior_point(Y,X,param,'sdpt3',g_ker);

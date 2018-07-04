@@ -1,0 +1,1 @@
+In the folders named "1" and "2" I am imposing that every 5 iteration there's an alpha optimization step PLUS after 30 repetitions I impose the smoothness constraint
