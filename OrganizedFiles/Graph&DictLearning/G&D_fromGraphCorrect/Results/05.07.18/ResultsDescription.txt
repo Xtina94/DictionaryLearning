@@ -1,0 +1,1 @@
+Here I haven't imposed the smoothness constraints

@@ -6,7 +6,7 @@ addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\Optimizers'); %Folder
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\Comparison_datasets\'); %Folder containing the comparison datasets
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\'); %Folder containing the training and verification dataset
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\GeneratingKernels\Results'); %Folder conatining the heat kernel coefficients
-path = 'C:\Users\Cristina\Documents\GitHub\OrganizedFiles\Graph&DictLearning\G&D_fromGraphCorrect\Results\04.07.18\Smoothness\'; %Folder containing the results to save
+path = 'C:\Users\Cristina\Documents\GitHub\OrganizedFiles\Graph&DictLearning\G&D_fromGraphCorrect\Results\06.07.18\'; %Folder containing the results to save
 
 flag = 5;
 
@@ -41,6 +41,7 @@ switch flag
         ds_name = 'Dorina';
         param.percentage = 15;
         param.thresh = param.percentage + 60;
+        alpha = 20; %gradient descent parameter, it decreases with epochs
     case 2 %Uber
         Y = TrainSignal;
         K = 15;
@@ -50,6 +51,7 @@ switch flag
         ds_name = 'Uber';
         param.percentage = 8;
         param.thresh = param.percentage + 6;
+        alpha = 5; %gradient descent parameter, it decreases with epochs
     case 3 %Cristina
         Y = TrainSignal;
         K = 15;
@@ -60,6 +62,7 @@ switch flag
         ds_name = 'Cristina'; 
         param.percentage = 8;
         param.thresh = param.percentage + 6;
+        alpha = 5; %gradient descent parameter, it decreases with epochs
     case 4 %Heat kernel
         Y = TrainSignal;
         K = 15;
@@ -69,6 +72,7 @@ switch flag
         ds_name = 'Heat';        
         param.percentage = 8;
         param.thresh = param.percentage + 6;
+        alpha = 5; %gradient descent parameter, it decreases with epochs
     case 5 %Heat kernel
         Y = TrainSignal;
         K = 15;
@@ -77,7 +81,8 @@ switch flag
         ds = 'Dataset used: data from double Heat kernel';
         ds_name = 'DoubleHeat';        
         param.percentage = 8;
-        param.thresh = param.percentage + 6;
+        param.thresh = param.percentage + 0;
+        alpha = 10; %gradient descent parameter, it decreases with epochs
 end
 
 param.N = size(Y,1); % number of nodes in the graph
@@ -87,9 +92,8 @@ param.c = 1; % spectral control parameters
 param.mu = 1;%1e-2; % polynomial regularizer paremeter
 param.y = Y; %signals
 param.y_size = size(param.y,2);
-param.T0 = 6; %sparsity level (# of atoms in each signals representation)
+param.T0 = 4; %sparsity level (# of atoms in each signals representation)
 param.max = 0;
-alpha = 2; %gradient descent parameter, it decreases with epochs
 
 %% Initialize the kernel coefficients
 temp = comp_alpha;
@@ -134,11 +138,12 @@ end
 %% Initialize D:
 [initial_dictionary, param] = construct_dict(param);
 
-maxIter = 60;
+maxIter = 200;
 X_norm_train = zeros(maxIter,1);
 D_norm_train = zeros(maxIter,1);
 norm_temp_W = zeros(maxIter,1);
 D_diff = cell(maxIter,1);
+W_vector = cell(1,200);
 
 for big_epoch = 1:maxIter
     
@@ -164,11 +169,13 @@ for big_epoch = 1:maxIter
         %--------optimise with respect to W--------%
         disp('Graph learning step');
         maxEpoch = 1; %number of graph updating steps before updating sparse codes (x) again
-        beta = 10^(-2); %graph sparsity penalty
+        beta = 10^(-4); %graph sparsity penalty
         old_L = param.Laplacian;
         [param.Laplacian, learned_W,param.lambda_sym] = update_graph(x, alpha, beta, maxEpoch, param, learned_W);
         alpha = alpha*0.985; %gradient descent decreasing
     end
+    
+    W_vector{big_epoch} = learned_W;
     
     % Re-obtain D
     [learned_dictionary, param] = construct_dict(param);
@@ -194,7 +201,7 @@ end
 
 %constructed graph needs to be tresholded, otherwise it's too dense
 %fix the number of desired edges here at nedges
-nedges = 4*29;
+nedges = length(find(comp_W))/2;
 final_Laplacian = treshold_by_edge_number(param.Laplacian, nedges);
 final_W = learned_W.*(final_Laplacian~=0);
 
@@ -261,7 +268,27 @@ plot(1:maxIter,X_norm_train);
 plot(1:maxIter,D_norm_train);
 hold off
 
-filename = [path,num2str(ds_name),'\behaviorX_','.png'];
+filename = [path,num2str(ds_name),'\behaviorX_','.fig'];
+saveas(gcf,filename);
+
+na = zeros(maxIter,1);
+ne = zeros(maxIter,1);
+ni = zeros(maxIter,1);
+for i = 1:maxIter
+    na(i) = norm(W_vector{i});
+    ne(i) = norm_temp_W(i);
+    ni(i) = norm(comp_W);
+end
+
+figure('Name','Behavior of the W')
+hold on
+plot(ni)
+plot(na)
+plot(ne)
+hold off
+legend('comp\_W norm','W\_vect norm','temp\_W norm');
+
+filename = [path,num2str(ds_name),'\behaviorW_','.fig'];
 saveas(gcf,filename);
 
 %% Represent the kernels

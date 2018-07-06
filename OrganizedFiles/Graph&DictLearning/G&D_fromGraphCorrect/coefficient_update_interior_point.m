@@ -55,29 +55,29 @@ X = norm(Data,'fro')^2 - 2*YPhi*alpha + alpha'*(PhiPhiT + mu*eye(size(PhiPhiT,2)
 %% Set constraints
 % First learn the kernels for a couple of iterations, so that to foresee
 % the behavior
-if param.iterN < 31
+if param.iterN < 0
     F = (BA*alpha <= c*ones(la,1))...
         + (-BA*alpha <= -0.001*epsilon*ones(la,1))...
         + (BB*alpha <= (c+0.1*epsilon)*ones(lb,1))...
         + (-BB*alpha <= ((c-0.1*epsilon)*ones(lb,1)));
 %         + (alpha(1:8) >= 0.01);
 else
-    %% Find the maximum of the kernel functions
-    old_alpha = param.alpha;
-    for i = 1 : param.S
-        for n = 1:param.N
-            g_ker(n,i) = param.lambda_power_matrix(n,:)*old_alpha{i};
-        end
-    end
-    high_freq_thr = ceil((length(param.lambda_sym))/2);
-    for i = 1:param.S
-        kernel_vect = g_ker(:,i);
-        my_max(i) = find(kernel_vect == max(kernel_vect(2:length(kernel_vect))),1);
-        if my_max(i) > length(kernel_vect)
-            my_max(i) = my_max(i) - length(kernel_vect);
-        end
-    end    
-    param.max = my_max;
+% % %     %% Find the maximum of the kernel functions
+% % %     old_alpha = param.alpha;
+% % %     for i = 1 : param.S
+% % %         for n = 1:param.N
+% % %             g_ker(n,i) = param.lambda_power_matrix(n,:)*old_alpha{i};
+% % %         end
+% % %     end
+% % %     high_freq_thr = ceil((length(param.lambda_sym))/2);
+% % %     for i = 1:param.S
+% % %         kernel_vect = g_ker(:,i);
+% % %         my_max(i) = find(kernel_vect == max(kernel_vect(2:length(kernel_vect))),1);
+% % %         if my_max(i) > length(kernel_vect)
+% % %             my_max(i) = my_max(i) - length(kernel_vect);
+% % %         end
+% % %     end    
+% % %     param.max = my_max;
    
     %% Define the new constraints deriving by the kernels behavior
     h = eye(param.S);
@@ -90,15 +90,15 @@ else
         end
     end
     
-    if my_max(1) > high_freq_thr                   %it means that we're facing a high frequency kernel
+% % %     if my_max(1) > high_freq_thr                   %it means that we're facing a high frequency kernel
         B3 = kron(h,Lambda(1:param.percentage,:));
         B1 = kron(h,Lambda(size(Lambda,1) - thresh + 1:size(Lambda,1),:));
         B2 = kron(h2,Lambda(size(Lambda,1)- thresh + 1:size(Lambda,1),:));
-    else                                          %otherwise we're having a low frequency kernel
-        B3 = kron(h,Lambda(size(Lambda,1) - param.percentage+1:size(Lambda,1),:));
-        B1 = kron(h,Lambda(1:thresh,:));
-        B2 = kron(h2,Lambda(1:thresh,:));
-    end
+% % %     else                                          %otherwise we're having a low frequency kernel
+% % %         B3 = kron(h,Lambda(size(Lambda,1) - param.percentage+1:size(Lambda,1),:));
+% % %         B1 = kron(h,Lambda(1:thresh,:));
+% % %         B2 = kron(h2,Lambda(1:thresh,:));
+% % %     end
     
     for i = 2:param.S
         h = eye(param.S);
@@ -110,7 +110,8 @@ else
             end
         end
         
-        if my_max(i) > high_freq_thr                   %it means that we're facing a high frequency kernel
+% % %         if my_max(i) > high_freq_thr                   %it means that we're facing a high frequency kernel
+        if mod(i,2) ~= 0
             B3 = B3 + kron(h,Lambda(1:param.percentage,:));
             B1 = B1 + kron(h,Lambda(size(Lambda,1) - thresh + 1:size(Lambda,1),:));
             B2 = B2 + kron(h2,Lambda(size(Lambda,1)- thresh + 1:size(Lambda,1),:));

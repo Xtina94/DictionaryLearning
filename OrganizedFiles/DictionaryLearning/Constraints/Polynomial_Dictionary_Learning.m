@@ -80,7 +80,7 @@ for iterNum = 1 : param.numIteration
             for n = 1 : param.N
             p = 0;
             for l = 0 : param.K(i)
-                p = p +  alpha(l + 1 + r)*lambda_powers{n}(l + 1);
+                p = p +  alpha(l + 1 + r)*lambda_powers{l+1}(n);
             end
             g_ker(n,i) = p;
             end

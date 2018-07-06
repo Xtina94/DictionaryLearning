@@ -7,17 +7,20 @@ addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\Comparison_d
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\'); %Folder containing the training and verification dataset
 
 %% Loaging the required dataset
-flag = 1;
+flag = 4;
 switch flag
     case 1
         load ComparisonDorina.mat
         load DataSetDorina.mat
     case 2
-        load ComparisonLF.mat
-        load DataSetLF.mat
+        load ComparisonHeat30.mat
+        load DataSetHeat30.mat
     case 3
         load ComparisonUber.mat
         load DataSetUber.mat
+    case 4
+        load ComparisonDoubleHeat.mat
+        load DataSetDoubleHeat.mat
 end
 
 %% Set the parameters
@@ -33,14 +36,14 @@ switch flag
         param.percentage = 15;
         param.thresh = param.percentage+60;
     case 2 %Cristina
-        param.S = 2;  % number of subdictionaries 
+        param.S = 1;  % number of subdictionaries 
         param.epsilon = 0.02; % we assume that epsilon_1 = epsilon_2 = epsilon
         degree = 15;
-        param.N = 100; % number of nodes in the graph
-        ds = 'Dataset used: data from Cristina';
-        ds_name = 'Cristina'; 
+        param.N = 30; % number of nodes in the graph
+        ds = 'Dataset used: data from 1 LF heat kernel';
+        ds_name = 'Heat'; 
         param.percentage = 8;
-        param.thresh = param.percentage+60;
+        param.thresh = param.percentage+6;
     case 3 %Uber
         param.S = 2;
         param.epsilon = 0.2; % we assume that epsilon_1 = epsilon_2 = epsilon
@@ -50,6 +53,20 @@ switch flag
         ds_name = 'Uber';
         param.percentage = 8;
         param.thresh = param.percentage+6;
+    case 4 %Cristina
+        param.S = 2;  % number of subdictionaries 
+        param.epsilon = 0.02; % we assume that epsilon_1 = epsilon_2 = epsilon
+        degree = 15;
+        param.N = 30; % number of nodes in the graph
+        ds = 'Dataset used: data from double heat kernel';
+        ds_name = 'DoubleHeat'; 
+        param.percentage = 8;
+        param.thresh = param.percentage+6;   
+        temp = comp_alpha;
+        comp_alpha = zeros((degree+1)*param.S,1);
+        for i = 1:2
+            comp_alpha((degree+1)*(i-1)+1:(degree+1)*i) = temp(:,i);
+        end
 end
 
 param.J = param.N * param.S; % total number of atoms 
@@ -57,8 +74,8 @@ param.K = degree*ones(1,param.S);
 param.T0 = 4; % sparsity level in the training phase
 param.c = 1; % spectral control parameters
 param.mu = 1e-2; % polynomial regularizer paremeter
-path = ['C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DictionaryLearning\Constraints\Results\',num2str(ds_name),'\']; %Folder containing the results to save
-
+path = ['C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DictionaryLearning\Constraints\Results\04.07.18\',num2str(ds_name),'\']; %Folder containing the results to save
+% path = '';
 %% Compute the Laplacian and the normalized laplacian operator
     
 L = diag(sum(W,2)) - W; % combinatorial Laplacian
@@ -71,19 +88,18 @@ param.Laplacian = (diag(sum(W,2)))^(-1/2)*L*(diag(sum(W,2)))^(-1/2); % normalize
 for k=0 : max(param.K)
     param.Laplacian_powers{k + 1} = param.Laplacian^k;
 end
-    
-for j=1:param.N
-    for i=0:max(param.K)
-        param.lambda_powers{j}(i + 1) = param.lambda_sym(j)^(i);
-        param.lambda_power_matrix(j,i + 1) = param.lambda_sym(j)^(i);
-     end
+
+param.lambda_power_matrix = zeros(length(param.lambda_sym),max(param.K)+1);
+for i = 1:max(param.K)+1
+    param.lambda_power_matrix(:,i) = param.lambda_sym.^(i-1);
+    param.lambda_powers{i} = param.lambda_sym.^(i-1);
 end
     
 %% Polynomial dictionary learning algorithm
 
 param.InitializationMethod =  'Random_kernels';
 param.displayProgress = 1;
-param.numIteration = 12;
+param.numIteration = 20;
 param.plot_kernels = 1; % plot thelearned polynomial kernels after each iteration
 param.quadratic = 0; % solve the quadratic program using interior point methods
 
@@ -103,6 +119,7 @@ lambda_norm = 'is 0 since here we are learning only the kernels'; %norm(comp_eig
 % % % D_norm = norm(comp_D - Dictionary_Pol(:,1:(param.S - 1)*param.N));
 alpha_norm = norm(comp_alpha - output_Pol.alpha);
 X_norm = norm(comp_X - CoefMatrix_Pol);
+tot_norm_X = norm([(comp_train_X - output_Pol.CoefMatrix) (comp_X - CoefMatrix_Pol)]);
 D_norm = norm(comp_D - Dictionary_Pol);
 W_norm = 'is 0 since here we are learning only the kernels';
 
@@ -119,7 +136,8 @@ save(filename,'lambda_norm','alpha_norm','X_norm','D_norm','W_norm');
 % The Output data
 filename = [path,'Output.mat'];
 learned_alpha = output_Pol.alpha;
-save(filename,'ds','Dictionary_Pol','learned_alpha','CoefMatrix_Pol','errorTesting_Pol','avgCPU');
+% save(filename,'ds','Dictionary_Pol','learned_alpha','CoefMatrix_Pol','errorTesting_Pol','avgCPU','tot_norm_X');
+save(filename,'errorTesting_Pol','avgCPU','tot_norm_X');
 
 % The kernels plot
 figure('Name','Final Kernels')

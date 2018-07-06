@@ -5,18 +5,20 @@ close all
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\Optimizers'); %Folder conatining the yalmip tools
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\Comparison_datasets\'); %Folder containing the copmarison datasets
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\'); %Folder containing the training and verification dataset
-path = 'C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DictionaryLearning\AddingThirdKernel\Results\'; %Folder containing the results to save
 
 %% Loaging the required dataset
-flag = 1;
+flag = 4;
 switch flag
     case 1
         load ComparisonDorina.mat
         load DataSetDorina.mat
     case 2
-        load ComparisonLF.mat
-        load DataSetLF.mat
+        load ComparisonHeat30.mat
+        load DataSetHeat30.mat
     case 3
+        load ComparisonDoubleHeat.mat
+        load DataSetDoubleHeat.mat
+    case 4
         load ComparisonUber.mat
         load DataSetUber.mat
 end
@@ -34,16 +36,30 @@ switch flag
         param.percentage = 15;
         param.thresh = param.percentage+60;
     case 2 %Cristina
-        param.S = 3;  % number of subdictionaries 
+        param.S = 1;  % number of subdictionaries 
         param.epsilon = 0.02; % we assume that epsilon_1 = epsilon_2 = epsilon
         degree = 15;
-        param.N = 100; % number of nodes in the graph
+        param.N = 30; % number of nodes in the graph
         ds = 'Dataset used: data from Cristina';
-        ds_name = 'Cristina'; 
+        ds_name = 'Heat'; 
         param.percentage = 8;
-        param.thresh = param.percentage+60;
-    case 3 %Uber
-        param.S = 3;
+        param.thresh = param.percentage+6;
+    case 3 %Double heat
+        param.S = 2;  % number of subdictionaries 
+        param.epsilon = 0.02; % we assume that epsilon_1 = epsilon_2 = epsilon
+        degree = 15;
+        param.N = 30; % number of nodes in the graph
+        ds = 'Dataset used: data from Cristina';
+        ds_name = 'DoubleHeat'; 
+        param.percentage = 8;
+        param.thresh = param.percentage+6;
+        temp = comp_alpha;
+        comp_alpha = zeros(param.S*(degree+1),1);
+        for i = 1:param.S
+            comp_alpha((i-1)*(degree+1)+1:i*(degree+1),1) = temp(:,i);
+        end
+    case 4 %Uber
+        param.S = 2;
         param.epsilon = 0.2; % we assume that epsilon_1 = epsilon_2 = epsilon
         degree = 15;
         param.N = 29; % number of nodes in the graph
@@ -53,6 +69,8 @@ switch flag
         param.thresh = param.percentage+6;
 end
 
+path = ['C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DictionaryLearning\OriginalAlgo\Results\04.07.18\', num2str(ds_name),'\']; %Folder containing the results to save
+path = '';
 param.J = param.N * param.S; % total number of atoms 
 param.K = degree*ones(1,param.S);
 param.T0 = 4; % sparsity level in the training phase
@@ -104,6 +122,7 @@ lambda_norm = 'is 0 since here we are learning only the kernels'; %norm(comp_eig
 X_norm = norm(comp_X - CoefMatrix_Pol);
 D_norm = norm(comp_D - Dictionary_Pol);
 alpha_norm = norm(comp_alpha - output_Pol.alpha);
+X_tot_norm = norm([(comp_X - CoefMatrix_Pol) (comp_train_X - output_Pol.CoefMatrix)]);
 W_norm = 'is 0 since here we are learning only the kernels';
 
 %% Compute the average CPU_time
@@ -119,7 +138,8 @@ save(filename,'lambda_norm','alpha_norm','X_norm','D_norm','W_norm');
 % The Output data
 filename = [path,'Output.mat'];
 learned_alpha = output_Pol.alpha;
-save(filename,'ds','Dictionary_Pol','learned_alpha','CoefMatrix_Pol','errorTesting_Pol','avgCPU');
+% save(filename,'ds','Dictionary_Pol','learned_alpha','CoefMatrix_Pol','errorTesting_Pol','avgCPU');
+save(filename,'X_tot_norm','errorTesting_Pol','avgCPU')
 
 % The kernels plot
 figure('Name','Final Kernels')

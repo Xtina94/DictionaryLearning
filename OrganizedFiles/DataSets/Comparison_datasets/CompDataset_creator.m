@@ -6,7 +6,7 @@ addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\'); %Folder 
 path = ('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\Comparison_datasets\');
 
 %% Loading the required dataset
-flag = 2;
+flag = 1;
 switch flag
     case 1
         load testdata.mat

@@ -3,7 +3,7 @@ close all
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\GeneratingKernels\Results\');
 path = 'C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\';
 
-flag = 3;
+flag = 4;
 switch flag
     case 1
         load '2LF_kernels.mat'
@@ -12,6 +12,32 @@ switch flag
         kernels_type = 'LF';
         n_kernels = 2;
         k = 15; %polynomial degree
+        
+        syms kernel;
+        syms x;
+        for i = 1:n_kernels
+            eval(strcat('kernel_',num2str(i),'(x) = x^(0)*alpha_',num2str(i)));
+        end
+        for i = 1:n_kernels
+            for j = 2:k+1
+                eval(strcat('kernel_',num2str(i),'(x) = kernel_',num2str(i),...
+                    '(x) + x^(',num2str(j),'-1)*alpha_',num2str(i),'(',num2str(j),')'));
+            end
+        end
+%         load comp_lambdaSym.mat;
+        lambdas = [0:0.001:1];
+        for i = 1:n_kernels
+            eval(strcat('kernels(:,',num2str(i),') = kernel_',num2str(i),'(lambdas)'));
+        end
+        figure('Name','Heat kernels representation')
+        hold on
+        for i = 1:n_kernels
+            plot(lambdas,kernels{i});
+        end
+        hold off
+        %% Save results to file
+        filename = [path,'2LF_Kernel_plot.png'];
+        saveas(gcf,filename);
     case 2
         load '2HF_kernels.mat'
         load 'Output_results.mat'
@@ -41,7 +67,7 @@ switch flag
 end
 
 m = 30;
-l = 1000;
+l = 2000;
 t0 = 4;
 
 %% Obtaining the corresponding weight and Laplacian matrices + the eigen decomposition parameters
@@ -82,8 +108,8 @@ X = Generate_sparsity(n_kernels,t0,m,l);
 %% Generate the signal through Y = DX
 Y = comp_D*X;
 TrainSignal = Y(:,1:800);
-TestSignal = Y(:,801:1000);
-comp_X = X(:,801:1000);
+TestSignal = Y(:,801:2000);
+comp_X = X(:,801:2000);
 comp_train_X = X(:,1:800);
 filename = strcat(path,'DataSet',num2str(kernels_type),'.mat');
 save(filename,'TestSignal','TrainSignal','W');
