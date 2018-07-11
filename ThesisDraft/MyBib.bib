@@ -73,3 +73,91 @@ title = {{Dictionaries for Sparse Representation Modeling.pdf}},
 volume = {98},
 year = {2010}
 }
+
+
+@article{Pati1993,
+abstract = {We describe a recursive algorithm to compute representations of functions with respect to nonorthogonal and possibly overcomplete dictionaries of elementary building blocks e.g. affine (wavelet) frames. We propose a modification to the matching pursuit algorithm of Mallat and Zhang (1992) that maintains full backward orthogonality of the residual (error) at every step and thereby leads to improved convergence. We refer to this modified algorithm as orthogonal matching pursuit (OMP). It is shown that all additional computation required for the OMP algorithm may be performed recursively},
+author = {Pati, Y.C. and Rezaiifar, R. and Krishnaprasad, P.S.},
+doi = {10.1109/ACSSC.1993.342465},
+file = {:C$\backslash$:/Users/Cristina/Documents/Losanna/Thesis/Orthogonal Matching pursuit.pdf:pdf},
+isbn = {0-8186-4120-7},
+issn = {1058-6393},
+journal = {Proceedings of 27th Asilomar Conference on Signals, Systems and Computers},
+pages = {40--44},
+title = {{Orthogonal matching pursuit: recursive function approximation with applications to wavelet decomposition}},
+url = {http://ieeexplore.ieee.org/document/342465/},
+year = {1993}
+}
+
+@article{Gorodnitsky1997,
+abstract = {We present a nonparametric algorithm for finding localized energy$\backslash$nsolutions from limited data. The problem we address is underdetermined,$\backslash$nand no prior knowledge of the shape of the region on which the solution$\backslash$nis nonzero is assumed. Termed the FOcal Underdetermined System Solver$\backslash$n(FOCUSS), the algorithm has two integral parts: a low-resolution initial$\backslash$nestimate of the real signal and the iteration process that refines the$\backslash$ninitial estimate to the final localized energy solution. The iterations$\backslash$nare based on weighted norm minimization of the dependent variable with$\backslash$nthe weights being a function of the preceding iterative solutions. The$\backslash$nalgorithm is presented as a general estimation tool usable across$\backslash$ndifferent applications. A detailed analysis laying the theoretical$\backslash$nfoundation for the algorithm is given and includes proofs of global and$\backslash$nlocal convergence and a derivation of the rate of convergence. A view of$\backslash$nthe algorithm as a novel optimization method which combines desirable$\backslash$ncharacteristics of both classical optimization and learning-based$\backslash$nalgorithms is provided. Mathematical results on conditions for$\backslash$nuniqueness of sparse solutions are also given. Applications of the$\backslash$nalgorithm are illustrated on problems in direction-of-arrival (DOA)$\backslash$nestimation and neuromagnetic imaging},
+author = {Gorodnitsky, Irina F. and Rao, Bhaskar D.},
+doi = {10.1109/78.558475},
+file = {:C$\backslash$:/Users/Cristina/Documents/Losanna/Thesis/Sparse signal reconstr. using FOCUSS.pdf:pdf},
+isbn = {1053-587X},
+issn = {1053587X},
+journal = {IEEE Transactions on Signal Processing},
+number = {3},
+pages = {600--616},
+pmid = {1000198971},
+title = {{Sparse signal reconstruction from limited data using FOCUSS: A re-weighted minimum norm algorithm}},
+volume = {45},
+year = {1997}
+}
+
+@article{Thanou2014,
+abstract = {In sparse signal representation, the choice of a dictionary often involves a tradeoff between two desirable properties -- the ability to adapt to specific signal data and a fast implementation of the dictionary. To sparsely represent signals residing on weighted graphs, an additional design challenge is to incorporate the intrinsic geometric structure of the irregular data domain into the atoms of the dictionary. In this work, we propose a parametric dictionary learning algorithm to design data-adapted, structured dictionaries that sparsely represent graph signals. In particular, we model graph signals as combinations of overlapping local patterns. We impose the constraint that each dictionary is a concatenation of subdictionaries, with each subdictionary being a polynomial of the graph Laplacian matrix, representing a single pattern translated to different areas of the graph. The learning algorithm adapts the patterns to a training set of graph signals. Experimental results on both synthetic and real datasets demonstrate that the dictionaries learned by the proposed algorithm are competitive with and often better than unstructured dictionaries learned by state-of-the-art numerical learning algorithms in terms of sparse approximation of graph signals. In contrast to the unstructured dictionaries, however, the dictionaries learned by the proposed algorithm feature localized atoms and can be implemented in a computationally efficient manner in signal processing tasks such as compression, denoising, and classification.},
+archivePrefix = {arXiv},
+arxivId = {1401.0887},
+author = {Thanou, Dorina and Shuman, David I. and Frossard, Pascal},
+doi = {10.1109/TSP.2014.2332441},
+eprint = {1401.0887},
+file = {:C$\backslash$:/Users/Cristina/Documents/Losanna/Thesis/Learning parametric dictionaries for signals on graphs.pdf:pdf},
+isbn = {1053-587X VO  - 62},
+issn = {1053587X},
+journal = {IEEE Transactions on Signal Processing},
+keywords = {Dictionary learning,graph Laplacian,graph signal processing,sparse approximation},
+number = {15},
+pages = {3849--3862},
+title = {{Learning parametric dictionaries for signals on graphs}},
+volume = {62},
+year = {2014}
+}
+
+@article{Dong2016,
+abstract = {The construction of a meaningful graph plays a crucial role in the success of many graph-based representations and algorithms for handling structured data, especially in the emerging field of graph signal processing. However, a meaningful graph is not always readily available from the data, nor easy to define depending on the application domain. In particular, it is often desirable in graph signal processing applications that a graph is chosen such that the data admit certain regularity or smoothness on the graph. In this paper, we address the problem of learning graph Laplacians, which is equivalent to learning graph topologies, such that the input data form graph signals with smooth variations on the resulting topology. To this end, we adopt a factor analysis model for the graph signals and impose a Gaussian probabilistic prior on the latent variables that control these signals. We show that the Gaussian prior leads to an efficient representation that favors the smoothness property of the graph signals. We then propose an algorithm for learning graphs that enforces such property and is based on minimizing the variations of the signals on the learned graph. Experiments on both synthetic and real world data demonstrate that the proposed graph learning framework can efficiently infer meaningful graph topologies from signal observations under the smoothness prior.},
+archivePrefix = {arXiv},
+arxivId = {1406.7842},
+author = {Dong, Xiaowen and Thanou, Dorina and Frossard, Pascal and Vandergheynst, Pierre},
+doi = {10.1109/TSP.2016.2602809},
+eprint = {1406.7842},
+file = {:C$\backslash$:/Users/Cristina/Documents/Losanna/Thesis/Leraning Laplacian Matrix in smooth graph signal representation.pdf:pdf},
+isbn = {9781467369978},
+issn = {1053587X},
+journal = {IEEE Transactions on Signal Processing},
+keywords = {Gaussian prior,Laplacian matrix learning,factor analysis,graph signal processing,representation theory},
+number = {23},
+pages = {6160--6173},
+title = {{Learning Laplacian Matrix in Smooth Graph Signal Representations}},
+volume = {64},
+year = {2016}
+}
+
+@article{Shuman2016,
+abstract = {One of the key challenges in the area of signal processing on graphs is to design dictionaries and transform methods to identify and exploit structure in signals on weighted graphs. To do so, we need to account for the intrinsic geometric structure of the underlying graph data domain. In this paper, we generalize one of the most important signal processing tools - windowed Fourier analysis - to the graph setting. Our approach is to first define generalized convolution, translation, and modulation operators for signals on graphs, and explore related properties such as the localization of translated and modulated graph kernels. We then use these operators to define a windowed graph Fourier transform, enabling vertex-frequency analysis. When we apply this transform to a signal with frequency components that vary along a path graph, the resulting spectrogram matches our intuition from classical discrete-time signal processing. Yet, our construction is fully generalized and can be applied to analyze signals on any undirected, connected, weighted graph.},
+archivePrefix = {arXiv},
+arxivId = {1307.5708},
+author = {Shuman, David I. and Ricaud, Benjamin and Vandergheynst, Pierre},
+doi = {10.1016/j.acha.2015.02.005},
+eprint = {1307.5708},
+file = {:C$\backslash$:/Users/Cristina/Documents/Losanna/Thesis/Vertex-frequency analysis on graphs.pdf:pdf},
+isbn = {1307.5708},
+issn = {1096603X},
+journal = {Applied and Computational Harmonic Analysis},
+keywords = {Clustering,Generalized translation and modulation,Localization,Signal processing on graphs,Spectral graph theory,Time-frequency analysis},
+number = {2},
+pages = {260--291},
+title = {{Vertex-frequency analysis on graphs}},
+volume = {40},
+year = {2016}
+}
