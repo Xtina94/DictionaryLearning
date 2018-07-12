@@ -3,41 +3,40 @@ close all
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\GeneratingKernels\Results\');
 path = 'C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\';
 
-flag = 4;
+flag = 1;
 switch flag
     case 1
         load '2LF_kernels.mat'
-        alpha_1 = alpha_2;
-        alpha_2 = alpha_5;
+        comp_alpha(:,1) = alpha_2;
+        comp_alpha(:,2) = alpha_5;
         kernels_type = 'LF';
         n_kernels = 2;
-        k = 15; %polynomial degree
-        
-        syms kernel;
-        syms x;
-        for i = 1:n_kernels
-            eval(strcat('kernel_',num2str(i),'(x) = x^(0)*alpha_',num2str(i)));
-        end
-        for i = 1:n_kernels
-            for j = 2:k+1
-                eval(strcat('kernel_',num2str(i),'(x) = kernel_',num2str(i),...
-                    '(x) + x^(',num2str(j),'-1)*alpha_',num2str(i),'(',num2str(j),')'));
-            end
-        end
-%         load comp_lambdaSym.mat;
-        lambdas = [0:0.001:1];
-        for i = 1:n_kernels
-            eval(strcat('kernels(:,',num2str(i),') = kernel_',num2str(i),'(lambdas)'));
-        end
-        figure('Name','Heat kernels representation')
-        hold on
-        for i = 1:n_kernels
-            plot(lambdas,kernels{i});
-        end
-        hold off
-        %% Save results to file
-        filename = [path,'2LF_Kernel_plot.png'];
-        saveas(gcf,filename);
+        k = 15; %polynomial degree        
+% % %         syms kernel;
+% % %         syms x;
+% % %         for i = 1:n_kernels
+% % %             eval(strcat('kernel_',num2str(i),'(x) = x^(0)*alpha_',num2str(i)));
+% % %         end
+% % %         for i = 1:n_kernels
+% % %             for j = 2:k+1
+% % %                 eval(strcat('kernel_',num2str(i),'(x) = kernel_',num2str(i),...
+% % %                     '(x) + x^(',num2str(j),'-1)*alpha_',num2str(i),'(',num2str(j),')'));
+% % %             end
+% % %         end
+% % %         load comp_lambdaSym.mat;
+% % % %         lambdas = [0:0.001:1];
+% % %         for i = 1:n_kernels
+% % %             eval(strcat('kernels(:,',num2str(i),') = kernel_',num2str(i),'(lambdas)'));
+% % %         end
+% % %         figure('Name','Heat kernels representation')
+% % %         hold on
+% % %         for i = 1:n_kernels
+% % %             plot(lambdas,kernels{i});
+% % %         end
+% % %         hold off
+% % %         %% Save results to file
+% % %         filename = [path,'2LF_Kernel_plot.png'];
+% % %         saveas(gcf,filename);
     case 2
         load '2HF_kernels.mat'
         load 'Output_results.mat'
@@ -64,6 +63,15 @@ switch flag
             eval(['comp_alpha(:,',num2str(i),') = HeatKernel(:,',num2str(i),')']);
         end
         kernels_type = 'DoubleHeat';
+    case 5
+        load 'DoubleInv_HeatKernel.mat'
+        n_kernels = 2;
+        k = 15; %polynomial degree
+        comp_alpha = zeros(k+1,n_kernels);
+        for i = 1:n_kernels
+            eval(['comp_alpha(:,',num2str(i),') = DoubleInv_HeatKernel(',num2str(i),',:)']);
+        end
+        kernels_type = 'DoubleInvHeat';
 end
 
 m = 30;

@@ -6,9 +6,9 @@ addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\Optimizers'); %Folder
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\Comparison_datasets\'); %Folder containing the comparison datasets
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\'); %Folder containing the training and verification dataset
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\GeneratingKernels\Results'); %Folder conatining the heat kernel coefficients
-path = 'C:\Users\Cristina\Documents\GitHub\OrganizedFiles\Graph&DictLearning\G&D_fromGraphCorrect\Results\06.07.18\'; %Folder containing the results to save
+path = 'C:\Users\Cristina\Documents\GitHub\OrganizedFiles\Graph&DictLearning\G&D_fromGraphCorrect\Results\12.07.18\'; %Folder containing the results to save
 
-flag = 5;
+flag = 6;
 
 switch flag
     case 1 %Dorina
@@ -24,10 +24,16 @@ switch flag
         load DataSetHeat30.mat;
         load ComparisonHeat30.mat;
         load LF_heatKernel.mat;
+%         load prova.mat;
+%         comp_alpha = prova{1};
     case 5
         load DataSetDoubleHeat.mat;
         load ComparisonDoubleHeat.mat;
         load HeatKernel.mat;
+    case 6
+        load DataSetDoubleInvHeat.mat;
+        load ComparisonDoubleInvHeat.mat;
+%         load DoubleInv_HeatKernel.mat;
 end
 
 switch flag
@@ -71,7 +77,7 @@ switch flag
         ds = 'Dataset used: data from Heat kernel';
         ds_name = 'Heat';        
         param.percentage = 8;
-        param.thresh = param.percentage + 6;
+        param.thresh = param.percentage + 18;
         alpha = 5; %gradient descent parameter, it decreases with epochs
     case 5 %Heat kernel
         Y = TrainSignal;
@@ -81,8 +87,18 @@ switch flag
         ds = 'Dataset used: data from double Heat kernel';
         ds_name = 'DoubleHeat';        
         param.percentage = 8;
-        param.thresh = param.percentage + 0;
-        alpha = 10; %gradient descent parameter, it decreases with epochs
+        param.thresh = param.percentage + 2;
+        alpha = 15; %gradient descent parameter, it decreases with epochs
+    case 6 %Double inv heat kernel
+        Y = TrainSignal;
+        K = 15;
+        param.S = 2;  % number of subdictionaries 
+        param.epsilon = 0.2; % we assume that epsilon_1 = epsilon_2 = epsilon
+        ds = 'Dataset used: data from double Heat kernel';
+        ds_name = 'DoubleHeat';        
+        param.percentage = 8;
+        param.thresh = param.percentage + 4;
+        alpha = 15; %gradient descent parameter, it decreases with epochs
 end
 
 param.N = size(Y,1); % number of nodes in the graph
@@ -124,7 +140,10 @@ end
 
 %% Initialize W:
 
-[param.Laplacian, initial_W] = init_by_weight(param.N);
+uniform_values = unifrnd(0,1,[1,param.N]);
+sigma = 0.2;
+[initial_W,param.Laplacian] = random_geometric(sigma,param.N,uniform_values,0.6);
+% [param.Laplacian, initial_W] = init_by_weight(param.N);
 initial_Laplacian = param.Laplacian;
 
 [param.eigenMat, param.eigenVal] = eig(param.Laplacian);
@@ -163,7 +182,8 @@ for big_epoch = 1:maxIter
     if mod(big_epoch,5) == 0
         %------optimize with respect to alpha------%
         
-        [param,cpuTm] = coefficient_update_interior_point(Y,x,param,'sdpt3',g_ker);
+        roots = retrieve_betas(param);
+        [param,cpuTm] = coefficient_update_interior_point(Y,x,param,'sdpt3',roots);
 %         cpuTime((big_epoch + 1)/2) = cpuTm;        
     else
         %--------optimise with respect to W--------%

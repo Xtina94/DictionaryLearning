@@ -10,10 +10,10 @@ g_6 = cos(2*x);
 g_7 = -1.3*sin(3.85*x);
 g_8 = 1.17*sin(3.5*x);
 g_9 = -2*cos(1.75*x);
-g_2(x) = 2.7*sin(3*x) + 0.55*cos(2*x);
+g_2(x) = 2.7*sin(4*x) + 0.55*cos(5*x);
 g_3(x) = -1.3*sin(3*x) - 2.5*cos(2*x);
 g_4(x) = 1.17*sin(3.5*x) - 2*cos(1.75*x);
-g_5(x) = 3.5*sin(2.7*x) - 0.55*cos(3*x) + 0.6466;
+g_5(x) = 3.5*sin(4.7*(-x) - 3) - 0.55*cos(2.5*(-x) + 3) + 0.6466;
 
 interval = [0,2];
 figure('Name','No approx')
@@ -31,10 +31,10 @@ t_4 = taylor(g_4, 'Order', 16);
 t_5 = taylor(g_5, 'Order', 16);
 
 % t = t + 1.85;
-t_2 = (t_2 + 3.5)/8;
+t_2 = (t_2 + 2.21)/7.65;
 t_3 = (t_3 + 3.5)/8;
 t_4 = (t_4 + 3.5)/8;
-t_5 = (t_5 + 3.5)/8;
+t_5 = (t_5 + 3.36)/7.65;
 
 filename = strcat(path,'Original kernels.png');
 saveas(gcf,filename,'png');
@@ -53,13 +53,13 @@ pol = 0;
 %     end
 % end
 
-interval = [0,2];
+interval = [0,1.3];
 figure('Name','First kernels')
 hold on
 fplot(t_2,interval)
 % fplot(pol,interval)
-fplot(t_3,interval)
-fplot(t_4,interval)
+% fplot(t_3,interval)
+% fplot(t_4,interval)
 fplot(t_5,interval)
 hold off
 

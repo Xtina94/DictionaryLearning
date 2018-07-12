@@ -1,4 +1,4 @@
-function [param,cpuTime] = coefficient_update_interior_point(Data,CoefMatrix,param,sdpsolver,g_ker)
+function [param,cpuTime] = coefficient_update_interior_point(Data,CoefMatrix,param,sdpsolver,roots)
 
 my_max = param.max;
 N = param.N;
@@ -15,7 +15,7 @@ Laplacian_powers = param.Laplacian_powers;
 Lambda = param.lambda_power_matrix;
 thresh = param.thresh;
 
-BA = sparse(kron(eye(S),Lambda(1:size(Lambda,1),:)));
+BA = kron(eye(S),Lambda(1:size(Lambda,1),:));
 BB = kron(ones(1,S),Lambda(1:size(Lambda,1),:));
 
 Phi = zeros(S*(K+1),1);
@@ -55,12 +55,11 @@ X = norm(Data,'fro')^2 - 2*YPhi*alpha + alpha'*(PhiPhiT + mu*eye(size(PhiPhiT,2)
 %% Set constraints
 % First learn the kernels for a couple of iterations, so that to foresee
 % the behavior
-if param.iterN < 0
+if param.iterN < 210
     F = (BA*alpha <= c*ones(la,1))...
-        + (-BA*alpha <= -0.001*epsilon*ones(la,1))...
+        + (BA*alpha >= 0*ones(la,1))...     %<= -0.001*epsilon*ones(la,1))...
         + (BB*alpha <= (c+0.1*epsilon)*ones(lb,1))...
-        + (-BB*alpha <= ((c-0.1*epsilon)*ones(lb,1)));
-%         + (alpha(1:8) >= 0.01);
+        + (BB*alpha >= ((c-0.1*epsilon)*ones(lb,1)));
 else
 % % %     %% Find the maximum of the kernel functions
 % % %     old_alpha = param.alpha;
@@ -91,13 +90,15 @@ else
     end
     
 % % %     if my_max(1) > high_freq_thr                   %it means that we're facing a high frequency kernel
-        B3 = kron(h,Lambda(1:param.percentage,:));
-        B1 = kron(h,Lambda(size(Lambda,1) - thresh + 1:size(Lambda,1),:));
-        B2 = kron(h2,Lambda(size(Lambda,1)- thresh + 1:size(Lambda,1),:));
+% % %         B3 = kron(h,Lambda(1:param.percentage,:));
+% % %         B1 = kron(h,Lambda(thresh + 1:size(Lambda,1),:));
+% % %         B2 = kron(h2,Lambda(thresh + 1:size(Lambda,1),:));
 % % %     else                                          %otherwise we're having a low frequency kernel
-% % %         B3 = kron(h,Lambda(size(Lambda,1) - param.percentage+1:size(Lambda,1),:));
-% % %         B1 = kron(h,Lambda(1:thresh,:));
-% % %         B2 = kron(h2,Lambda(1:thresh,:));
+        B3 = kron(h,Lambda(size(Lambda,1) - param.percentage+1:size(Lambda,1),:));
+        B1 = kron(h,Lambda(1:size(Lambda,1) - thresh,:));
+        B2 = kron(h2,Lambda(1:size(Lambda,1) - thresh,:));
+% % %         B1 = B1 + kron(h,Lambda(1:thresh,:));
+% % %         B2 = B2 + kron(h2,Lambda(1:thresh,:));
 % % %     end
     
     for i = 2:param.S
@@ -110,15 +111,19 @@ else
             end
         end
         
-% % %         if my_max(i) > high_freq_thr                   %it means that we're facing a high frequency kernel
-        if mod(i,2) ~= 0
+% % %         if my_max(i) > high_freq_thr                   
+        if mod(i,2) == 0    %it means that we're facing a high frequency kernel
             B3 = B3 + kron(h,Lambda(1:param.percentage,:));
-            B1 = B1 + kron(h,Lambda(size(Lambda,1) - thresh + 1:size(Lambda,1),:));
-            B2 = B2 + kron(h2,Lambda(size(Lambda,1)- thresh + 1:size(Lambda,1),:));
-        else                                          %otherwise we're having a low frequency kernel
+            B1 = B1 + kron(h,Lambda(thresh + 1:size(Lambda,1),:));
+            B2 = B2 + kron(h2,Lambda(thresh + 1:size(Lambda,1),:));
+% % %             B1 = B1 + kron(h,Lambda(size(Lambda,1) - thresh + 1: size(Lambda,1),:));
+% % %             B2 = B2 + kron(h2,Lambda(size(Lambda,1) - thresh + 1: size(Lambda,1),:));
+        else                %otherwise we're having a low frequency kernel
             B3 = B3 + kron(h,Lambda(size(Lambda,1) - param.percentage+1:size(Lambda,1),:));
-            B1 = B1 + kron(h,Lambda(1:thresh,:));
-            B2 = B2 + kron(h2,Lambda(1:thresh,:));
+            B1 = B1 + kron(h,Lambda(1:size(Lambda,1) - thresh,:));
+            B2 = B2 + kron(h2,Lambda(1:size(Lambda,1) - thresh,:));
+% % %             B1 = B1 + kron(h,Lambda(1:thresh,:));
+% % %             B2 = B2 + kron(h2,Lambda(1:thresh,:));
         end
     end
     
@@ -126,12 +131,12 @@ else
     l1 = length(B1*alpha);
     l2 = length(B2*alpha);
 
-    F = (B1*alpha >= 0.001*epsilon*ones(l1,1))...
+    F = (B1*alpha <= c*ones(l1,1))...
+        + (B1*alpha >= 0.001*epsilon*ones(l1,1))...
         + (B2*alpha <= (c+1*epsilon)*ones(l2,1))...
-        + (-B2*alpha <= (c-1*epsilon)*ones(l2,1))...
         + (B3*alpha <= 0.001*epsilon*ones(l3,1))...
-        + (-B3*alpha <= 0*ones(l3,1));
-%         + (alpha(1:8) >= 0.01);
+        + (B3*alpha >= 0*ones(l3,1))...
+        + (B2*alpha >= (c-1*epsilon)*ones(l2,1));
 end
 
 %---------------------------------------------------------------------
@@ -150,6 +155,7 @@ else
 end
 
 double(X);
+param.objective(param.iterN) = double(X);
 cpuTime = diagnostics.solveroutput.info.cputime;
 alpha = double(alpha);
 
