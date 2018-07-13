@@ -1,4 +1,4 @@
-\section{Representing a graph: graph learning techniques and dictionary representation}
+\chapter*{Representing a graph: graph learning techniques and dictionary representation}
 In the previous section we presented the main reason why signal processing field expressed the necessity of having new different structures in order to better represent the amount of information we can collect from a phenomena: what we did not focused on yet, is the fact that these amount of data are usually largely redundant, since they are a densely sampled version of the signal and they may represent multiple correlated versions of the same physical event. So normally the significative information regarding the underlying processes is largely reducible in dimensionality with respect of the collected dataset. \cite{Tosic2011} Thus, we can obtain the data representations starting from the idea that our observations can be described by a sparse subset of elementary signals - so called \textit{atoms} - taken from an \textit{overcomplete dictionary}. When the dictionary forms a basis, then every signal can be univocally represented through the linear combination of the dictionary atoms, moreover the overcompleteness property \cri{definisci i significati delle n. Sei sicura che stai avendo a che fare con dizionari overcomplete? Si si } implies that atoms are linearly dependent. \cite{Tosic2011} \cite{Rubinstein2010}
 
 With these premises, we consider a dictionary $\textbf{D} = [\textbf{d}_1, \textbf{d}_2, \dots, \textbf{d}_L] \in \R^{N \times L}$, in which the columns represent the dictionary atoms and, for the overcompleteness, $L\geq N$. Through this entity, the signal representations can be done through two main paths, either the \textit{synthesis} path, or the \textit{analysis} path, and the two can significantly differ in the overcomplete case.
@@ -21,7 +21,7 @@ The representation in \ref{eq:synthesis} has the consequence that, when the dict
 \end{equation}
 The way we choose the form of the cost function obviously influences the structure of our solution, to be specific, one of our goals is to achieve sparsity in the representation of the signal, such that the signal reconstruction is reduced in dimensionality as we are trying to achieve from the beginning. Problem in \ref{eq:costF} becomes what is commonly referred as \textit{sparse coding}, and there are different functions we can apply in order to obtain it: these functions have the characteristic of being tolerant to large coefficients and at the same time importantly penalize small non-zero ones. Among these functions, our choice fell on the $l$ norm, which is one of the simplest and most effective function of this type.
 
-\subsection{Choosing the right dictionary}
+\section{Choosing the right dictionary}
  What we did not focused on yet is the choice of the proper Dictionary for out task. In the research there has been so far, different models of Dictionaries have been defined and used for the most different purposes, in the beginning the attention was mainly on traditional dictionaries, such as wavelet and Fourier dictionaries, which are simple to use and perform well for 1-dimensional signals. However, these structures were too simple to properly describe more complex and high-dimensional data, so the focus slowly moved to seeking solutions that better performed in this environment. Dictionaries emerged from this need were coming from two main sources:
  \begin{itemize}
  \item As an \textit{analytical model}, which allows to extract the dictionary straight form the data for a fast implicit implementation that does not require multiplication by the dictionary matrix;
@@ -42,7 +42,7 @@ To achieve sparse and efficient representations, the requirement for finding the
 \end{equation}
 in which the relaxation allowed to replace the nonconvex $l^0$ norm in the original problem with a more meaningful $l^1$ norm. \cite{Tosic2011}
 
-\subsection{The correspondence between the dictionary and the graph signal}
+\section{The correspondence between the dictionary and the graph signal}
 In \ref{sec:graph laplacian} we introduced the Laplacian operator as $L = D - W$, here we focus on a modified version of this operator, that is the \textit{normalized Laplacian} $\mathcal{L} = D^{-\frac{1}{2}}LD^{-\frac{1}{2}}$, also a real symmetric and positive semidefinite matrix, with a complete set of orthonormal eigenvectors $\textbf{$\chi$} = [\chi_0,\chi_1,\dots,\chi_{N-1}]$ and associated non negative eigenvalues $\sigma(\mathcal{L}) := \{ 0 = \lambda_0,\lambda_1,\dots,\lambda{N-1} \leq 2 \}$ (where the upper bound 2 comes from the normalization).
 The normalized Laplacian eigenvectors are Fourier basis, this bringing any function $y$ defined on the vertices of the graph to be represented in his Fourier transform version $\hat{y}$ at frequency $\lambda_l$ as:
 \begin{equation}
@@ -72,15 +72,12 @@ where $(\mathcal{L})_n$ represents the $n^{th}$ column of the $k^{th}$ power of 
 Tg = \sqrt{N}\hat{g}(\mathcal{L}) = \sqrt{N}\chi \hat{g}(\Lambda)\chi^T = \sqrt{N}\sum_{k=0}^{K}\alpha_k\mathcal{L}^k
 \label{eq:tg}
 \end{equation}
-Where the quantity $\Lambda$ corresponds to the diagonal matrix of the eigenvalues in such a way that the following relation holds: $\mathcal{L} = \chi \Lambda \chi^T$ \cite{Dong2016}. This brief section has the intrinsic meaning that if the kernel $g(\cdot)$ is a polynomial of degree $K$, then the translation operator is $0$ in all the vertices $i$ that are more than $K$ hops far away from the center vertex $n$, which means that the vertex domain support of the translated vertex is contained in a sphere of radius $K$ and center in $n$ and its magnitude decades with the increasing distance from $n$ to $i$.
-In \autoref{fig:minnesota} there is an example of an atom translation in three different ways, $T_{100}g$, $T_{200}g$ and $T_{2000}g$.
+Where the quantity $\Lambda$ corresponds to the diagonal matrix of the eigenvalues in such a way that the following relation holds: $\mathcal{L} = \rchi \Lambda \rchi^T$ \cite{Dong2016}. This brief section has the intrinsic meaning that if the kernel $g(\cdot)$ is a polynomial of degree $K$, then the translation operator is $0$ in all the vertices $i$ that are more than $K$ hops far away from the center vertex $n$, which means that the vertex domain support of the translated vertex is contained in a sphere of radius $K$ and center in $n$ and its magnitude decades with the increasing distance from $n$ to $i$.
+In \autoref{fig:minnesota} there is an example of an atom translation in three different ways.
 
 \begin{figure}
 \centering
 \includegraphics[width = 1\textwidth]{MinnesotaTranslation.png}
-\caption{Example of graph signal translation}
+\caption{Example of graph signal translation: translation for $T_{200}g$ (a), $T_{1000}g$ (b) and $T_{2000}g$ (c)}
 \label{fig:minnesota}
 \end{figure}
-
-\subsection{The smoothness assumption}
-citare \cite{Shuman2016}

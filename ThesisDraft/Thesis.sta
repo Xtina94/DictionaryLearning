@@ -1,0 +1,4 @@
+\standalonepreambles
+\subpreamble{DictionaryDescription.tex}
+\usepackage {import}
+\endsubpreamble

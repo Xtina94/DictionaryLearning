@@ -1,19 +1,20 @@
-\documentclass[11pt,a4paper,titlepage]{article}
+\documentclass[11pt,a4paper,titlepage]{book}
+% \usepackage[subpreambles=true]{standalone}
 \usepackage[a4paper]{geometry}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\newcommand*{\myfont}{\fontfamily{lmr}\selectfont}
-% \usepackage{lmodern}
 \usepackage[light]{CormorantGaramond}
 \usepackage{import}
 
-% \usepackage[light,math]{kurier}
 \linespread{1.5}
 
 \usepackage{amsmath, amssymb, amsfonts, amsthm, mathtools}
-% mathtools for: Aboxed (put box on last equation in align envirenment)
 \newcommand{\R}{\mathbb{R}}
+\newcommand{\Z}{\mathbb{Z}}
 \newcommand{\argmin}{\arg\!\min} % AlfC
+\DeclareMathOperator{\tr}{tr}
+\newcommand{\irchi}[2]{\raisebox{\depth}{$#1\chi$}}
+\newcommand{\rchi}{{\mathpalette\irchi\relax}}
 
 \usepackage{microtype} %improves the spacing between words and letters
 
@@ -34,6 +35,8 @@
 \usepackage[dvipsnames]{xcolor} % Enabling mixing colors and color's call by 'svgnames'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \definecolor{MyColor1}{rgb}{0.2,0.4,0.6} %mix personal color
+\definecolor{MyColor2}{HTML}{A30073}
+\definecolor{MyColor3}{HTML}{A3008F}
 \newcommand{\textb}{\color{Black} \usefont{OT1}{lmss}{m}{n}}
 \newcommand{\blue}{\color{MyColor1} \usefont{OT1}{lmss}{m}{n}}
 \newcommand{\blueb}{\color{MyColor1} \usefont{OT1}{lmss}{b}{n}}
@@ -50,17 +53,14 @@
 \usepackage{sectsty}
 %%%%%%%%%%%%%%%%%%%%%%%%
 %set section/subsections HEADINGS font and color
-\sectionfont{\color{MyColor1}}  % sets colour of sections
-\subsectionfont{\color{MyColor1}}  % sets colour of sections
+\newcommand*{\myfont}{\fontfamily{cmr}\selectfont}
+\chapterfont{\myfont \color{MyColor1}}
+\sectionfont{\myfont \color{MyColor1}}
+\subsectionfont{\myfont\color{MyColor1}}  % sets colour of sections
 
 %set section enumerator to arabic number (see footnotes markings alternatives)
 \renewcommand\thesection{\arabic{section}.} %define sections numbering
 \renewcommand\thesubsection{\thesection\arabic{subsection}} %subsec.num.
-
-%define new section style
-\newcommand{\mysection}{
-\titleformat{\section} [runin] {\usefont{OT1}{lmss}{b}{n}\color{MyColor1}}
-{\thesection} {3pt} {} }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %		CAPTIONS
@@ -118,23 +118,9 @@
 \date{\today}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% A diagram of TeX software
-% Author: Stefan Kottwitz
-% https://www.packtpub.com/hardware-and-creative/latex-cookbook
-%\documentclass[border=10pt]{standalone}
-%%%<
-\usepackage{verbatim}
-%%%>
-\begin{comment}
-:Title: A circular diagram of a TeX workflow
-:Tags: Diagrams;Smartdiagram;Cookbook
-:Author: Stefan Kottwitz
-:Slug: smart-constellation
+\usepackage{afterpage}
 
-A diagram presenting TeX software using the
-smartdiagram package.
-\end{comment}
-\usepackage{smartdiagram}
+\newcommand{\blankpage}{\null \thispagestyle{empty} \addtocounter{page}{-1} \newpage}
 
 \begin{document}
 \maketitle
@@ -142,10 +128,15 @@ smartdiagram package.
 \tableofcontents
 
 \import{../}{Section1.tex}
+
+\import{../}{GraphLearning.tex}
+
 \import{../}{DictionaryDescription.tex}
 
-\section{Brief state of the art}
+\import{../}{Smoothness.tex}
 
+\section{Brief state of the art}
+\cri{vedi dopo se scrivere qualcosa}
 
 \section{The algorithms we started from: Dorina's and Hermina's}
 
