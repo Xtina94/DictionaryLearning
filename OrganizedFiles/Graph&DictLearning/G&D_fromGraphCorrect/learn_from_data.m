@@ -6,9 +6,9 @@ addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\Optimizers'); %Folder
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\Comparison_datasets\'); %Folder containing the comparison datasets
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\'); %Folder containing the training and verification dataset
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\GeneratingKernels\Results'); %Folder conatining the heat kernel coefficients
-path = 'C:\Users\Cristina\Documents\GitHub\OrganizedFiles\Graph&DictLearning\G&D_fromGraphCorrect\Results\12.07.18\'; %Folder containing the results to save
+path = 'C:\Users\Cristina\Documents\GitHub\OrganizedFiles\Graph&DictLearning\G&D_fromGraphCorrect\Results\13.07.18\'; %Folder containing the results to save
 
-flag = 6;
+flag = 7;
 
 switch flag
     case 1 %Dorina
@@ -23,7 +23,6 @@ switch flag
     case 4 %1 Heat kernel with 30 nodes
         load DataSetHeat30.mat;
         load ComparisonHeat30.mat;
-        load LF_heatKernel.mat;
 %         load prova.mat;
 %         comp_alpha = prova{1};
     case 5
@@ -33,7 +32,10 @@ switch flag
     case 6
         load DataSetDoubleInvHeat.mat;
         load ComparisonDoubleInvHeat.mat;
-%         load DoubleInv_HeatKernel.mat;
+%         load provaDoubleSmth.mat;
+    case 7
+        load DataSetDorinaLF.mat;
+        load ComparisonDorinaLF.mat;
 end
 
 switch flag
@@ -97,8 +99,23 @@ switch flag
         ds = 'Dataset used: data from double Heat kernel';
         ds_name = 'DoubleHeat';        
         param.percentage = 8;
-        param.thresh = param.percentage + 4;
+        param.thresh = param.percentage + 18;
         alpha = 15; %gradient descent parameter, it decreases with epochs
+        
+        for i = 1:param.S
+            comp_alpha((K+1)*(i-1) + 1:(K+1)*i) = provaDoubleSmth{i};
+        end
+    case 7
+        Y = TrainSignal;
+        K = 20;
+        param.S = 1;  % number of subdictionaries         
+        param.epsilon = 0.2; % we assume that epsilon_1 = epsilon_2 = epsilon
+        degree = 20;
+        ds = 'Dataset used: Synthetic data from Dorina - 1 single kernel';
+        ds_name = 'DorinaLF';
+        param.percentage = 15;
+        param.thresh = param.percentage + 13;
+        alpha = 20; %gradient descent parameter, it decreases with epochs
 end
 
 param.N = size(Y,1); % number of nodes in the graph
@@ -247,12 +264,15 @@ W_norm = norm(comp_W - learned_W); %Normal norm
 W_norm_thr = norm(comp_W - final_W); %Normal norm of the thresholded adjacency matrix
 norm_initial_W = norm(initial_W - comp_W);
 norm_init_D = norm(initial_dictionary - comp_D);
+
 alpha_norm = zeros(param.S,1);
 alpha_diff = zeros(K+1,param.S);
 for i = 1:param.S
     alpha_norm(i,1) = norm(comp_alpha(:,i) - param.alpha{i});
     alpha_diff(:,i) = (comp_alpha(:,i) - param.alpha{i});
 end
+
+%% Represent the difference in the alphas
 
 figure('Name','The different behavior of the alpha coefficients')
 for j = 1:param.S
@@ -336,7 +356,7 @@ subplot(2,1,2)
 title('learned kernels');
 hold on
 for s = 1 : param.S
-    plot(param.lambda_sym,g_ker(:,s));
+    plot(param.lambda_sym(1:length(param.lambda_sym)-1),g_ker(1:length(g_ker)-1,s));
 end
 hold off
 

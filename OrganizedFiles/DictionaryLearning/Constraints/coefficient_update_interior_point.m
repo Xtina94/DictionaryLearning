@@ -15,7 +15,7 @@ Laplacian_powers = param.Laplacian_powers;
 Lambda = param.lambda_power_matrix;
 thresh = param.thresh;
 
-BA = sparse(kron(eye(S),Lambda(1:size(Lambda,1),:)));
+BA = kron(eye(S),Lambda(1:size(Lambda,1),:));
 BB = kron(ones(1,S),Lambda(1:size(Lambda,1),:));
 
 Phi = zeros(S*(K+1),1);
@@ -52,29 +52,29 @@ X = norm(Data,'fro')^2 - 2*YPhi*alpha + alpha'*(PhiPhiT + mu*eye(size(PhiPhiT,2)
 % frequency kernels in order to impose their behavior towards 0
 % with respect to their nature
 
-%% Find the maximum of the kernel functions
-high_freq_thr = ceil((length(param.lambda_sym))/2); 
-if param.big_epoch < 7 && param.big_epoch > 1
-    for i = 1:param.S
-        kernel_vect = g_ker(:,i);
-        my_max(i) = find(kernel_vect == max(kernel_vect(2:length(kernel_vect))),1);
-        if my_max(i) > length(kernel_vect)
-            my_max(i) = my_max(i) - length(kernel_vect);
-        end
-    end
-end
-
-param.max = my_max;
-
 %% Set constraints
 % First learn the kernels for a couple of iterations, so that to foresee
 % the behavior
-if param.big_epoch < 7
+if param.big_epoch < 210
     F = (BA*alpha <= c*ones(la,1))...
-        + (-BA*alpha <= -0.001*epsilon*ones(la,1))...
+        + (BA*alpha >= 0.001*epsilon*ones(la,1))...
         + (BB*alpha <= (c+0.1*epsilon)*ones(lb,1))...
-        + (-BB*alpha <= ((c-0.1*epsilon)*ones(lb,1)));
+        + (BB*alpha >= ((c-0.1*epsilon)*ones(lb,1)));
 else
+% % %     %% Find the maximum of the kernel functions
+% % %     high_freq_thr = ceil((length(param.lambda_sym))/2);
+% % %     if param.big_epoch < 7 && param.big_epoch > 1
+% % %         for i = 1:param.S
+% % %             kernel_vect = g_ker(:,i);
+% % %             my_max(i) = find(kernel_vect == max(kernel_vect(2:length(kernel_vect))),1);
+% % %             if my_max(i) > length(kernel_vect)
+% % %                 my_max(i) = my_max(i) - length(kernel_vect);
+% % %             end
+% % %         end
+% % %     end
+% % %     
+% % %     param.max = my_max;
+    
     h = eye(param.S);
     h2 = ones(1,param.S);
             
@@ -85,15 +85,15 @@ else
         end
     end
     
-    if my_max(1) > high_freq_thr                   %it means that we're facing a high frequency kernel
-        B3 = kron(h,Lambda(1:param.percentage,:));
-        B1 = kron(h,Lambda(size(Lambda,1) - thresh + 1:size(Lambda,1),:));
-        B2 = kron(h2,Lambda(size(Lambda,1)- thresh + 1:size(Lambda,1),:));
-    else                                          %otherwise we're having a low frequency kernel
+% % %     if my_max(1) > high_freq_thr                   %it means that we're facing a high frequency kernel
+% % %         B3 = kron(h,Lambda(1:param.percentage,:));
+% % %         B1 = kron(h,Lambda(size(Lambda,1) - thresh + 1:size(Lambda,1),:));
+% % %         B2 = kron(h2,Lambda(size(Lambda,1)- thresh + 1:size(Lambda,1),:));
+% % %     else                                          %otherwise we're having a low frequency kernel
         B3 = kron(h,Lambda(size(Lambda,1) - param.percentage+1:size(Lambda,1),:));
-        B1 = kron(h,Lambda(1:thresh,:));
-        B2 = kron(h2,Lambda(1:thresh,:));
-    end
+        B1 = kron(h,Lambda(1:size(Lambda,1) - thresh,:));
+        B2 = kron(h2,Lambda(1:size(Lambda,1) - thresh,:));
+% % %     end
     
     for i = 2:param.S
         h = eye(param.S);
@@ -105,14 +105,15 @@ else
             end
         end
         
-        if my_max(i) > high_freq_thr                   %it means that we're facing a high frequency kernel
+% % %         if my_max(i) > high_freq_thr                   %it means that we're facing a high frequency kernel
+        if mod(i,2) == 0 %it means that we're facing a high frequency kernel
             B3 = B3 + kron(h,Lambda(1:param.percentage,:));
-            B1 = B1 + kron(h,Lambda(size(Lambda,1) - thresh + 1:size(Lambda,1),:));
-            B2 = B2 + kron(h2,Lambda(size(Lambda,1)- thresh + 1:size(Lambda,1),:));
-        else                                          %otherwise we're having a low frequency kernel
+            B1 = B1 + kron(h,Lambda(thresh + 1:size(Lambda,1),:));
+            B2 = B2 + kron(h2,Lambda(thresh + 1:size(Lambda,1),:));
+        else             %otherwise we're having a low frequency kernel
             B3 = B3 + kron(h,Lambda(size(Lambda,1) - param.percentage+1:size(Lambda,1),:));
-            B1 = B1 + kron(h,Lambda(1:thresh,:));
-            B2 = B2 + kron(h2,Lambda(1:thresh,:));
+            B1 = B1 + kron(h,Lambda(1:size(Lambda,1) - thresh,:));
+            B2 = B2 + kron(h2,Lambda(1:size(Lambda,1) - thresh,:));
         end
     end
     
@@ -120,11 +121,12 @@ else
     l1 = length(B1*alpha);
     l2 = length(B2*alpha);
 
-    F = (B1*alpha >= 0.001*epsilon*ones(l1,1))...
+    F = (B1*alpha <= c*ones(l1,1))...
+        + (B1*alpha >= 0.001*epsilon*ones(l1,1))...
         + (B2*alpha <= (c+1*epsilon)*ones(l2,1))...
-        + (-B2*alpha <= (c-1*epsilon)*ones(l2,1))...
+        + (B2*alpha >= (c-1*epsilon)*ones(l2,1))...
         + (B3*alpha <= 0.001*epsilon*ones(l3,1))...
-        + (-B3*alpha <= 0*ones(l3,1));
+        + (B3*alpha >= 0*ones(l3,1));
 end
 
 %---------------------------------------------------------------------
@@ -143,5 +145,6 @@ else
 end
 
 double(X);
+param.objective(param.big_epoch) = double(X);
 cpuTime = diagnostics.solveroutput.info.cputime;
 alpha = double(alpha);

@@ -92,17 +92,17 @@ for iterNum = 1 : param.numIteration
     % Save the representation of the learned kernels without constraints
     % yet
     
-    if iterNum == 6
-        figure('Name','Kernels learned without constraints')
-        hold on
-        for s = 1 : param.S
-            plot(param.lambda_sym,output.kernel(:,s));
-        end
-        hold off
-        
-        filename = [path,'Intermediate_kernel_plot.png'];
-        saveas(gcf,filename);
-    end
+% % %     if iterNum == 6
+% % %         figure('Name','Kernels learned without constraints')
+% % %         hold on
+% % %         for s = 1 : param.S
+% % %             plot(param.lambda_sym,output.kernel(:,s));
+% % %         end
+% % %         hold off
+% % %         
+% % %         filename = [path,'Intermediate_kernel_plot.png'];
+% % %         saveas(gcf,filename);
+% % %     end
     
     %% Construct the new dictionary
 

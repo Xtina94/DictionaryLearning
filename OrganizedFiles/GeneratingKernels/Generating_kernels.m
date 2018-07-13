@@ -57,7 +57,7 @@ interval = [0,1.3];
 figure('Name','First kernels')
 hold on
 fplot(t_2,interval)
-% fplot(pol,interval)
+% fplot(pol,interval) 
 % fplot(t_3,interval)
 % fplot(t_4,interval)
 fplot(t_5,interval)

@@ -86,9 +86,6 @@ comp_D = Dictionary_Pol;
 comp_eigenVal = param.eigenVal;
 comp_alpha = output_Pol.alpha;
 
-filename = [path,'Comparison',num2str(ds_name),'.mat'];
-save(filename,'comp_X','comp_W','comp_Laplacian','comp_D','comp_eigenVal','comp_alpha','comp_train_X');
-
 % The kernels plot
 figure('Name','Comparison Kernels')
 hold on
@@ -97,8 +94,12 @@ for s = 1 : param.S
 end
 hold off
 
-filename = [path,'Comp_kernels_',num2str(ds_name),'.png'];
+filename = [path,'Comp_kernels_',num2str(ds_name),'LF.png'];
 saveas(gcf,filename);
+
+% lf_alpha = comp_alpha((degree+1)*2+1:(degree+1)*3);
+filename = [path,'Comparison',num2str(ds_name),'.mat'];
+save(filename,'comp_X','comp_W','comp_Laplacian','comp_D','comp_eigenVal','comp_alpha','comp_train_X');
 
 figure()
 surf(comp_train_X)
