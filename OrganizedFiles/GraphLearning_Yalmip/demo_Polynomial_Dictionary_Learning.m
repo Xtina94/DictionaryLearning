@@ -7,7 +7,7 @@ addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\Comparison_d
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\'); %Folder containing the training and verification dataset
 
 %% Loaging the required dataset
-flag = 5;
+flag = 2;
 switch flag
     case 1
         load ComparisonDorina.mat
@@ -15,6 +15,7 @@ switch flag
     case 2
         load ComparisonHeat30.mat
         load DataSetHeat30.mat
+        param.alpha = comp_alpha;
     case 3
         load ComparisonUber.mat
         load DataSetUber.mat
@@ -81,46 +82,27 @@ switch flag
         param.thresh = param.percentage + 13;
 end
 
+param.M = 5; % Number of known sources we impose
 param.J = param.N * param.S; % total number of atoms 
 param.K = degree*ones(1,param.S);
 param.T0 = 4; % sparsity level in the training phase
 param.c = 1; % spectral control parameters
 param.mu = 1e-2; % polynomial regularizer paremeter
-path = ['C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DictionaryLearning\Constraints\Results\13.07.18\',num2str(ds_name),'\']; %Folder containing the results to save
-% path = '';
-%% Compute the Laplacian and the normalized laplacian operator
+path = ['C:\Users\Cristina\Documents\GitHub\OrganizedFiles\GraphLearning\Results\13.07.18',num2str(ds_name),'\']; %Folder containing the results to save
     
-L = diag(sum(W,2)) - W; % combinatorial Laplacian
-param.Laplacian = (diag(sum(W,2)))^(-1/2)*L*(diag(sum(W,2)))^(-1/2); % normalized Laplacian
-[param.eigenMat, param.eigenVal] = eig(param.Laplacian); % eigendecomposition of the normalized Laplacian
-[param.lambda_sym,index_sym] = sort(diag(param.eigenVal)); % sort the eigenvalues of the normalized Laplacian in descending order
+%% Graph learning algorithm
 
-%% Compute the powers of the Laplacian
-
-for k=0 : max(param.K)
-    param.Laplacian_powers{k + 1} = param.Laplacian^k;
-end
-
-param.lambda_power_matrix = zeros(length(param.lambda_sym),max(param.K)+1);
-for i = 1:max(param.K)+1
-    param.lambda_power_matrix(:,i) = param.lambda_sym.^(i-1);
-    param.lambda_powers{i} = param.lambda_sym.^(i-1);
-end
-    
-%% Polynomial dictionary learning algorithm
-
-param.InitializationMethod =  'Random_kernels';
 param.displayProgress = 1;
 param.numIteration = 50;
 param.plot_kernels = 1; % plot thelearned polynomial kernels after each iteration
 param.quadratic = 0; % solve the quadratic program using interior point methods
 
-disp('Starting to train the dictionary');
+disp('Starting to train the graph structure');
 
-[Dictionary_Pol,output_Pol]  = Polynomial_Dictionary_Learning(TrainSignal, param);
+[learned_dictionary,output]  = Graph_learning(TrainSignal,param);
 
-CoefMatrix_Pol = OMP_non_normalized_atoms(Dictionary_Pol,TestSignal, param.T0);
-errorTesting_Pol = sqrt(norm(TestSignal - Dictionary_Pol*CoefMatrix_Pol,'fro')^2/size(TestSignal,2));
+CoefMatrix_Pol = OMP_non_normalized_atoms(learned_dictionary,TestSignal, param.T0);
+errorTesting_Pol = sqrt(norm(TestSignal - learned_dictionary*CoefMatrix_Pol,'fro')^2/size(TestSignal,2));
 disp(['The total representation error of the testing signals is: ',num2str(errorTesting_Pol)]);
 
 %% Compute the l-2 norms
@@ -132,7 +114,7 @@ lambda_norm = 'is 0 since here we are learning only the kernels'; %norm(comp_eig
 alpha_norm = norm(comp_alpha - output_Pol.alpha);
 X_norm = norm(comp_X - CoefMatrix_Pol);
 tot_norm_X = norm([(comp_train_X - output_Pol.CoefMatrix) (comp_X - CoefMatrix_Pol)]);
-D_norm = norm(comp_D - Dictionary_Pol);
+D_norm = norm(comp_D - learned_dictionary);
 W_norm = 'is 0 since here we are learning only the kernels';
 
 %% Compare the learned coefficients
@@ -173,25 +155,12 @@ save(filename,'errorTesting_Pol','avgCPU','tot_norm_X');
 
 % The kernels plot
 
-comp_lambdaPowerMx(:,2) = comp_eigenVal;
-
-for i = 1:k+1
-    comp_lambdaPowerMx(:,i) = comp_lambdaPowerMx(:,2).^(i-1);
-end
-
-comp_ker = zeros(param.N,param.S);
-for i = 1 : param.S
-    for n = 1:param.N
-        comp_ker(n,i) = comp_ker(n,i) + comp_lambdaPowerMx(n,:)*comp_alpha(:,i);
-    end
-end
-
 figure('Name','Comparison between the Kernels')
 subplot(2,1,1)
 title('Original kernels');
 hold on
 for s = 1 : param.S
-    plot(comp_eigenVal,comp_ker(:,s));
+    plot(comp_lambdaSym,comp_ker(:,s));
 end
 hold off
 subplot(2,1,2)
