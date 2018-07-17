@@ -15,6 +15,9 @@
 \DeclareMathOperator{\tr}{tr}
 \newcommand{\irchi}[2]{\raisebox{\depth}{$#1\chi$}}
 \newcommand{\rchi}{{\mathpalette\irchi\relax}}
+\usepackage[]{algorithm2e}
+\newcommand{\algoinput}{\textbf{Input: }}
+\newcommand{\algoutput}{\textbf{Output: }}
 
 \usepackage{microtype} %improves the spacing between words and letters
 
@@ -99,7 +102,7 @@
 \setlist[enumerate,1]{start=0}
 \renewcommand{\labelenumii}{\theenumii}
 \renewcommand{\theenumii}{\theenumi.\arabic{enumii}.}
-\newcommand{\cri}[1]{\textcolor{green}{\textbf{(Cri says: #1)}}}
+\newcommand{\cri}[1]{\textcolor{MyColor2}{\textbf{(Cri says: #1)}}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% abbreviations:
@@ -108,6 +111,7 @@
 \newacronym{pca}{PCA}{Principal Component Analysis}
 \newacronym{svd}{SVD}{Singular Value Decomposition}
 \newacronym{gsp}{GSP}{Graph Signal Processing}
+\newacronym{omp}{OMP}{Orthogonal Matching Pursuit}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% PREPARE TITLE
@@ -135,15 +139,13 @@
 
 \import{../}{Smoothness.tex}
 
-\section{Brief state of the art}
 \cri{vedi dopo se scrivere qualcosa}
 
 \import{../}{StartingAlgorithms.tex}
 
 \import{../}{ProblemPresentation.tex}
 
-\section{Problem presentation}
-
+\import{../}{DictionaryLearningSmoothness.tex}
 
 \section{main improvements}
 

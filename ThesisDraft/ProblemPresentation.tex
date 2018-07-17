@@ -26,7 +26,7 @@ In opposition to the prior work, here we assume the sources of our atoms to be k
 \subsection{Representation graph}
 
 \subsection{Dictionary learning section}
-If we considered the former formulation for our problem, we would ignore the fact that atoms in $D_small$ actually are coming from a graph dictionary, while this is on the contrary something we would like to include in our problem. In fact, we did assume these atoms to be vectors describing the signal, but we kept this part separated from the graph notion. We start from stating that we want that our atoms are representative of the portion of the graph they are covering, and so they should spread with non trivial values over all nodes of the subgraph. This reason mad us constraint our dictionary kernels in a way that they have mostly smooth support in the surroundings of the source node. This information is something different form the smoothness assumption we widely examined in the previous sections, since it adds some information strictly related to the behavior of the kernel itself. In fact, if we learned a smaller order polynomial with constraints in high frequencies, we would not have a large spread of our atoms, things we would like to have since in this way our atoms can represent a large portion of the graph. \cri{rivedila ti prego}
+If we considered the former formulation for our problem, we would ignore the fact that atoms in $D_{small}$ actually are coming from a graph dictionary, while this is on the contrary something we would like to include in our problem. In fact, we did assume these atoms to be vectors describing the signal, but we kept this part separated from the graph notion. We start from stating that we want that our atoms are representative of the portion of the graph they are covering, and so they should spread with non trivial values over all nodes of the subgraph. This reason mad us constraint our dictionary kernels in a way that they have mostly smooth support in the surroundings of the source node. This information is something different form the smoothness assumption we widely examined in the previous sections, since it adds some information strictly related to the behavior of the kernel itself. In fact, if we learned a smaller order polynomial with constraints in high frequencies, we would not have a large spread of our atoms, things we would like to have since in this way our atoms can represent a large portion of the graph. \cri{rivedila ti prego}
 
 To have this new smoothness constraint, we look at the kernel polynomial:
 \begin{equation}
@@ -36,17 +36,48 @@ and we try to constraint the roots to correspond to the highest eigenvalues. Thi
 \begin{align}
 g(\lambda) &= h(\lambda)(\lambda - \lambda_n)(\lambda - \lambda_{n-1})\cdot \dots \cdot (\lambda - \lambda{n-l+1})\\
 where \qquad h(\lambda) &= \sum_{k=0}{K-l}\gamma_k\lambda^{k}
+\label{eq:polynom}
 \end{align}
-This formula them can bring to the following dictionary problem:
+This formula them can bring to a dictionary problem of this type:
 \begin{equation}
-\argmin_{\gamma_0,\dots,\gamma_{K-l}X_{small}} ||Y - D_{small}X_{small}||^2_F
+\argmin_{\gamma_0,\dots,\gamma_{K-l}X_{small}} ||Y - D_{small}X_{small}||^2_F + \alpha||D_{small}||_1
+\label{eq:opt}
 \end{equation}
 \begin{align}
-with \qquad g(\lambda) &= h(\lambda)(\lambda - \lambda_n)(\lambda - \lambda_{n-1})\cdot \dots \cdot (\lambda - \lambda{n-l+1})\\
-h(\lambda) &= \sum_{k=0}{K-l}\gamma_k\lambda^{k}\\
-D_i &= [g(L_i)]_{\text{source}_i}\\
-0 &\leq g(\lambda) \leq c\\
-(c-\epsilon)I &\prec \sum_{s=1}^{S}D_s \prec (c+\epsilon)I
+with \qquad g(\lambda) &= h(\lambda)(\lambda - \lambda_n)(\lambda - \lambda_{n-1})\cdot \dots \cdot (\lambda - \lambda{n-l+1}) \notag\\
+h(\lambda) &= \sum_{k=0}{K-l}\gamma_k\lambda^{k} \notag\\
+D_i &= [g(L_i)]_{\text{source}_i} \notag\\
+0 &\preceq g(\lambda) \preceq c \label{eq:ProblemPres1}\\
+(c-\epsilon)I &\preceq \sum_{s=1}^{S}D_s \preceq (c+\epsilon)I \label{eq:ProblemPres2}
 \end{align}
-% \label(eq:problemPres)
-\cri{Cambia gli operatori per le matrix ineq. con qualcosa che inclusa l'uguaglianza} Where the positions of the non-trivial values of $X_{small}$ are known, but the values are to be learned. Moreover, the last two constraints in \ref{eq:ProblemPres} are taken from \cite{Thanou2014} and ensure the kernels are bounded and span the entire spectrum.
+Where the positions of the non-trivial values of $X_{small}$ are known, but the values are to be learned, while the second term in \autoref{eq:opt} accounts for the graph sparsity. Moreover, the last two constraints \ref{eq:ProblemPres1} and \ref{eq:ProblemPres2} are taken from \cite{Thanou2014} and ensure the kernels are bounded and span the entire spectrum.
+\label{sec:DictionaryLearningSection}
+
+\subsection{Joint large graph and dictionary learning}
+So came to this point, an interesting aspect we could focus on was the attempt to joint both the graph and the dictionary learning problem; in fact, if we assume that the graph is unknown we could imagine adding a graph learning part to the optimization. In doing this, we had to take into account two main complications: first the fact that we didn't have fixed eigenvalues, since we would have learned the Laplacian again at every new optimization step, and second the fact that as we are learning the eigenvalues, we don't have their initial values either. To this aspects we still have to take into account that the structure of the kernels should be incorporated in our learning problem. For this part, in the end we assumed only one kernel for simplicity so that the dictionary atoms will have all the same kernel but will be localized in different sources spreading throughout different parts of the graph. This meaning that the pattern has to be followed by all the atoms, but it will be adapted to small different graphs.
+
+Therefore the overall problem could become something similar to:
+\begin{equation}
+\argmin_{X,W_1,\dots,W_m,\gamma_0,\dots,\gamma_{k-l}} ||Y - DX||^2_F + \alpha||D||_1
+\label{eq:overallProblem}
+\end{equation}
+\begin{align}
+\text{where} \qquad g(\lambda) &= h(\lambda)(\lambda - \lambda_n)(\lambda - \lambda_{n-1})\cdot \dots \cdot (\lambda - \lambda{n-l+1}) \notag\\
+h(\lambda) &= \sum_{k=0}{K-l}\gamma_k\lambda^{k} \notag\\
+D_i &= [g(L_i)]_{\text{source}_i} \notag\\
+L_i &= \text{normalised Laplacian}(W_i) \notag\\
+W_{ij} &= W_{ji} \geq 0, \quad \forall i,j \label{eq:symmetry}\\
+W_{ii} &= 0, \quad \forall i \notag\\
+0 &\leq g(\lambda) \leq c \\
+(c-\epsilon)I &\preceq \sum_{s=1}^{S}D_s \preceq (c+\epsilon)I
+\end{align}
+Where we remember the constraint in \ref{eq:symmetry} accounts for the fact that we are assuming to work with undirected graphs.\\
+
+\subsection{Work structure}
+To summarize, the main steps in which the following work is articulated are the following:
+\begin{itemize}
+\item We implemented some constraints related to the smoothness of the kernels in the dictionary learning approach, and we showed the improvements deriving from it;
+\item We presented a solution to solve both the dictionary and the graph learning problem within the same framework;
+\item We underlined how the smoothness constraints on the kernels can still provide improvements even in the case of double learning frameworks;
+\item We briefly present the possible next steps in this work, in order to obtain further implementations;
+\end{itemize}
