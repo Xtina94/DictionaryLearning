@@ -1,4 +1,3 @@
-
 function [alpha, objective_low, objective_high] = coefficient_update_interior_point(Data,CoefMatrix,param,n_low_ker,n_high_ker,sdpsolver)
 
 % Set parameters

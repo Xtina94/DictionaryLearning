@@ -15,9 +15,9 @@
 \DeclareMathOperator{\tr}{tr}
 \newcommand{\irchi}[2]{\raisebox{\depth}{$#1\chi$}}
 \newcommand{\rchi}{{\mathpalette\irchi\relax}}
-\usepackage[]{algorithm2e}
-\newcommand{\algoinput}{\textbf{Input: }}
-\newcommand{\algoutput}{\textbf{Output: }}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{float}
 
 \usepackage{microtype} %improves the spacing between words and letters
 
@@ -147,8 +147,9 @@
 
 \import{../}{DictionaryLearningSmoothness.tex}
 
-\section{main improvements}
+\cri{aggiungi breve descrizione del graph learning}
 
+\import{../}{D&Glearning.tex}
 
 \subsection{first part: the dictionary learning under smoothness constraints}
 

@@ -1,6 +1,5 @@
 function [recovered_Dictionary,output] = Polynomial_Dictionary_Learning(Y, param)
 
-lambda_sym = param.lambda_sym;
 lambda_powers = param.lambda_powers;
 Laplacian_powers = param.Laplacian_powers;
 
@@ -53,16 +52,22 @@ end
 [param.beta_coefficients_low, param.beta_coefficients_high, param.rts_low, param.rts_high] = retrieve_betas(param);
 
 %% Set up the elements for the optimization problem
-n_low = 2;
-n_high = 2;
+n_low = 1;
+n_high = param.S - n_low;
 K = max(param.K);
 
 for i = 1:n_low
-    param.alpha_vector_low((i-1)*(K+1)+1:i*(K+1),1) = polynomial_construct_low(param);
+% % %     param.alpha_vector_low((i-1)*(K+1)+1:i*(K+1),1) = polynomial_construct_lf(param);
+    param.alpha_vector_low((i-1)*(K+1)+1:i*(K+1),1) = alpha_constr(param);
 end
-for i = 1:n_high
-    param.alpha_vector_high((i-1)*(K+1)+1:i*(K+1),1) = polynomial_construct_high(param);
+if n_high > 0
+    for i = 1:n_high
+        param.alpha_vector_high((i-1)*(K+1)+1:i*(K+1),1) = polynomial_construct_high(param);
+    end
 end
+
+%% Verify the correctness of the constructed vector
+% % % product_lambda = param.lambda_power_matrix*param.alpha_vector_low;
 
 for iterNum = 1 : param.numIteration
     
@@ -76,7 +81,6 @@ for iterNum = 1 : param.numIteration
             disp('solving the quadratic problem with YALMIP...')
            end
             [alpha, objective_low, objective_high] = coefficient_update_interior_point(Y,CoefMatrix,param,n_low,n_high,'sdpt3');
-% % %             alpha = alpha*1e4;
        else
            if (iterNum == 1)
             disp('solving the quadratic problem with ADMM...')
@@ -140,18 +144,6 @@ for iterNum = 1 : param.numIteration
     end
     
 end
-
-figure()
-grid on
-hold on
-for s_low = 1 : param.S
-    plot(lambda_sym(2:length(lambda_sym)),g_ker(2:length(lambda_sym),s_low),num2str(color_matrix(s_low)));
-end
-hold off
-grid off
-
-filename = strcat('Kernels','_e',num2str(param.epsilon*100),'_m',num2str(param.percentage));
-saveas(gcf,filename,'bmp');
 
 output.g_ker = g_ker;
 output.objective_low = objective_low;

@@ -122,7 +122,7 @@ save(filename,'ds','Dictionary_Pol','learned_alpha','CoefMatrix_Pol','errorTesti
 figure('Name','Final Kernels')
 hold on
 for s = 1 : param.S
-    plot(param.lambda_sym,output_Pol.kernel(:,s));
+    plot(param.lambda_sym,output_Pol.g_ker(:,s));
 end
 hold off
 

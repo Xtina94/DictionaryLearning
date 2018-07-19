@@ -1,58 +1,51 @@
- %==========================================================================
-     %% Example
-%==========================================================================
-
-% Description: Run file that applies the polynomial dictionary learning algorithm
-% in the data contained in testdata.mat. The mat file contains the necessary data that are needed 
-% to reproduce the synthetic results of Section V.A.1 of the reference paper:
-
-% D. Thanou, D. I Shuman, and P. Frossard, ?Learning Parametric Dictionaries for Signals on Graphs?, 
-% Submitted to IEEE Transactions on Signal Processing,
-% Available at:  http://arxiv.org/pdf/1401.0887.pdf
-
-close all
 clear all
+close all
 
-load testdata.mat
-% load initial_sparsity_mx.mat
-% load SampleSignal.mat
-% load initial_dictionary.mat
-% load X_smooth.mat
-% load SampleWeight.mat
+%% Adding the paths
+addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\Optimizers'); %Folder conatining the yalmip tools
+addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\Comparison_datasets\'); %Folder containing the copmarison datasets
+addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\'); %Folder containing the training and verification dataset
 
-% SampleSignal = X_smooth(:,1:900);
-% TestSignal = X_smooth(:,901:1000);
+%% Loaging the required dataset
+flag = 1;
+switch flag
+    case 1
+        load ComparisonHeat30.mat
+        load DataSetHeat30.mat
+    case 2
+        load ComparisonDorinaLF.mat
+        load DataSetDorinaLF.mat
+end
 
-SampleSignal = TrainSignal;
+%% Set the parameters
 
-%------------------------------------------------------    
-%%---- Set the paremeters-------- 
-%------------------------------------------------------
+switch flag
+    case 1 %1 LF heat kernel
+        param.S = 1;
+        param.epsilon = 0.2; % we assume that epsilon_1 = epsilon_2 = epsilon
+        degree = 15;
+        param.N = 30;
+        ds = 'Dataset used: Synthetic data from Dorina - 1 single kernel';
+        ds_name = 'Heat';
+        param.percentage = 8;
+        param.thresh = param.percentage + 18;
+    case 2
+        param.S = 1;
+        param.epsilon = 0.2; % we assume that epsilon_1 = epsilon_2 = epsilon
+        degree = 20;
+        param.N = 30;
+        ds = 'Dataset used: Synthetic data from Dorina - 1 single kernel';
+        ds_name = 'DorinaLF';
+        param.percentage = 15;
+        param.thresh = param.percentage + 13;
+end
 
-param.N = 100; % number of nodes in the graph
-param.S = 4;  % number of subdictionaries 
 param.J = param.N * param.S; % total number of atoms 
-
-%%% My changings %%%
-number_sub = ones(1,param.S);
-param.K = 20.*number_sub;
-% % % param.initialDictionary = reference_dictionary;
-%%%
-
-%param.K = [20 20 20 20]; % polynomial degree of each subdictionary
+param.K = degree*ones(1,param.S);
 param.T0 = 4; % sparsity level in the training phase
 param.c = 1; % spectral control parameters
-param.epsilon = 0.5; % we assume that epsilon_1 = epsilon_2 = epsilon
 param.mu = 1e-2; % polynomial regularizer paremeter
-% param.initial_dictionary = initial_dictionary;
-
-param.percentage = 15;
-
-%------------------------------------------------------    
-%%---- Plot the random graph-------- 
-%------------------------------------------------------
-% % % figure()   
-% % % gplot(A,[XCoords YCoords])
+path = ['C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DictionaryLearning\AlphaStructure\Results\18.07.2018\',num2str(ds_name),'\']; %Folder containing the results to save
 
 %------------------------------------------------------------  
 %%- Compute the Laplacian and the normalized Laplacian operator 
@@ -111,23 +104,64 @@ param.InitializationMethod =  'Random_kernels';
 
 % % % param.initial_dictionary = initial_dictionary;
 param.displayProgress = 1;
-param.numIteration = 8;
+param.numIteration = 20;
 param.plot_kernels = 1; % plot the learned polynomial kernels after each iteration
 param.quadratic = 0; % solve the quadratic program using interior point methods
 
 disp('Starting to train the dictionary');
 
-[Dictionary_Pol, output_Pol]  = Polynomial_Dictionary_Learning(SampleSignal, param);
+[Dictionary_Pol, output_Pol]  = Polynomial_Dictionary_Learning(TrainSignal, param);
 
 CoefMatrix_Pol = OMP_non_normalized_atoms(Dictionary_Pol,TestSignal, param.T0);
 errorTesting_Pol = sqrt(norm(TestSignal - Dictionary_Pol*CoefMatrix_Pol,'fro')^2/size(TestSignal,2));
 disp(['The total representation error of the testing signals is: ',num2str(errorTesting_Pol)]);
 
-
 sum_kernels = sum(output_Pol.g_ker,2);
 
+%% Plot the kernels
+original_ker = zeros(param.N, param.S);
+r = 0;
+for i = 1 : param.S
+    for n = 1 : param.N
+        p = 0;
+        for l = 0 : param.K(i)
+            p = p + comp_alpha(l + 1 + r)*param.lambda_powers{n}(l + 1);
+        end
+        original_ker(n,i) = p;
+    end
+    r = sum(param.K(1:i)) + i;
+end
+
+figure('Name','learned Kernel VS original')
+subplot(2,1,1)
+hold on
+for s_low = 1 : param.S
+    plot(param.lambda_sym(2:length(param.lambda_sym)),output_Pol.g_ker(2:length(param.lambda_sym),s_low));
+end
+hold off
+subplot(2,1,2)
+hold on
+for s_low = 1 : param.S
+    plot(param.lambda_sym(2:length(param.lambda_sym)),original_ker(2:length(param.lambda_sym),s_low));
+end
+hold off
+
+filename = [path,'Kernels comparison'];
+saveas(gcf,filename,'bmp');
+
+%% Plot the alpha coefficients
+figure('Name','The alpha coefficients')
+hold on
+stem(comp_alpha)
+stem(output_Pol.alpha)
+legend('Original alphas','learned alphas')
+hold off
+
+filename = [path,'Coefficients comparison'];
+saveas(gcf,filename,'bmp');
+
 %% Save results to file
-filename = 'Output_results';
+filename = [path,'Output_results'];
 totalError = output_Pol.totalError;
 alpha_coeff = output_Pol.alpha;
 g_ker = output_Pol.g_ker;
