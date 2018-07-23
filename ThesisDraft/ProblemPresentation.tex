@@ -47,7 +47,7 @@ This formula them can bring to a dictionary problem of this type:
 with \qquad g(\lambda) &= h(\lambda)(\lambda - \lambda_n)(\lambda - \lambda_{n-1})\cdot \dots \cdot (\lambda - \lambda{n-l+1}) \notag\\
 h(\lambda) &= \sum_{k=0}{K-l}\gamma_k\lambda^{k} \notag\\
 D_i &= [g(L_i)]_{\text{source}_i} \notag\\
-0 &\preceq g(\lambda) \preceq c \label{eq:ProblemPres1}\\
+0 &\leq g(\lambda) \leq c \label{eq:ProblemPres1}\\
 (c-\epsilon)I &\preceq \sum_{s=1}^{S}D_s \preceq (c+\epsilon)I \label{eq:ProblemPres2}
 \end{align}
 Where the positions of the non-trivial values of $X_{small}$ are known, but the values are to be learned, while the second term in \autoref{eq:opt} accounts for the graph sparsity. Moreover, the last two constraints \ref{eq:ProblemPres1} and \ref{eq:ProblemPres2} are taken from \cite{Thanou2014} and ensure the kernels are bounded and span the entire spectrum.

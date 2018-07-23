@@ -1,24 +1,23 @@
 \chapter{The dictionary learning improvement under smoothness constraints}
 \label{sec:DL}
-\section{The point we started from: \textit{"Learning Parametric Dictionaries for Signals of Graphs"}}
-As we previously hinted, in the work of Thanou, Shuman and Frossard the focus was on learning the parametric functions ($kernels$) through which it was possible to reconstruct the graph signal. Moreover, in their work they modelled the graph signal as a combination of overlapping local patterns, describing localized events on the graph which can appear in several vertices. This representation of the graph signal brought to a representation of the dictionary structure that as a concatenation of subdictionaries that are polynomials of the graph Laplacian. Under this assumption, they then learned the coefficients of the kernels through a numerical optimization.
+\section{The point we started from: \textit{"Learning Parametric Dictionaries for Signals on Graphs"}}
+As we previously hinted, in the work of Thanou, Shuman and Frossard the focus was on learning the parametric functions ($kernels$) through which it was possible to reconstruct the graph signal. Moreover, in their work they modelled the graph signal as a combination of overlapping local patterns, describing localized events on the graph which can appear in several vertices. This representation of the graph signal brought to a representation of the dictionary structure as a concatenation of subdictionaries, which are polynomials of the graph Laplacian. Under this assumption they then learned the coefficients of the kernels through a numerical optimization.
 
 \subsection{The dictionary structure and main assumptions}
-To be specific, the dictionary structure we used which is presented in \cite{Thanou2014} is in the following form.: we designed a graph dictionary $\mathcal{D} = [\mathcal{D}_1, \mathcal{D}_2,\dots,\mathcal{D}_S]$, or a concatenation of a set of $S$ subdictionaries, as:
+The dictionary structure we used, presented in \cite{Thanou2014}, is in the following form: we designed a graph dictionary $\mathcal{D} = [\mathcal{D}_1, \mathcal{D}_2,\dots,\mathcal{D}_S]$, or a concatenation of a set of $S$ subdictionaries, as:
 \begin{equation}
   \mathcal{D}_s = \hat{g_s}(\mathcal{L}) = \rchi (\sum_{k=0}^K \alpha_{sk}\Lambda^k)\rchi^T =   \sum_{k=0}^{K} \alpha_{sk}\mathcal{L}^k
 \end{equation}
 where $\hat{g_s}$ is the pattern (\textit{the kernel}) of the subdictionary $\mathcal{D}_s$ and where the atom given by the $n^{th}$ column of subdictionary $\mathcal{D}_s$ is equal to $\frac{1}{\sqrt{N}}T_ng_s$, the translation operator defined in \autoref{eq:translation} divided by the constant $\frac{1}{\sqrt{N}}$.\\
-However, despite the polynomial constraint guarantees the localization of the atoms in the vertex domain, it does not provide though any information about the spectral representation of the atoms. For this reason we included in our problem also the two matrix inequalities already listed in the constraints list of the optimization problem in \ref{eq:overallProblem}:
+However, despite the polynomial constraint guarantees the localization of the atoms in the vertex domain, it does not provide though any information about the spectral representation of the atoms. The two matrix inequalities already listed in \ref{eq:overallProblem} take it into consideration:
 \begin{align}
   0 \preceq \text{ } &\mathcal{D}_s \preceq cI, \quad \forall s \in \{1,2,\dots , S\},  \label{eqn:boundness}\\
   &\text{and}\\
   (c-\epsilon)I \preceq &\sum_{s=1}^{S}D_s \preceq (c+\epsilon)I \label{eqn:spectrum}
 \end{align}
-\autoref{eqn:boundness} accounts for the fact that our kernels are nonnegative and uniformly bounded by a given constant $c$ (which we will further suppose equal to 1), while \autoref{eqn:spectrum} accounts for the fact that the signals we consider usually contain frequency components spread across the entire spectrum and so the kernels should cover it as well. These two spectral constraints together contribute to increase the stability of the dictionary.\\
+\autoref{eqn:boundness} accounts for the fact that our kernels are nonnegative and uniformly bounded by a given constant $c$ (which we will further suppose equal to 1), while \autoref{eqn:spectrum} accounts for the fact that the signals we consider usually contain frequency components spread across the entire spectrum and so the kernels should cover it as well. These two spectral constraints together contribute to increase the stability of the dictionary. It might be noted, though, that the constraint in \autoref{eqn:spectrum}  should not be considered in the case of one single kernel, obviously, since imposing that the sum of all kernels has to stay around $1$ would give the trivial solution $g(\lambda) 0 1 \qquad \forall \lambda$\\.
 
-Finally, we underline the fact that for the design of the dictionary the eigenvectors used are the ones from the normalized graph Laplacian, since this configuration revealed to be more suitable for our bodywork.
-
+Finally, we underline the fact that for the design of the dictionary the eigenvectors used are the ones from the normalized graph Laplacian (and not the unnormalized one), since this configuration revealed to be more suitable for our bodywork.
 
 \section{The dictionary learning algorithm under smoothness constraints}
 With these basis we therefore implemented a dictionary learning algorithm based on the one presented in \cite{Thanou2014} in order to add the smoothness priors. As previously mentioned, we can cast the general problem as the following optimization problem:
@@ -29,15 +28,21 @@ With these basis we therefore implemented a dictionary learning algorithm based 
   &0 \preceq \text{ } \mathcal{D}_s \preceq cI, \quad \forall s \in \{1,2,\dots , S\},\notag \\
   &(c-\epsilon)I \preceq \sum_{s=1}^{S}D_s \preceq (c+\epsilon)I \notag
 \end{align}
-with $\mu$ being the coherence coefficient \cri{verifica se è la coherence ciò di cui si parla qui} $x_m$ corresponding to the $m^{th}$ column of the sparsity matrix $X$, $T_0$ being the sparsity level of the coefficient of each signal and the $l_0$ norm term one time more standing for the sparsity need we manifested before.\\
+with:
+\begin{itemize}
+\item $\mu$ being a coefficient that should be enough guarantee the stability of the solution while preserving large values in the polynomial $\alpha$s;
+\item $x_m$ corresponding to the $m^{th}$ column of the sparsity matrix $X$;
+\item $T_0$ being the sparsity level of the coefficient of each signal;
+\item $l_0$ being norm term, one time more standing for the sparsity need we already manifested.
+\end{itemize}
 
-Since the optimization problem is non convex, there is the need to approximate it by the alternation of two optimization convex subproblems, namely the sparse coding and the dictionary update step.\\
+Since the optimization problem is non convex, there is the need to approximate it by the alternation of two optimization subproblems that are convex, namely the sparse coding and the dictionary update step.\\
 
 The sparse coding step aims at learning the sparsity matrix $X$ solving
 \begin{equation}
   \argmin_{X} ||Y - DX||^2_F \qquad \text{subject to} \quad ||x_m||_0 \leq T_0,
 \end{equation}
-and it is solved using the \gls{omp} method, an iterative greedy algorithm that at each step selects the element in the dictionary that is best correlated with the signal residual part; it subsequently produces a new estimation through the projection of the signal onto the dictionary elements that have already been selected. This method admits simple and fast implementation and it has been proved that his error on the approximation is only a small factor worse than the minimal error obtained through a non-sparse representation. \cite{Tropp2004}.\\
+and it is solved using the \gls{omp} method, an iterative greedy algorithm that at each step selects the element in the dictionary that is best correlated with the signal residual part; it subsequently produces a new estimation through the projection of the signal onto the dictionary elements that have already been selected. This method admits simple and fast implementation and it has been proven that his error on the approximation is only a small factor worse than the minimal error obtained through a non-sparse representation. \cite{Tropp2004}.\\
 
 On the other side, the dictionary update step aims at finding the polynomial coefficients of the kernels by minimizing
 \begin{equation}
@@ -54,7 +59,29 @@ We remember the equations \ref{eq:polynom}, and we reformulate them as
   g(\lambda) = \sum_{k=0}^K\alpha_k \lambda^k = \sum_{n=0}^N\gamma_n \lambda^n \times \sum_{m=0}^M  \beta_m \lambda^m
   \label{eq:giLambda}
 \end{equation}
-With $h(\lambda) = \sum_{n=n}^N \gamma_n \lambda^n$ and $(\lambda - \lambda_M)(\lambda - \lambda_{M-1})\cdot_{\dots}\cdot (\lambda - \lambda_{M - N +1})$ being the two subpolynomials in which \ref{eq:giLambda} has been decomposed. B Between these, $h(\lambda)$ represents the polynomial with the unknown coefficients to be found, while the polynomial in the unknown $\beta$ is the one obtained from imposing the highest eigenvalues as roots of the general polynomial \ref{eq:giLambda} \cri{torna nelle sezioni indietro per sistemare gli indici del polinomio h} Since we deal with the optimization problem in \autoref{eq:objDictionary} through linear matrix inequality tools, we try to model the vector containing the kernel coefficients in such a way that its structure itself already holds the information regarding the structure of the two sub polynomials. To do so, we multiply the two sub polynomials among each other without resolving the equation with known $\beta$, but leaving them as unknown, in such a way that the behavior of the overall polynomial emerges. We thus obtain the structure that every $\alpha$ coefficient should have in order to transmit the smoothness prior to the objective function. Namely:
+With $h(\lambda) = \sum_{n=n}^N \gamma_n \lambda^n$ and $(\lambda - \lambda_M)(\lambda - \lambda_{M-1})\cdot_{\dots}\cdot (\lambda - \lambda_{M - N +1})$ being the two sub-polynomials in which \ref{eq:giLambda} has been decomposed. Between these, $h(\lambda)$ represents the polynomial with the unknown coefficients to be found, while the polynomial in the unknown $\beta$ is the one obtained from imposing the highest eigenvalues as roots of the general polynomial \ref{eq:giLambda}.\cri{torna nelle sezioni indietro per sistemare gli indici del polinomio h}\\
+In particular, what we do in order to retrieve them is to generate $V$, a Vandermonde matrix with the root eigenvalues of the Laplacian raised to the powers of the kernel polynomial and impose that the vector of $\beta_m$ coefficients we want is one of the vectors of the nucleus of $V$:
+\begin{equation}
+V=
+\begin{bmatrix}
+1 & \lambda_{N-M+1} & \lambda_{N-M+1}^2 & \dots & \lambda_{N-M+1}^K\\
+1 & \lambda_{N-M+2} & \lambda_{N-M+2}^2 & \dots & \lambda_{N-M+2}^K\\
+\vdots & \ddots     &                   & \dots & \vdots\\
+1 & \lambda_N &       \lambda_N^2       & \dots & \lambda_N^K\\
+\end{bmatrix}
+, \qquad B=
+\begin{bmatrix}
+\beta_0\\
+\beta_1\\
+\vdots\\
+\beta_K
+\end{bmatrix}
+\qquad text{and} \qquad \textbf{V}\cdot \textbf{B} = \textbf{0}
+\end{equation}
+
+With $N$ being in this case the number of eigenvalues of $\mathcal{L}$.\\
+
+Since we deal with the optimization problem in \autoref{eq:objDictionary} through linear matrix inequality tools, we try to model the vector containing the kernel coefficients in such a way that its structure itself already holds the information regarding the structure of the two sub polynomials. To do so, we multiply the two sub polynomials among each other without resolving the equation with known $\beta$, but leaving them as unknown, in such a way that the behavior of the overall polynomial emerges. We thus obtain the structure that every $\alpha$ coefficient should have in order to transmit the smoothness prior to the objective function. Namely:
 \begin{equation}
   \begin{split}
     \sum_{n=0}^N\gamma_n \lambda^n \times \sum_{m=0}^M \beta_m \lambda^m &= (\beta_0  \gamma_0)\lambda^0   + (\beta_0 \gamma_1 + \beta_1 \gamma_0)\lambda + \dots + \\
@@ -66,11 +93,10 @@ With $h(\lambda) = \sum_{n=n}^N \gamma_n \lambda^n$ and $(\lambda - \lambda_M)(\
   \end{split}
   \label{eq:sviluppo}
 \end{equation}
-Once we obtained it, we insert this knew knowledge over the kernels structure in the optimization objective function, where now the alpha vector has a reduced number of unknowns that have to be found. With the problem set in this way we can then analyse the new results we obtain. \cri{verifica se nei punti precendenti hai dato abbastanza spazio a questo concetto di smoothness e di come si comporta un grapho soggetto a questa struttura, se non è così ribidisci il fatto che ci interessa sapere altro sulla smth perchè così il grafo risulta più frammentato e in passi successivi separarlo ptrebbe essere un notevole vantaggio}
+Once we obtained it, we insert this knew information about the kernels structure in the optimization objective function, where now the alpha vector has a reduced number of unknowns that have to be found. With the problem set in this way we can thus analyse the new results we obtain. \cri{verifica se nei punti precendenti hai dato abbastanza spazio a questo concetto di smoothness e di come si comporta un grafo soggetto a questa struttura, se non è così ribidisci il fatto che ci interessa sapere altro sulla smth perchè così il grafo risulta più frammentato e in passi successivi separarlo ptrebbe essere un notevole vantaggio}
 
 \subsection{Smoothness prior in the optimization constraints}
-\cri{qui spiega meglio la motivazione quando avrai una funzione decente per l'altra soluzione}
-Another approach to the problem is to insert this smoothness prior in the constraints of the optimization function, on one side this choice should be discarded in favour of the first approach, since adding other constraints to our already ill posed problem could add more non-desired complexity; on another side this choice could reveal motivated by the fact that the control over the behavior of the optimization algorithm is in this way more verifiable than in the previous case, in which a black-box-stile coefficients vector detains all the smoothness priors. In this case the constraint added is the imposition that the Vandermonde matrix, obtained selecting only the last $M$ high-frequency eigenvalues in the graph Laplacian, should of course give a null vector when multiplied by the vector of the alpha coefficients. If $P$ is the total number of nodes in the considered graph, then we have:
+Another approach to the problem is based on inserting this smoothness prior in the constraints of the optimization function. On one side this choice should be discarded in favour of the first approach, since adding other constraints to our already ill posed problem could add more non-desired complexity; on another side this choice could reveal motivated by the fact that the control over the behavior of the optimization algorithm is in this way more verifiable than in the previous case, in which a black-box-stile coefficients vector detains all the smoothness priors. In this case the constraint added is the imposition that the Vandermonde matrix, obtained selecting only the last $M$ high-frequency eigenvalues in the graph Laplacian, should give a null vector when multiplied by the vector of the alpha coefficients. If $P$ is the total number of nodes in the considered graph, then we have:
 \begin{equation}
   \begin{bmatrix}
     1 & \lambda_{P-M} & \lambda_{P-M}^2 & \dots & \lambda_{P-M}^{K} \\
@@ -141,21 +167,133 @@ following the approach in \cite{Kalofolias2016}. At the same time, the kernel co
   \item and from one of the synthetic kernels used in the dataset from \cite{Thanou2014}
 \end{itemize}
 
-\cri{ufficializza i parametri in seguito}
-The number of iterations we apply in this first part of the work is $60$, as we found it is a good value for the algorithm to properly converge to a minimum, while the value of $\epsilon$ for the spectral boundaries in \ref{sec:DictionaryLearningSection} has been set to $0.2$. Moreover, we assume the sparsity coefficient $T_0$ to be equal to $4$ and the coherence parameter $\mu$ to $10^{-4}$.
+The number of iterations we apply in this first part of the work is $50$, as we found it is a good value for the algorithm to properly converge to a minimum, while the value of $\epsilon$ for the spectral boundaries in \ref{sec:DictionaryLearningSection} has been set to $0.2$. Moreover, we assume the sparsity coefficient $T_0$ to be equal to $4$ and the parameter $\mu$ to be $10^{-4}$.
 
 We use the \textit{sdpt3} solver in the \textit{yalmip} optimization toolbox to solve the quadratic problem and, in order to directly compare the methods here described, we always use the \gls{omp} optimization criteria for the sparse coding step.
 
-Finally, the average normalized approximation error we examine for the results quality is defined as \cri{riscrivi la formula a parole tue}
+Finally, the average normalized approximation error we examine in the results is estimated by:
 \begin{equation}
-  \frac{1}{|Y_{test}|}\sum_{m=1}^{|Y_{test}|}||Y_m - \mathcal{D}X_m||_2^2
+  \frac{1}{|TestSignal|}\sum_{m=1}^{|TestSignal|}\frac{||TestSignal_m - \mathcal{D}X_m||_2^2}{||TestSignal_m||^2}
 \end{equation}
-with $|Y_{test}|$ being the cardinality of the testing set.
+with $|TestSignal|$ being the cardinality of the testing set.
 
 \subsubsection{First approach: smoothness in the structure}
+Results are promising, especially from a calculation time point of view. The experiments have been repeated several times, in order to be able to claim the stability of the algorithm and show a stable trend.
+
+The two main metrics we analyse for the performance of the algorithm are the reproduction error and the computational time taken by the optimization step, in the algorithm named as $CPUTime$.
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{c|c|c}
+    \multicolumn{1}{c|}{\textbf{Iteration number}} &
+    \multicolumn{1}{c}{\textbf{Original algorithm}} &
+    \multicolumn{1}{|c}{\textbf{Smoothness assumption}}\\
+    \hline
+    1 & 0.0251 & 0.0263\\
+    2 & 0.0252 & 0.0260\\
+    3 & 0.0250 & 0.0262\\
+    4 & 0.0252 & 0.0262\\
+    5 & 0.0252 & 0.0261\\
+    \textbf{Average} & 0.02514 & 0.02616\\
+  \end{tabular}
+  \caption{Reproduction error comparison for the Heat kernel dataset}
+  \label{tab:errorHeat_struct}
+\end{table}
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{c|c|c}
+    \multicolumn{1}{c|}{\textbf{Iteration number}} &
+    \multicolumn{1}{c}{\textbf{Original algorithm}} &
+    \multicolumn{1}{|c}{\textbf{Smoothness assumption}}\\
+    \hline
+    1 & 0.0213 & 0.0220\\
+    2 & 0.0214 & 0.0220\\
+    3 & 0.0215 & 0.0220\\
+    4 & 0.0212 & 0.0221\\
+    5 & 0.0215 & 0.0220\\
+    \textbf{Average} & 0.02138 & 0.0220\\
+  \end{tabular}
+  \caption{Reproduction error comparison for the Thanou et al. kernel dataset}
+  \label{tab:errorDorina_struct}
+\end{table}
+
+The two tables \ref{tab:errorHeat_struct} and \ref{errorDorina_struct} list the reproduction errors for $5$ sample trials using both datasets and comparing the effect of the smoothness over the learning quality. As can be seen, adding the smoothness prior does not bring automatically a better reproduction; this is probably due to the fact that the definition of smooth kernel is not completely rigorous in defining "how much" the kernel goes to $0$, thus we have to accept a margin of uncertainty in forcing the final smoothness part. The variation is anyway contained, such that it cannot be considered as properly worsening the dictionary learning.\\
+
+On the other hand, this prior allows us to observe an improvement in the computational cost of the algorithm, here measured by $CPUTime$ and shown in the table \ref{CPUtime_struct}. The results are promising since one of the next possible \cri{togli "possible" se poi applicherai qualcosa} steps in this work can focus of the learning of high dimensional graphs, in which computational cost reduction is even more important.
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{c|c|c}
+    0 &
+    \multicolumn{1}{c}{\textbf{No smoothness assumption}} &
+    \multicolumn{1}{|c}{\textbf{Smoothness assumption}}\\
+    \hline
+    \textbf{Heat Kernel dataset} & 0.9334 & 0.1015\\
+    \textbf{Thanou et al. dataset} & 0.1661 & 0.0989 \\
+  \end{tabular}
+  \caption{Computational cost comparison for the Heat kernel and the Thanou et al. kernel dataset}
+  \label{tab:CPUTime_struct}
+\end{table}
+
+The learning procedure behaves overall well, as depicted by the figures \ref{fig:kernelHeat_struct} and \ref{fig:kernelDorina_struct}, where the learned kernels are shown, as also in \autoref{fig:alphaHeat_struct} and \autoref{fig:alphaDorina_struct}, where there can be seen the values of the kernel coefficients and how the smoothness prior guarantees that the coefficients follow the original ones in a more faithful way.
+
+\begin{figure}
+  \begin{minipage}[c]{.5\textwidth}
+    \centering
+    \includegraphics[width = \textwidth]{kernelHeat_noSmoothness_struct.png}
+  \end{minipage}
+  \begin{minipage}[c]{.5\textwidth}
+    \centering
+    \includegraphics[width = \textwidth]{kernelHeat_Smoothness_struct.png}
+  \end{minipage}
+  \caption{Comparison between kernels without and with smoothness prior. Heat kernel dataset}
+  \label{fig:kernelHeat_struct}
+\end{figure}
+
+\begin{figure}
+  \begin{minipage}[c]{.5\textwidth}
+    \centering
+    \includegraphics[width = \textwidth]{kernelDorina_noSmoothness_struct.png}
+  \end{minipage}
+  \begin{minipage}[c]{.5\textwidth}
+    \centering
+    \includegraphics[width = \textwidth]{kernelDorina_smoothness_struct.png}
+  \end{minipage}
+  \caption{Comparison between kernels without and with smoothness prior. Thanou et al. kernel dataset}
+  \label{fig:kernelDorina_struct}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \begin{minipage}[c]{.8\textwidth}
+    \centering
+    \includegraphics[width = \textwidth]{alphaHeat_noSmoothness_struct.png}
+  \end{minipage}
+  \begin{minipage}[c]{.8\textwidth}
+    \centering
+    \includegraphics[width = \textwidth]{alphaHeat_Smoothness_struct.png}
+  \end{minipage}
+  \caption{Comparison between kernels coefficients without and with smoothness prior. Heat kernel   dataset}
+  \label{fig:alphaHeat_struct}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \begin{minipage}[c]{.8\textwidth}
+    \centering
+    \includegraphics[width = \textwidth]{alphaDorina_noSmoothness_struct.png}
+  \end{minipage}
+  \begin{minipage}[c]{.8\textwidth}
+    \centering
+    \includegraphics[width = \textwidth]{alphaDorina_Smoothness_struct.png}
+  \end{minipage}
+  \caption{Comparison between kernels coefficients without and with smoothness prior. Thanou et al.   dataset}
+  \label{fig:alphaHeat_struct}
+\end{figure}
 
 \subsubsection{Second approach: smoothness in the constraints}
-Results show a general improvement, both regarding the reproduction error and the behavior of the kernel coefficients. The experiments have been repeated several times, in order to be able to claim the stability of the algorithm and show a stable trend. The first important value that testify the improvement of the procedure is the reproduction error, since it decreases significantly when the smoothness prior is included in the optimization process. In \autoref{tab:errorHeat} and \autoref{tab:errorDorina} there is a comparison between the error obtained with and without the smoothness assumption, both for the case in which we have one heat kernel and the case in which we used the smooth kernel from the work of Thanou et al.: it can be noticed that its value tends to be stable during several iterations.
+Results show a general improvement, both regarding the reproduction error and the behavior of the kernel coefficients.  The first important value that testify the improvement of the procedure is the reproduction error, since it decreases significantly when the smoothness prior is included in the optimization process. In \autoref{tab:errorHeat} and \autoref{tab:errorDorina} there is a comparison between the error obtained with and without the smoothness assumption, both for the case in which we have one heat kernel and the case in which we used the smooth kernel from the work of Thanou et al.: it can be noticed that its value tends to be stable during several iterations.
 
 \begin{table}[htbp]
   \centering

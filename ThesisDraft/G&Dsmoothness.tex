@@ -10,11 +10,11 @@ The figures \ref{fig:alphaHeatGD_smth} and \ref{fig:alphaDorinaGD_smth} show the
   \centering
   \begin{minipage}[c]{.8\textwidth}
     \centering
-    \includegraphics[width = \textwidth]{alphaDorina_noSmoothness_dictionary.png}
+    \includegraphics[width = \textwidth]{kernelHeat_GD.png}
   \end{minipage}
   \begin{minipage}[c]{.8\textwidth}
     \centering
-    \includegraphics[width = \textwidth]{alphaDorina_Smoothness_dictionary.png}
+    \includegraphics[width = \textwidth]{kernelHeat_GDSmth.png}
   \end{minipage}
   \caption{Comparison between kernels coefficients without and with smoothness prior. Thanou et al.   dataset}
   \label{fig:alphaHeatGD_smth}
@@ -24,11 +24,11 @@ The figures \ref{fig:alphaHeatGD_smth} and \ref{fig:alphaDorinaGD_smth} show the
   \centering
   \begin{minipage}[c]{.8\textwidth}
     \centering
-    \includegraphics[width = \textwidth]{alphaDorina_noSmoothness_dictionary.png}
+    \includegraphics[width = \textwidth]{kernelDorina_GD.png}
   \end{minipage}
   \begin{minipage}[c]{.8\textwidth}
     \centering
-    \includegraphics[width = \textwidth]{alphaDorina_Smoothness_dictionary.png}
+    \includegraphics[width = \textwidth]{kernelDorina_GDSmth.png}
   \end{minipage}
   \caption{Comparison between kernels coefficients without and with smoothness prior. Thanou et al.   dataset}
   \label{fig:alphaDorinaGD_smth}
@@ -41,13 +41,13 @@ Table \ref{tab:PrecRec_compSmth} again shows the comparison between the Precisio
   \begin{tabular}{lcccc}
   &\multicolumn{2}{c}{\textbf{Heat kernel}}&\multicolumn{2}{c}{\textbf{Thanou et al. kernel}}\\
   \toprule
-  &Graph L. & Graph and D. L. & Graph L. & Graph and D. L.\\ %\cline{2-5}
+  &No Smoothness & Smoothness & No Smoothness & Smoothness\\ %\cline{2-5}
     \midrule
-    \textbf{Precision rate} & 0 & 0 & 0 & 0\\
-    \textbf{Recall Rate} & 0 & 0 & 0 & 0\\
+    \textbf{Precision rate} & 0.6564 & 0.8098 & 0.6605 & 0.8642\\
+    \textbf{Recall Rate} & 0.6605 & 0.8049 & 0.6564 & 0.8589\\
     \bottomrule
   \end{tabular}
-  \caption{Reproduction error comparison for the low frequency kernel from Thanou et al. dataset}
+  \caption{Precision and Recall outputs for the low frequency kernel from Thanou et al. dataset}
   \label{tab:PrecRec_compSmth}
 \end{table}
 
@@ -56,8 +56,8 @@ Table \ref{tab:PrecRec_compSmth} again shows the comparison between the Precisio
   \begin{tabular}{ccc}
   \textbf{Trial \#} & \textbf{Heat kernel} & \textbf{Thanou et al. kernel}\\
   \midrule
-    0 & 0\\
-    0 & 0\\
+    0 & 0.1079\\
+    0 & 0.0226\\
     \bottomrule
   \end{tabular}
   \caption{Reproduction error comparison for the low frequency kernel from Thanou et al. dataset}
@@ -70,11 +70,11 @@ Finally, for what concerns the kernels coefficients, figures \ref{fig:alphaGDHea
   \centering
   \begin{minipage}[c]{.8\textwidth}
     \centering
-    \includegraphics[width = \textwidth]{alphaHeat_noSmoothness_dictionary.png}
+    \includegraphics[width = \textwidth]{alphaHeat_GD.png}
   \end{minipage}
   \begin{minipage}[c]{.8\textwidth}
     \centering
-    \includegraphics[width = \textwidth]{alphaHeat_Smoothness_dictionary.png}
+    \includegraphics[width = \textwidth]{alphaHeat_GDSmth.png}
   \end{minipage}
   \caption{Comparison between kernels coefficients without and with smoothness prior. Heat kernel   dataset}
   \label{fig:alphaGDHeat}
@@ -84,11 +84,11 @@ Finally, for what concerns the kernels coefficients, figures \ref{fig:alphaGDHea
   \centering
   \begin{minipage}[c]{.8\textwidth}
     \centering
-    \includegraphics[width = \textwidth]{alphaDorina_noSmoothness_dictionary.png}
+    \includegraphics[width = \textwidth]{alphaDorina_GD.png}
   \end{minipage}
   \begin{minipage}[c]{.8\textwidth}
     \centering
-    \includegraphics[width = \textwidth]{alphaDorina_Smoothness_dictionary.png}
+    \includegraphics[width = \textwidth]{alphaDorina_GDSmth.png}
   \end{minipage}
   \caption{Comparison between kernels coefficients without and with smoothness prior. Thanou et al.   dataset}
   \label{fig:alphaGDDorina}

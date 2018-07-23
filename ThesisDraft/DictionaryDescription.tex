@@ -1,8 +1,7 @@
-\chapter*{Representing a graph: graph learning techniques and dictionary representation}
+\chapter{Representing a graph: graph learning techniques and dictionary representation}
 In the previous section we presented the main reason why signal processing field expressed the necessity of having new different structures in order to better represent the amount of information we can collect from a phenomena: what we did not focused on yet, is the fact that these amount of data are usually largely redundant, since they are a densely sampled version of the signal and they may represent multiple correlated versions of the same physical event. So normally the significative information regarding the underlying processes is largely reducible in dimensionality with respect of the collected dataset. \cite{Tosic2011} Thus, we can obtain the data representations starting from the idea that our observations can be described by a sparse subset of elementary signals - so called \textit{atoms} - taken from an \textit{overcomplete dictionary}. When the dictionary forms a basis, then every signal can be univocally represented through the linear combination of the dictionary atoms, moreover the overcompleteness property \cri{definisci i significati delle n. Sei sicura che stai avendo a che fare con dizionari overcomplete? Si si } implies that atoms are linearly dependent. \cite{Tosic2011} \cite{Rubinstein2010}
 
-With these premises, we consider a dictionary $\textbf{D} = [\textbf{d}_1, \textbf{d}_2, \dots, \textbf{d}_L] \in \R^{N \times L}$, in which the columns represent the dictionary atoms and, for the overcompleteness, $L\geq N$. Through this entity, the signal representations can be done through two main paths, either the \textit{synthesis} path, or the \textit{analysis} path, and the two can significantly differ in the overcomplete case.
-
+With these premises, we consider a dictionary $\textbf{D} = [\textbf{d}_1, \textbf{d}_2, \dots, \textbf{d}_L] \in \R^{N \times L}$, in which the columns represent the dictionary atoms and, for the overcompleteness, $L\geq N$. Through this entity, the signal representations can be done through two main paths, either the \textit{synthesis} path, or the \textit{analysis} path, and the two can significantly differ in the overcomplete case.\\
 In the synthesis path, the signal $\textbf{x} \in \R^N$ is represented as a linear combination of the dictionary atoms:
 \begin{equation}
 \textbf{x} = \textbf{D}^T \gamma_s
@@ -13,6 +12,7 @@ while in the analysis path it is represented through its inner product with the 
 \gamma_a = \textbf{D}^T \textbf{x}
 \label{eq:analysis}
 \end{equation}
+Where $\textbf{x}$ accounts for the sparsity concept and is called \textit{sparsity matrix}: this matrix is, as the name suggests, a sparse matrix, having in its columns a number of non-zero elements equal to the sparsity coefficient we impose. The sparsity coefficients indicates the number of atoms in the dictionary concurring to reproduce the signal in the vertex corresponding to the dictionary row, while the positions of these non-zeros elements in $\textbf{b}$ indicate which are the sources of this generated signal.\\
 
 The representation in \ref{eq:synthesis} has the consequence that, when the dictionary is overcomplete, the set of representations $\gamma_s$satisfying the equation is \textit{infinitely large}, allowing us to look for the most informative representation of the signal with respect of a certain cost function $\mathcal{C}(\gamma)$. In this way we arrive to a first general optimization problem in the form:
 \begin{equation}

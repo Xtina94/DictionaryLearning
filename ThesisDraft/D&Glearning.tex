@@ -67,7 +67,7 @@ In \autoref{fig:alphaHeatGD} and \autoref{fig:alphaDorinaGD} the original and th
   \centering
   \begin{minipage}[c]{.8\textwidth}
     \centering
-    \includegraphics[width = \textwidth]{alphaDorina_noSmoothness_dictionary.png}
+    \includegraphics[width = \textwidth]{comp_kernels_Heat30.png}
   \end{minipage}
   \begin{minipage}[c]{.8\textwidth}
     \centering
@@ -81,7 +81,7 @@ In \autoref{fig:alphaHeatGD} and \autoref{fig:alphaDorinaGD} the original and th
   \centering
   \begin{minipage}[c]{.8\textwidth}
     \centering
-    \includegraphics[width = \textwidth]{alphaDorina_noSmoothness_dictionary.png}
+    \includegraphics[width = \textwidth]{comp_kernels_DorinaLF.png}
   \end{minipage}
   \begin{minipage}[c]{.8\textwidth}
     \centering
@@ -90,6 +90,8 @@ In \autoref{fig:alphaHeatGD} and \autoref{fig:alphaDorinaGD} the original and th
   \caption{Comparison between kernels coefficients without and with smoothness prior. Thanou et al.   dataset}
   \label{fig:alphaDorinaGD}
 \end{figure}
+
+\cri{mancano i kernels imparati corretamente dal'algo GD senza constraint}
 
 In the \autoref{tab:PrecRec_noSmth} what is presented is the comparison between the Precision and Recall values obtained from the graph learning only approach and the approach combining graph and dictionary learning. The values listed confirm the fact that alternating between the two learning phases does not affect the single learning process significantly and remains feasible, even though we are doubling the aspects to take into account when optimizing
 
