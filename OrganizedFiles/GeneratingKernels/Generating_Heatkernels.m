@@ -62,7 +62,9 @@ kernels(:,1) = kernel_1(lambdas);
 
 figure('Name','Heat kernels representation')
 hold on
-plot(lambdas,kernels);
+plot(lambdas,kernels(:,1));
+set(gca,'XLim',[0 1.4])
+set(gca,'XTick',(0:0.2:1.4))
 hold off
 
 %% Save results to file

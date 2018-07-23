@@ -78,7 +78,7 @@ switch flag
         ds = 'Dataset used: Synthetic data from Dorina - 1 single kernel';
         ds_name = 'DorinaLF';
         param.percentage = 15;
-        param.thresh = param.percentage + 13;
+        param.thresh = param.percentage + 3;
 end
 
 param.J = param.N * param.S; % total number of atoms 
@@ -86,7 +86,7 @@ param.K = degree*ones(1,param.S);
 param.T0 = 4; % sparsity level in the training phase
 param.c = 1; % spectral control parameters
 param.mu = 1e-2; % polynomial regularizer paremeter
-path = ['C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DictionaryLearning\Constraints\Results\18.07.18\',num2str(ds_name),'\']; %Folder containing the results to save
+path = ['C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DictionaryLearning\Constraints\Results\23.07.18\',num2str(ds_name),'\']; %Folder containing the results to save
 
 for trial = 1:5
     %% Initialize the kernel coefficients
@@ -146,7 +146,6 @@ for trial = 1:5
     disp(['The total representation error of the testing signals is: ',num2str(errorTesting_Pol)]);
     
     %% Compute the l-2 norms
-    
     lambda_norm = 'is 0 since here we are learning only the kernels'; %norm(comp_eigenVal - eigenVal);
     % % % alpha_norm = norm(comp_alpha - output_Pol.alpha(1:(param.S - 1)*(degree + 1)));
     % % % X_norm = norm(comp_X - CoefMatrix_Pol(1:(param.S - 1)*param.N,:));
@@ -179,7 +178,7 @@ for trial = 1:5
     
     %% Compute the average CPU_time
     
-    avgCPU = mean(output_Pol.cpuTime);
+    avgCPU = output_Pol.cpuTime;
     
     %% Save the results to file
     
@@ -190,7 +189,7 @@ for trial = 1:5
     % The Output data
     filename = [path,'Output_trial',num2str(trial),'.mat'];
     learned_alpha = output_Pol.alpha;
-    % save(filename,'ds','Dictionary_Pol','learned_alpha','CoefMatrix_Pol','errorTesting_Pol','avgCPU','tot_norm_X');
+    save(filename,'ds','Dictionary_Pol','learned_alpha','CoefMatrix_Pol','errorTesting_Pol','avgCPU','tot_norm_X');
     save(filename,'errorTesting_Pol','avgCPU','tot_norm_X');
     
     % The kernels plot
@@ -200,7 +199,11 @@ for trial = 1:5
     title('Original kernels');
     hold on
     for s = 1 : param.S
-        plot(comp_lambdaSym,comp_ker(:,s));
+        plot(comp_lambdaSym,comp_ker(:,s));    
+        set(gca,'YLim',[0 1.4])
+        set(gca,'YTick',(0:0.2:1.4))
+        set(gca,'XLim',[0 1.4])
+        set(gca,'XTick',(0:0.2:1.4))
     end
     hold off
     subplot(2,1,2)
@@ -209,6 +212,10 @@ for trial = 1:5
     for s = 1 : param.S
         %     plot(param.lambda_sym(4:length(param.lambda_sym)),output_Pol.kernel(4:length(output_Pol.kernel),s));
         plot(param.lambda_sym,output_Pol.kernel(:,s));
+    set(gca,'YLim',[0 1.4])
+    set(gca,'YTick',(0:0.2:1.4))
+    set(gca,'XLim',[0 1.4])
+    set(gca,'XTick',(0:0.2:1.4))
     end
     hold off
     

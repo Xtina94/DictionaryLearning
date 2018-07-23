@@ -1,4 +1,4 @@
- clear all
+clear all
 close all
 
 %% Adding the paths
@@ -6,9 +6,9 @@ addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\Optimizers'); %Folder
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\Comparison_datasets\'); %Folder containing the comparison datasets
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\'); %Folder containing the training and verification dataset
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\GeneratingKernels\Results'); %Folder conatining the heat kernel coefficients
-path = 'C:\Users\Cristina\Documents\GitHub\OrganizedFiles\Graph&DictLearning\G&D_fromGraphCorrect\Results\13.07.18\'; %Folder containing the results to save
+path = 'C:\Users\Cristina\Documents\GitHub\OrganizedFiles\Graph&DictLearning\G&D_fromGraphCorrect\Results\23.07.18\'; %Folder containing the results to save
 
-flag = 7;
+flag = 4;
 
 switch flag
     case 1 %Dorina
@@ -78,9 +78,10 @@ switch flag
         param.epsilon = 0.2; % we assume that epsilon_1 = epsilon_2 = epsilon
         ds = 'Dataset used: data from Heat kernel';
         ds_name = 'Heat';        
-        param.percentage = 8;
+        param.percentage = 5;
         param.thresh = param.percentage + 18;
         alpha = 5; %gradient descent parameter, it decreases with epochs
+        param.heat_k = 1;
     case 5 %Heat kernel
         Y = TrainSignal;
         K = 15;
@@ -113,9 +114,10 @@ switch flag
         degree = 20;
         ds = 'Dataset used: Synthetic data from Dorina - 1 single kernel';
         ds_name = 'DorinaLF';
-        param.percentage = 15;
-        param.thresh = param.percentage + 13;
+        param.percentage = 5;
+        param.thresh = param.percentage + 14;
         alpha = 20; %gradient descent parameter, it decreases with epochs
+        param.heat_k = 0;
 end
 
 param.N = size(Y,1); % number of nodes in the graph
@@ -140,18 +142,25 @@ end
 % % %         param.alpha{i} = randn(K+1,1); %comp_alpha(:,i);
 % % %     end
 
-[comp_lambdaSym,comp_indexSym] = sort(diag(comp_eigenVal));
-comp_lambdaPowerMx(:,2) = comp_lambdaSym;
+% % % [comp_lambdaSym,comp_indexSym] = sort(diag(comp_eigenVal));
+% % % comp_lambdaPowerMx(:,2) = comp_lambdaSym;
+% % % 
+% % % for i = 1:K+1
+% % %     comp_lambdaPowerMx(:,i) = comp_lambdaPowerMx(:,2).^(i-1);
+% % %     comp_Laplacian_powers{i} = comp_Laplacian^(i-1);
+% % % end
 
-for i = 1:K+1
-    comp_lambdaPowerMx(:,i) = comp_lambdaPowerMx(:,2).^(i-1);
-    comp_Laplacian_powers{i} = comp_Laplacian^(i-1);
+[comp_lambdaSym,indexSym] = sort(diag(comp_eigenVal));
+param.lambda_power_matrix(:,2) = comp_lambdaSym;
+
+for i = 1:max(param.K) + 1
+    param.lambda_power_matrix(:,i) = param.lambda_power_matrix(:,2).^(i-1);
 end
 
 comp_ker = zeros(param.N,param.S);
 for i = 1 : param.S
     for n = 1:param.N
-        comp_ker(n,i) = comp_ker(n,i) + comp_lambdaPowerMx(n,:)*comp_alpha(:,i);
+        comp_ker(n,i) = comp_ker(n,i) + param.lambda_power_matrix(n,:)*param.alpha{i};
     end
 end
 
@@ -180,6 +189,7 @@ D_norm_train = zeros(maxIter,1);
 norm_temp_W = zeros(maxIter,1);
 D_diff = cell(maxIter,1);
 W_vector = cell(1,200);
+CPUTime = zeros(maxIter,1);
 
 for big_epoch = 1:maxIter
     
@@ -198,10 +208,16 @@ for big_epoch = 1:maxIter
     
     if mod(big_epoch,5) == 0
         %------optimize with respect to alpha------%
-        
-        roots = retrieve_betas(param);
-        [param,cpuTm] = coefficient_update_interior_point(Y,x,param,'sdpt3',roots);
-%         cpuTime((big_epoch + 1)/2) = cpuTm;        
+        if big_epoch == 5
+            param.startingKer = comp_ker;
+        else
+            param.startingKer = zeros(param.N,param.S);
+        end
+        param.beta_coefficients = retrieve_betas_2(param);
+        [my_alpha,CPUTime(big_epoch)] = coefficient_update_interior_point_struct_2(Y,x,param,'sdpt3');
+        for i = 1:param.S
+            param.alpha{i} = my_alpha(:,i);
+        end        
     else
         %--------optimise with respect to W--------%
         disp('Graph learning step');
@@ -351,13 +367,20 @@ hold on
 for s = 1 : param.S
     plot(comp_lambdaSym,comp_ker(:,s));
 end
+set(gca,'YLim',[0 1.4])
+set(gca,'YTick',(0:0.5:1.4))
+set(gca,'XLim',[0 1.4])
+set(gca,'XTick',(0:0.2:1.4))
 hold off
 subplot(2,1,2)
 title('learned kernels');
 hold on
 for s = 1 : param.S
-    plot(param.lambda_sym(1:length(param.lambda_sym)-1),g_ker(1:length(g_ker)-1,s));
+%     plot(param.lambda_sym(1:length(param.lambda_sym)-1),g_ker(1:length(g_ker)-1,s));
+    plot(param.lambda_sym,g_ker);
 end
+set(gca,'YLim',[0 1])
+set(gca,'YTick',(0:0.5:1))
 hold off
 
 %% Save results to file
@@ -374,7 +397,7 @@ save(filename,'W_norm_thr','W_norm','X_norm_train','norm_temp_W','X_norm_test','
 % The Output data
 filename = [path,num2str(ds_name),'\Output_',num2str(ds_name),'.mat'];
 learned_eigenVal = param.lambda_sym;
-save(filename,'ds','learned_dictionary','learned_W','final_W','Y','learned_eigenVal','errorTesting_Pol');
+save(filename,'ds','learned_dictionary','learned_W','final_W','Y','learned_eigenVal','errorTesting_Pol','CPUTime');
 
 %% Verify the results with the precision recall function
 learned_L = diag(sum(learned_W,2)) - learned_W;
