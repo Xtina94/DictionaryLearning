@@ -2,18 +2,16 @@
 \label{sec:GD}
 \cri{nelle osservazioni aggiungi:
 - Il criterio di scelta dell'inizailizzazione ---> Cerca di capire bene come viene inizializzato il dizionario per essere sicura che quello che stai dicendo nella sezione non è una cazzata
-- Il fatto che l'inizializzazione non è così vincolante
-- perchè ci sono disparità nel numero di iterazioni
 - come varia il comportamento dell'algoritmo in base alla variazione dei parametri che abbiamo: del tipo, più samples vuol dire maggiore precisione ecc..}
-The next step of our work focuses on the attempt to learn at the same time the Dictionary and the graph structure, while in a further moment we will focus on adding the previous smoothness constraint. As it is formulated theoretically, the double optimization problem could reveal itself to be heavily ill posed, since now the number of parameters involved in the optimization would go up to three instead of the already challenging two. To remedy the problem we decided to create an algorithm which alternates the dictionary learning and the graph learning step, while the sparsity prior is checked at every step by the continuous optimization of the sparsity matrix $X$.\\
+The next step of our work focuses on the attempt to learn at the same time the Dictionary and the graph structure, while in a further moment we will focus on adding the previous smoothness constraint. As it is formulated theoretically, the double optimization problem could reveal itself to be heavily ill posed, since now the number of parameters involved in the optimization would go up to three instead of the already challenging two. To remedy the problem we decided to create an algorithm which alternates the dictionary learning and the graph learning step, while the sparsity prior is checked at every step by the continuous optimization of the sparsity matrix $X$.
+
 \section{The initialization section}
-In this situation, one first aspect we have to be careful about is how we initialize the elements for the optimization, namely $W$ and $D$, since both them are clearly necessary from the beginning. The choice is between initialising the kernels coefficients and initializing the graph structure: since each entity is strictly correlated with the other, one of the two can be reduced. Our hypothesis is that forcing some kind of structure in the kernels, even though random, could heavily influence the overall behavior of the optimization structure, since a small error in their estimation could easily propagate through the structures that develop onto them; on the other hand, initializing the graph structure in a random way would not bias our learning problem with the same importance. Moreover, the nature of the two learning parts is slightly different: in the dictionary learning part the algorithm attempts to find the only solution that could exist, while in the graph learning part the algorithm aims at finding a good solution for the problem, without necessarily meaning that the graph learned is the same as the ground truth one, since it just has to be one possible solution to the problem. Under this light, it is clear that the graph initialization has smaller consequences than the initialization of the kernels. In order to verify our reasoning we run some tests to see if the intuition was correct and the results aligned with it. \cri{mostrali nei risultati poi}.
+% In this situation, one first aspect we have to be careful about is how we initialize the elements for the optimization, namely $W$ and $D$, since both them are clearly necessary from the beginning. The choice is between randomly initialising the kernels coefficients and initializing the graph structure: since each entity is strictly correlated with the other, one of the two can be reduced. Our hypothesis is that forcing some kind of structure in the kernels, even though random, could heavily influence the overall behavior of the optimization structure, since a small error in their estimation could easily propagate through the structures that develop onto them; on the other hand, initializing the graph structure in a random way would not bias our learning problem with the same importance. Moreover, the nature of the two learning parts is slightly different: in the dictionary learning part the algorithm attempts to find the only solution that could exist, while in the graph learning part the algorithm aims at finding a good solution for the problem, without necessarily meaning that the graph learned is the same as the ground truth one, since it just has to be one possible solution to the problem. Under this light, it is clear that the graph initialization has smaller consequences than the initialization of the kernels. In order to verify our reasoning we run some tests to see if the intuition was correct and the results aligned with it. \cri{mostrali nei risultati poi}.
 
-
-Therefore, in this first part we initialize the weight matrix $W$, obtain the related normalized Laplacian $\mathcal{L}$ and compute the orthogonal basis connected to it on order to use the eigenvectors we find to have a first estimate on the dictionary.
+In this first part we initialize the weight matrix $W$ with a set of random weights with a gaussian distribution, following the procedure explained in \cite{Kalofolias2016} obtain the related normalized Laplacian $\mathcal{L}$ and compute the orthogonal basis connected to it on order to use the eigenvectors we find to have a first estimate on the dictionary.
 
 \section{The alternation between optimization steps}
-With this starting elements we are then able to pass to the alternating optimization steps: every iteration of the global cycle involves the sparsity matrix estimation $X$ through the \gls{omp} method (the so-called \textit{sparse coding step}), while what occur in turn every time are the \textit{dictionary learning} and the \textit{graph learning} steps. Finally, after the learning steps there is a re-estimation of the dictionary based on the new values of $\alpha$ and $\mathcal{L}$ which will then be used in the next iteration from the spars coding step. \cri{vedi se puoi spiegarlo un po' meglio}.
+With this starting elements we are then able to pass to the alternating optimization steps: every iteration of the global cycle involves the sparsity matrix estimation $X$ through the \gls{omp} method (the so-called \textit{sparse coding step}), while what occur in turn every time are the \textit{dictionary learning} and the \textit{graph learning} steps. Finally, after the learning steps there is a re-estimation of the dictionary, from the new values of $\alpha$ and $\mathcal{L}$, which will then be used from the spars coding step in the next iteration.
 
 The general algorithm thus articulates in the following way:
 
@@ -56,10 +54,10 @@ We specify that, as shown in the pseudo code at line \ref{5}, in our algorithm t
 \section{Results}
 For the tests we run regarding this part, we deployed the same datasets used in \autoref{sec:dataGen}: a graph signal with edge weights taken from a gaussian distribution, a Heat kernel and the kernel isolated from Thanou et al. dataset.
 
-Moreover, the number of iterations we chose is $iterNum = 250$, the sparsity factor still equal to $T_0 = 4$ and the coherence factor $\mu = 10^{-4}$.
+Moreover, the number of iterations we chose is $iterNum = 250$, the sparsity factor still equal to $T_0 = 4$ and the stability factor $\mu = 10^{-4}$.
 
 Together with the representation error we added another metric to evaluate the quality of our approach, a function estimating the Precision and the Recall rate for the graph. To be precise, the Precision metric expresses the percentage of estimated edges in the graph that are correct, while the Recall metric shows the rate of the original edges are correctly estimated.\\
-The experiments showed promising results, not particularly degraded by the alternating process.
+The experiments showed promising results, not particularly degraded by the alternating process, and the results we present here are obtained imposing the smoothness prior over the structure of the objective function, since the other procedure was giving similar outcomes.
 
 In \autoref{fig:alphaHeatGD} and \autoref{fig:alphaDorinaGD} the original and the learned kernels are compared: as it can be seen from the figures, the learning process is not particularly affected  by the fact that at the beginning of our optimization procedure we have to suppose as unknowns both the graph structure and the dictionary coefficients. The only noticeable difference is in the absolute value of the kernels, as it is slightly reduced, and the spectral range of the eigenvalues: these ones are constantly updated at every graph learning step and the results indicate the tendency to "contract" the spectral range, bringing it further from the 0 value. The constraints over the dictionary, anyway, prevent the learned solution to be sensibly altered and assure the spectral distribution of the frequencies already assumed in the dictionary learning approach.
 
@@ -67,11 +65,11 @@ In \autoref{fig:alphaHeatGD} and \autoref{fig:alphaDorinaGD} the original and th
   \centering
   \begin{minipage}[c]{.8\textwidth}
     \centering
-    \includegraphics[width = \textwidth]{comp_kernels_Heat30.png}
+    \includegraphics[width = \textwidth]{kernelHeat_noSmoothness_GD.png}
   \end{minipage}
   \begin{minipage}[c]{.8\textwidth}
     \centering
-    \includegraphics[width = \textwidth]{alphaDorina_Smoothness_dictionary.png}
+    \includegraphics[width = \textwidth]{kernelHeat_Smoothness_GD_struct.png}
   \end{minipage}
   \caption{Comparison between kernels coefficients without and with smoothness prior. Thanou et al.   dataset}
   \label{fig:alphaHeatGD}
@@ -81,19 +79,17 @@ In \autoref{fig:alphaHeatGD} and \autoref{fig:alphaDorinaGD} the original and th
   \centering
   \begin{minipage}[c]{.8\textwidth}
     \centering
-    \includegraphics[width = \textwidth]{comp_kernels_DorinaLF.png}
+    \includegraphics[width = \textwidth]{kernelDorina_GD.png}
   \end{minipage}
   \begin{minipage}[c]{.8\textwidth}
     \centering
-    \includegraphics[width = \textwidth]{alphaDorina_Smoothness_dictionary.png}
+    \includegraphics[width = \textwidth]{kernelDorina_Smoothness_GD_struct.png}
   \end{minipage}
-  \caption{Comparison between kernels coefficients without and with smoothness prior. Thanou et al.   dataset}
+  \caption{Comparison between kernels coefficients without and with smoothness prior. Thanou et al. dataset}
   \label{fig:alphaDorinaGD}
 \end{figure}
 
-\cri{mancano i kernels imparati corretamente dal'algo GD senza constraint}
-
-In the \autoref{tab:PrecRec_noSmth} what is presented is the comparison between the Precision and Recall values obtained from the graph learning only approach and the approach combining graph and dictionary learning. The values listed confirm the fact that alternating between the two learning phases does not affect the single learning process significantly and remains feasible, even though we are doubling the aspects to take into account when optimizing
+In the \autoref{tab:PrecRec_noSmth} what is presented is the comparison between the Precision and Recall values obtained from the graph learning only approach and the approach combining graph and dictionary learning. The values listed show that alternating between the two learning phases affects the single learning process: in the case of the smooth kernel this difference is discrete, while in the second dataset can be clearly noted; at the same time, though, in the latter case we saw that the outcomes were not stables over the trails, having very good results in some of them and less good in others.
 
 \begin{table}[htbp]
   \centering
@@ -102,11 +98,11 @@ In the \autoref{tab:PrecRec_noSmth} what is presented is the comparison between 
   \toprule
   &Graph L. & Graph and D. L. & Graph L. & Graph and D. L.\\ %\cline{2-5}
     \midrule
-    \textbf{Precision rate} & 0 & 0 & 0 & 0\\
-    \textbf{Recall Rate} & 0 & 0 & 0 & 0\\
+    \textbf{Precision rate} & 99.56 \% & 91.67 \% & 95.6 \% & 69.277 \%\\
+    \textbf{Recall Rate} & 98.97 \% &  91.67 \% & 94.99 \% & 67.69 \%\\
     \bottomrule
   \end{tabular}
-  \caption{Reproduction error comparison for the low frequency kernel from Thanou et al. dataset}
+  \caption{Precision and Recall comparison between the graph-learning-only option and the one adding the dictionary learning}
   \label{tab:PrecRec_noSmth}
 \end{table}
 
@@ -119,9 +115,9 @@ Finally, regarding the representation error the table \ref{tab:errorGD} shows ho
   \toprule
   &Dictionary L. & Graph and D. L. & Dictionary L. & Graph and D. L.\\ %\cline{2-5}
     \midrule
-    \textbf{Avg. repr. Error} & 0 & 0 & 0 & 0\\
+    \textbf{Avg. repr. Error} & 0.0250 & 0.0697 & 0.0217 & 0.0283\\
     \bottomrule
   \end{tabular}
-  \caption{Reproduction error comparison for the low frequency kernel from Thanou et al. dataset}
+  \caption{Reproduction error comparison between the dictionary-only learning and the overall process}
   \label{tab:errorGD}
 \end{table}

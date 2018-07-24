@@ -1,6 +1,5 @@
 \chapter{The dictionary learning improvement under smoothness constraints}
 \label{sec:DL}
-\section{The point we started from: \textit{"Learning Parametric Dictionaries for Signals on Graphs"}}
 As we previously hinted, in the work of Thanou, Shuman and Frossard the focus was on learning the parametric functions ($kernels$) through which it was possible to reconstruct the graph signal. Moreover, in their work they modelled the graph signal as a combination of overlapping local patterns, describing localized events on the graph which can appear in several vertices. This representation of the graph signal brought to a representation of the dictionary structure as a concatenation of subdictionaries, which are polynomials of the graph Laplacian. Under this assumption they then learned the coefficients of the kernels through a numerical optimization.
 
 \subsection{The dictionary structure and main assumptions}
@@ -80,6 +79,7 @@ V=
 \end{equation}
 
 With $N$ being in this case the number of eigenvalues of $\mathcal{L}$.\\
+In the case of the heat kernel, the function does not exactly go to 0 in the last eigenvalues considered, but it stays a little bit over it, that is why the relaxed this condition requesting the final $\lambda$s to be root of a polynomial with a vertical indicative offset. The following results show how this procedure is still a good improvement in such a way that we could use this approach to better model general low frequency kernels in ways more precise than simply asking them to go directly to 0.
 
 Since we deal with the optimization problem in \autoref{eq:objDictionary} through linear matrix inequality tools, we try to model the vector containing the kernel coefficients in such a way that its structure itself already holds the information regarding the structure of the two sub polynomials. To do so, we multiply the two sub polynomials among each other without resolving the equation with known $\beta$, but leaving them as unknown, in such a way that the behavior of the overall polynomial emerges. We thus obtain the structure that every $\alpha$ coefficient should have in order to transmit the smoothness prior to the objective function. Namely:
 \begin{equation}
@@ -218,9 +218,9 @@ The two main metrics we analyse for the performance of the algorithm are the rep
   \label{tab:errorDorina_struct}
 \end{table}
 
-The two tables \ref{tab:errorHeat_struct} and \ref{errorDorina_struct} list the reproduction errors for $5$ sample trials using both datasets and comparing the effect of the smoothness over the learning quality. As can be seen, adding the smoothness prior does not bring automatically a better reproduction; this is probably due to the fact that the definition of smooth kernel is not completely rigorous in defining "how much" the kernel goes to $0$, thus we have to accept a margin of uncertainty in forcing the final smoothness part. The variation is anyway contained, such that it cannot be considered as properly worsening the dictionary learning.\\
+The two tables \ref{tab:errorHeat_struct} and \ref{tab:errorDorina_struct} list the reproduction errors for $5$ sample trials using both datasets and comparing the effect of the smoothness over the learning quality. As can be seen, adding the smoothness prior does not bring automatically to a better reproduction; this is probably due to the fact that the definition of smooth kernel is not completely rigorous in describing "how much" the kernel goes to $0$, thus we have to accept a margin of uncertainty in forcing the final smoothness part. The variation is anyway contained, such that it cannot be considered as properly worsening the dictionary learning.\\
 
-On the other hand, this prior allows us to observe an improvement in the computational cost of the algorithm, here measured by $CPUTime$ and shown in the table \ref{CPUtime_struct}. The results are promising since one of the next possible \cri{togli "possible" se poi applicherai qualcosa} steps in this work can focus of the learning of high dimensional graphs, in which computational cost reduction is even more important.
+On the other hand, this prior allows us to observe an improvement in the computational cost of the algorithm, here measured by $CPUTime$ and shown in the table \ref{tab:CPUTime_struct}. The results are promising since one of the next steps in this work can focus of the learning of high dimensional graphs, in which computational cost reduction is even more important.
 
 \begin{table}[htbp]
   \centering
@@ -229,14 +229,14 @@ On the other hand, this prior allows us to observe an improvement in the computa
     \multicolumn{1}{c}{\textbf{No smoothness assumption}} &
     \multicolumn{1}{|c}{\textbf{Smoothness assumption}}\\
     \hline
-    \textbf{Heat Kernel dataset} & 0.9334 & 0.1015\\
+    \textbf{Heat Kernel dataset} & 0.9334 & 0.1001\\
     \textbf{Thanou et al. dataset} & 0.1661 & 0.0989 \\
   \end{tabular}
   \caption{Computational cost comparison for the Heat kernel and the Thanou et al. kernel dataset}
   \label{tab:CPUTime_struct}
 \end{table}
 
-The learning procedure behaves overall well, as depicted by the figures \ref{fig:kernelHeat_struct} and \ref{fig:kernelDorina_struct}, where the learned kernels are shown, as also in \autoref{fig:alphaHeat_struct} and \autoref{fig:alphaDorina_struct}, where there can be seen the values of the kernel coefficients and how the smoothness prior guarantees that the coefficients follow the original ones in a more faithful way.
+The learning procedure behaves overall well, as depicted by the figures \ref{fig:kernelHeat_struct} and \ref{fig:kernelDorina_struct}, where the learned kernels are shown, as also in \autoref{fig:alphaHeat_struct} and \autoref{fig:alphaDorina_struct}, where the values of the kernel coefficients can be seen, as well as how the smoothness prior guarantees that the coefficients follow the original ones in a more faithful way.
 
 \begin{figure}
   \begin{minipage}[c]{.5\textwidth}
@@ -289,11 +289,11 @@ The learning procedure behaves overall well, as depicted by the figures \ref{fig
     \includegraphics[width = \textwidth]{alphaDorina_Smoothness_struct.png}
   \end{minipage}
   \caption{Comparison between kernels coefficients without and with smoothness prior. Thanou et al.   dataset}
-  \label{fig:alphaHeat_struct}
+  \label{fig:alphaDorina_struct}
 \end{figure}
 
 \subsubsection{Second approach: smoothness in the constraints}
-Results show a general improvement, both regarding the reproduction error and the behavior of the kernel coefficients.  The first important value that testify the improvement of the procedure is the reproduction error, since it decreases significantly when the smoothness prior is included in the optimization process. In \autoref{tab:errorHeat} and \autoref{tab:errorDorina} there is a comparison between the error obtained with and without the smoothness assumption, both for the case in which we have one heat kernel and the case in which we used the smooth kernel from the work of Thanou et al.: it can be noticed that its value tends to be stable during several iterations.
+In the same way, here results show a general improvement, both regarding the reproduction error and the behavior of the kernel coefficients. In this case we can notice a slight improvement in both datasets concerning the reproduction error, \autoref{tab:errorHeat} and \autoref{tab:errorDorina} compare the results in the case with and without the smoothness prior, and show better results on average: it can also be noticed that the output values tend to be stable during several iterations, testifying a certain stability of the algorithm.
 
 \begin{table}[htbp]
   \centering
@@ -302,11 +302,12 @@ Results show a general improvement, both regarding the reproduction error and th
     \multicolumn{1}{c}{\textbf{Original algorithm}} &
     \multicolumn{1}{|c}{\textbf{Smoothness assumption}}\\
     \hline
-    1 & 0 & 0\\
-    2 & 0 & 0\\
-    3 & 0 & 0\\
-    4 & 0 & 0\\
-    5 & 0 & 0\\
+    1 & 0.0250 & 0.0251\\
+    2 & 0.0251 & 0.0251\\
+    3 & 0.0250 & 0.0252\\
+    4 & 0.0251 & 0.0248\\
+    5 & 0.0251 & 0.0247\\
+    \textbf{Average Error} & 0.02506 & 0.02498
   \end{tabular}
   \caption{Reproduction error comparison for the Heat kernel dataset}
   \label{tab:errorHeat}
@@ -319,17 +320,34 @@ Results show a general improvement, both regarding the reproduction error and th
     \multicolumn{1}{c}{\textbf{Original algorithm}} &
     \multicolumn{1}{|c}{\textbf{Smoothness assumption}}\\
     \hline
-    1 & 0 & 0\\
-    2 & 0 & 0\\
-    3 & 0 & 0\\
-    4 & 0 & 0\\
-    5 & 0 & 0\\
+    1 & 0.0217 & 0.0216\\
+    2 & 0.0212 & 0.0215\\
+    3 & 0.0213 & 0.0216\\
+    4 & 0.0214 & 0.0216\\
+    5 & 0.0213 & 0.0215\\
+    \textbf{Average Error} & 0.02138 & 0.02156
   \end{tabular}
   \caption{Reproduction error comparison for the low frequency kernel from Thanou et al. dataset}
   \label{tab:errorDorina}
 \end{table}
 
-The improvement can then be noticed in the behavior of the kernels' coefficients: in \autoref{fig:alphaHeatDictionary} there is a comparison between the values assumed by the original heat kernels' coefficients (blue lines), and the ones assumed by the learned coefficients in the case we are applying the smoothness prior or not. It can be seen how the coefficients in the case of no smoothness priors tend to have a less defined trend, while in the smoothness case, they follow the original trend more faithfully. This aspect is shown even more clearly in the case of Thanou et al.'s dataset (\autoref{fig:alphaDorinaDictionary}), in which the coefficients have almost the same behavior, apart from their absolute value.
+Moreover, making a comparison between the average computational cost we can see how the smoothness assumption improves the performance once again (\autoref{tab:CPUTime_dictionary}). Here, though, the difference is lower than in the previous approach, but this is comprehensible since now we are focusing on the constraints again, without reducing the number of actual unknown that the objective function is holding.
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{c|c|c}
+    0 &
+    \multicolumn{1}{c}{\textbf{No smoothness assumption}} &
+    \multicolumn{1}{|c}{\textbf{Smoothness assumption}}\\
+    \hline
+    \textbf{Heat Kernel dataset} & 0.9334 & 0.1015\\
+    \textbf{Thanou et al. dataset} & 0.1661 & 0.1224 \\
+  \end{tabular}
+  \caption{Computational cost comparison for the Heat kernel and the Thanou et al. kernel dataset}
+  \label{tab:CPUTime_dictionary}
+\end{table}
+
+The improvement can also be noticed in the behavior of the kernels' coefficients: \autoref{fig:alphaHeatDictionary} represents another comparison between the values assumed by the original heat kernels' coefficients (blue lines), and the ones assumed by the learned coefficients in the case we are applying the smoothness prior or not. It can be seen how the coefficients in the case of no smoothness priors tend to have a less defined trend, while in the smoothness case, they follow the original trend more faithfully. This aspect is shown even more clearly in the case of Thanou et al.'s dataset (\autoref{fig:alphaDorinaDictionary}), in which the coefficients have almost the same behavior, apart from their absolute value.
 
 \begin{figure}
   \centering
@@ -360,7 +378,7 @@ The improvement can then be noticed in the behavior of the kernels' coefficients
 \end{figure}
 
 
-Moreover, \autoref{fig:kernelHeatDictionary} and \autoref{fig:kernelDorinaDictionary} show the comparison between the original kernel and the learned kernel without and with smoothness prior in the case of a Heat kernel (\ref{fig:kernelHeatDictionary}) and the dataset from  Thanou et al. (\ref{fig:kernelDorinaDictionary}). It can be seen how the use of smoothness improves the overall trend also for the kernel shape, which is the ultimate purpose of the algorithm.
+Finally, \autoref{fig:kernelHeatDictionary} and \autoref{fig:kernelDorinaDictionary} show the comparison between the original kernel and the learned kernel without and with smoothness prior in the case of a Heat kernel (\ref{fig:kernelHeatDictionary}) and the dataset from  Thanou et al. (\ref{fig:kernelDorinaDictionary}). It can be seen how the use of smoothness improves the overall trend also for the kernel shape, which is the ultimate purpose of the algorithm.
 
 \begin{figure}
   \begin{minipage}[c]{.5\textwidth}
@@ -382,36 +400,36 @@ Moreover, \autoref{fig:kernelHeatDictionary} and \autoref{fig:kernelDorinaDictio
   \end{minipage}
   \begin{minipage}[c]{.5\textwidth}
     \centering
-    \includegraphics[width = \textwidth]{kernelDorina_smoothness_dictionary.png}
+    \includegraphics[width = \textwidth]{kernelDorina_Smoothness_dictionary.png}
   \end{minipage}
   \caption{Comparison between kernels without and with smoothness prior. Thanou et al. kernel dataset}
   \label{fig:kernelDorinaDictionary}
 \end{figure}
 
-Finally, if we look at the behavior of the CPU time necessary for every optimization step, we see that the values in the case we add our prior are in the same order of the ones obtained without it, which gives us further confirmation that out method, despite adding complexity due to the constraints, it does not, though, increase the computational cost.
-
-\begin{figure}
-  \begin{minipage}[c]{.5\textwidth}
-    \centering
-    \includegraphics[width = \textwidth]{CPUHeat_noSmoothness_dictionary.png}
-  \end{minipage}
-  \begin{minipage}[c]{.5\textwidth}
-    \centering
-    \includegraphics[width = \textwidth]{CPUHeat_Smoothness_dictionary.png}
-  \end{minipage}
-  \caption{Comparison between kernels without and with smoothness prior. Heat kernel dataset}
-  \label{fig:CPUHeatDictionary}
-\end{figure}
-
-\begin{figure}
-  \begin{minipage}[c]{.5\textwidth}
-    \centering
-    \includegraphics[width = \textwidth]{CPUDorina_noSmoothness_dictionary.png}
-  \end{minipage}
-    \begin{minipage}[c]{.5\textwidth}
-    \centering
-  \includegraphics[width = \textwidth]{CPUDorina_Smoothness_dictionary.png}
-  \end{minipage}
-  \caption{Comparison between kernels without and with smoothness prior. Thanou et al. kernel dataset}
-  \label{fig:CPUDorinaDictionary}
-\end{figure}
+% Finally, if we look at the behavior of the CPU time necessary for every optimization step, we see that the values in the case we add our prior are in the same order of the ones obtained without it, which gives us further confirmation that out method, despite adding complexity due to the constraints, it does not, though, increase the computational cost.
+%
+% \begin{figure}
+%   \begin{minipage}[c]{.5\textwidth}
+%     \centering
+%     \includegraphics[width = \textwidth]{CPUHeat_noSmoothness_dictionary.png}
+%   \end{minipage}
+%   \begin{minipage}[c]{.5\textwidth}
+%     \centering
+%     \includegraphics[width = \textwidth]{CPUHeat_Smoothness_dictionary.png}
+%   \end{minipage}
+%   \caption{Comparison between kernels without and with smoothness prior. Heat kernel dataset}
+%   \label{fig:CPUHeatDictionary}
+% \end{figure}
+%
+% \begin{figure}
+%   \begin{minipage}[c]{.5\textwidth}
+%     \centering
+%     \includegraphics[width = \textwidth]{CPUDorina_noSmoothness_dictionary.png}
+%   \end{minipage}
+%     \begin{minipage}[c]{.5\textwidth}
+%     \centering
+%   \includegraphics[width = \textwidth]{CPUDorina_Smoothness_dictionary.png}
+%   \end{minipage}
+%   \caption{Comparison between kernels without and with smoothness prior. Thanou et al. kernel dataset}
+%   \label{fig:CPUDorinaDictionary}
+% \end{figure}
