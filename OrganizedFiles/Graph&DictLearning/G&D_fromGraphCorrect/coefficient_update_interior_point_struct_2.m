@@ -15,7 +15,7 @@ thresh = param.thresh;
 % product_lambda = param.lambda_power_matrix*struct;
 
 Lambda = param.lambda_power_matrix;
-g = 0;
+g = 210;
 
 if param.iterN < g
     alpha = alpha_free;
@@ -103,8 +103,10 @@ if param.iterN < g
     % % %         + (BB*alpha <= (c+epsilon)*ones(lb,1))...
     % % %         + (BB*alpha >= ((c-epsilon)*ones(lb,1)));    
 else
-    F = (alpha <= 2)...
-        + (alpha >= -2);
+    F = (alpha <= 0.8)...
+        + (alpha >= -0.7)...
+        + (BA*alpha <= c*ones(la,1))...
+        + (BA*alpha >= 0.01*epsilon*ones(la,1));
 %     F = (alpha <= 0.7)...
 %         + (alpha >= -0.3);
 end

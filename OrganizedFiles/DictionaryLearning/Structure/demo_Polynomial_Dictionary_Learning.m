@@ -7,7 +7,7 @@ addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\Optimizers'); %Folder
 % % % addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\'; %Folder containing the training and verification dataset
 
 %% Loaging the required dataset
-flag = 2;
+flag = 5;
 switch flag
     case 1
         load 'C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\Comparison_datasets\ComparisonDorina.mat'];
@@ -133,7 +133,7 @@ end
 [param.beta_coefficients, param.rts] = retrieve_betas_2(param);
  
 
-for trial = 1:1
+for trial = 3:3
     %% Polynomial dictionary learning algorithm
 
     param.InitializationMethod =  'Random_kernels';
@@ -212,6 +212,8 @@ for trial = 1:1
     %     plot(param.lambda_sym(4:length(param.lambda_sym)),output_Pol.kernel(4:length(output_Pol.kernel),s));
     plot(param.lambda_sym,output_Pol.kernel(:,s));
     end
+    set(gca,'YLim',[0 1])
+    set(gca,'YTick',(0:0.2:1))
     hold off
 
     filename = [path,'FinalKernels_plot_trial',num2str(trial),'.png'];

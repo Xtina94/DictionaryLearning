@@ -103,7 +103,8 @@ if param.big_epoch < 0
     % % %         + (BB*alpha >= ((c-epsilon)*ones(lb,1)));    
 else
     F = (alpha <= 2)...
-        + (alpha >= -2);
+        + (alpha >= -2)...
+        + (BA*alpha <= 0.8*ones(la,1));
 end
 
 %---------------------------------------------------------------------
