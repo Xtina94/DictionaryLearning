@@ -1,13 +1,17 @@
+%% Document type settings
+%% ----------------------------------------------- %%
 \documentclass[12pt,a4paper,titlepage]{book}
-% \usepackage[subpreambles=true]{standalone}
 \usepackage[a4paper]{geometry}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[light]{CormorantGaramond}
 \usepackage{import}
-
 \linespread{1.25}
+\usepackage{microtype} %improves the spacing between words and letters
+\usepackage{lipsum}
 
+%% Mathematical packets
+%% ----------------------------------------------- %%
 \usepackage{amsmath, amssymb, amsfonts, amsthm, mathtools}
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\Z}{\mathbb{Z}}
@@ -19,9 +23,8 @@
 \usepackage{algpseudocode}
 \usepackage{float}
 
-\usepackage{microtype} %improves the spacing between words and letters
-
-\usepackage{lipsum}
+%% Figures and tables
+%% ----------------------------------------------- %%
 \usepackage{threeparttable}
 \usepackage{tabularx}
 \usepackage{multirow}
@@ -32,11 +35,9 @@
 \usepackage{epsfig}
 \usepackage{epstopdf}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% COLOR DEFINITIONS
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Colours definitions
+%% ----------------------------------------------- %%
 \usepackage[dvipsnames]{xcolor} % Enabling mixing colors and color's call by 'svgnames'
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \definecolor{MyColor1}{rgb}{0.2,0.4,0.6} %mix personal color
 \definecolor{MyColor2}{HTML}{A30073}
 \definecolor{MyColor3}{HTML}{A3008F}
@@ -45,51 +46,39 @@
 \newcommand{\blueb}{\color{MyColor1} \usefont{OT1}{lmss}{b}{n}}
 \newcommand{\red}{\color{LightCoral} \usefont{OT1}{lmss}{m}{n}}
 \newcommand{\green}{\color{Turquoise} \usefont{OT1}{lmss}{m}{n}}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% FONTS AND COLORS
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%    SECTIONS
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Section colouring
+%% ----------------------------------------------- %%
 \usepackage{titlesec}
 \usepackage{sectsty}
-%%%%%%%%%%%%%%%%%%%%%%%%
-%set section/subsections HEADINGS font and color
 \newcommand*{\myfont}{\fontfamily{cmr}\selectfont}
 \chapterfont{\myfont \color{MyColor1}}
 \sectionfont{\myfont \color{MyColor1}}
 \subsectionfont{\myfont\color{MyColor1}}  % sets colour of sections
 
-%set section enumerator to arabic number (see footnotes markings alternatives)
-\renewcommand\thesection{\arabic{section}.} %define sections numbering
-\renewcommand\thesubsection{\thesection\arabic{subsection}} %subsec.num.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%		CAPTIONS
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Captions and graphics path
+%% ----------------------------------------------- %%
 \usepackage{caption}
 \usepackage{subcaption}
-%%%%%%%%%%%%%%%%%%%%%%%%
-\graphicspath{{./figures/}} %Setting the graphicspath
-% \graphicspath{{./figures/G&D/}} %Setting the graphicspath
 \captionsetup[figure]{labelfont={color=Turquoise}}
+\graphicspath{{./figures/}}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%		!!!EQUATION (ARRAY) --> USING ALIGN INSTEAD
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%using amsmath package to redefine eq. numeration (1.1, 1.2, ...)
-%%%%%%%%%%%%%%%%%%%%%%%%
+%% Setting equations and enumerations style
+%% ----------------------------------------------- %%
 \renewcommand{\theequation}{\thesection\arabic{equation}}
-
-%set box background to grey in align environment
 \usepackage{etoolbox}% http://ctan.org/pkg/etoolbox
 \makeatletter
 \patchcmd{\@Aboxed}{\boxed{#1#2}}{\colorbox{black!15}{$#1#2$}}{}{}%
 \patchcmd{\@boxed}{\boxed{#1#2}}{\colorbox{black!15}{$#1#2$}}{}{}%
 \makeatother
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{enumitem}
+\setlist[enumerate,1]{start=0}
+\renewcommand{\labelenumii}{\theenumii}
+\renewcommand{\theenumii}{\theenumi.\arabic{enumii}.}
+\newcommand{\cri}[1]{\textcolor{MyColor2}{\textbf{(Cri says: #1)}}}
 
+%% Setting hyperref style
+%% ----------------------------------------------- %%
 \makeatletter
 \let\reftagform@=\tagform@
 \def\tagform@#1{\maketag@@@{(\ignorespaces\textcolor{red}{#1}\unskip\@@italiccorr)}}
@@ -98,36 +87,26 @@
 \usepackage{hyperref}
 \hypersetup{colorlinks = true, linkcolor  = black}
 
-%% LISTS CONFIGURATION %%
-\usepackage{enumitem}
-\setlist[enumerate,1]{start=0}
-\renewcommand{\labelenumii}{\theenumii}
-\renewcommand{\theenumii}{\theenumi.\arabic{enumii}.}
-\newcommand{\cri}[1]{\textcolor{MyColor2}{\textbf{(Cri says: #1)}}}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% abbreviations:
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Glossary
+%% ----------------------------------------------- %%
 \usepackage[acronym]{glossaries}
 \newacronym{pca}{PCA}{Principal Component Analysis}
 \newacronym{svd}{SVD}{Singular Value Decomposition}
 \newacronym{gsp}{GSP}{Graph Signal Processing}
 \newacronym{omp}{OMP}{Orthogonal Matching Pursuit}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% PREPARE TITLE
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% title
+%% ----------------------------------------------- %%
 \title{\blue Master Project title \\
 \blueb Final master project}
 \author{Cristina Gava}
 \date{\today}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \usepackage{afterpage}
-
 \newcommand{\blankpage}{\null \thispagestyle{empty} \addtocounter{page}{-1} \newpage}
 
 \begin{document}
+
 \maketitle
 
 \tableofcontents
@@ -136,9 +115,9 @@
 
 \import{../}{GraphLearning.tex}
 
-\import{../}{DictionaryDescription.tex}
-
 \import{../}{Smoothness.tex}
+
+\import{../}{DictionaryDescription.tex}
 
 \import{../}{ProblemPresentation.tex}
 
@@ -153,12 +132,13 @@
 \import{../}{DidntWork.tex}
 
 import{../}{Improvements.tex}
+
 \section{graph signal clustering}
 \section{varargin}
 
 \import{../}{Conclusions.tex}
 
-\section{acknoledgements}
+\chapter*{acknoledgements}
 
 \bibliographystyle{ieeetr}
 \bibliography{MyBib}

@@ -14,16 +14,16 @@ However, despite the polynomial constraint guarantees the localization of the at
   &\text{and}\\
   (c-\epsilon)I \preceq &\sum_{s=1}^{S}D_s \preceq (c+\epsilon)I \label{eqn:spectrum}
 \end{align}
-\autoref{eqn:boundness} accounts for the fact that our kernels are nonnegative and uniformly bounded by a given constant $c$ (which we will further suppose equal to 1), while \autoref{eqn:spectrum} accounts for the fact that the signals we consider usually contain frequency components spread across the entire spectrum and so the kernels should cover it as well. These two spectral constraints together contribute to increase the stability of the dictionary. It might be noted, though, that the constraint in \autoref{eqn:spectrum}  should not be considered in the case of one single kernel, obviously, since imposing that the sum of all kernels has to stay around $1$ would give the trivial solution $g(\lambda) 0 1 \qquad \forall \lambda$\\.
+\autoref{eqn:boundness} accounts for the fact that our kernels are nonnegative and uniformly bounded by a given constant $c$ (which we will further suppose equal to 1), while \autoref{eqn:spectrum} accounts for the fact that the signals we consider usually contain frequency components spread across the entire spectrum and so the kernels should cover it as well. These two spectral constraints together contribute to increase the stability of the dictionary. It might be noted, though, that the constraint in \autoref{eqn:spectrum}  should not be considered in the case of one single kernel, obviously, since imposing that the sum of all kernels has to stay around $1$ would give the trivial solution $g(\lambda) = 1 \text{  } \forall \lambda$\\.
 
 Finally, we underline the fact that for the design of the dictionary the eigenvectors used are the ones from the normalized graph Laplacian (and not the unnormalized one), since this configuration revealed to be more suitable for our bodywork.
 
 \section{The dictionary learning algorithm under smoothness constraints}
 With these basis we therefore implemented a dictionary learning algorithm based on the one presented in \cite{Thanou2014} in order to add the smoothness priors. As previously mentioned, we can cast the general problem as the following optimization problem:
 \begin{align}
-  \argmin_{\small{\alpha \in \R^{(K+1)*S}, \text{ } X \in \R^{SN \times N}}} &||Y-DX||^2_F + \mu ||\alpha||_2^2 \label{eq:objDictionary}\\
+  \underset{\small{\alpha \in \R^{(K+1)*S}, \text{ } X \in \R^{SN \times N}}}{\argmin} &||Y-DX||^2_F + \mu ||\alpha||_2^2 \label{eq:objDictionary}\\
   \text{subject to} \quad &||x_m||_0 = T_0, \quad \forall m \in \{1,\dots,M\} \notag \\
-  &\mathcal{D}_s = \sum_{k=0}^{K}\alpha_{sk}\mathcal{^k}, \quad \forall s \in \{1,2,\dots,S\} \notag \\
+  &\mathcal{D}_s = \sum_{k=0}^{K}\alpha_{sk}^k, \quad \forall s \in \{1,2,\dots,S\} \notag \\
   &0 \preceq \text{ } \mathcal{D}_s \preceq cI, \quad \forall s \in \{1,2,\dots , S\},\notag \\
   &(c-\epsilon)I \preceq \sum_{s=1}^{S}D_s \preceq (c+\epsilon)I \notag
 \end{align}
@@ -61,21 +61,23 @@ We remember the equations \ref{eq:polynom}, and we reformulate them as
 With $h(\lambda) = \sum_{n=n}^N \gamma_n \lambda^n$ and $(\lambda - \lambda_M)(\lambda - \lambda_{M-1})\cdot_{\dots}\cdot (\lambda - \lambda_{M - N +1})$ being the two sub-polynomials in which \ref{eq:giLambda} has been decomposed. Between these, $h(\lambda)$ represents the polynomial with the unknown coefficients to be found, while the polynomial in the unknown $\beta$ is the one obtained from imposing the highest eigenvalues as roots of the general polynomial \ref{eq:giLambda}.\cri{torna nelle sezioni indietro per sistemare gli indici del polinomio h}\\
 In particular, what we do in order to retrieve them is to generate $V$, a Vandermonde matrix with the root eigenvalues of the Laplacian raised to the powers of the kernel polynomial and impose that the vector of $\beta_m$ coefficients we want is one of the vectors of the nucleus of $V$:
 \begin{equation}
-V=
-\begin{bmatrix}
-1 & \lambda_{N-M+1} & \lambda_{N-M+1}^2 & \dots & \lambda_{N-M+1}^K\\
-1 & \lambda_{N-M+2} & \lambda_{N-M+2}^2 & \dots & \lambda_{N-M+2}^K\\
-\vdots & \ddots     &                   & \dots & \vdots\\
-1 & \lambda_N &       \lambda_N^2       & \dots & \lambda_N^K\\
-\end{bmatrix}
-, \qquad B=
-\begin{bmatrix}
-\beta_0\\
-\beta_1\\
-\vdots\\
-\beta_K
-\end{bmatrix}
-\qquad text{and} \qquad \textbf{V}\cdot \textbf{B} = \textbf{0}
+  V=
+  \begin{bmatrix}
+    1 & \lambda_{N-M+1} & \lambda_{N-M+1}^2 & \dots & \lambda_{N-M+1}^K\\
+    1 & \lambda_{N-M+2} & \lambda_{N-M+2}^2 & \dots & \lambda_{N-M+2}^K\\
+    \vdots & \ddots     &                   & \dots & \vdots\\
+    1 & \lambda_N &       \lambda_N^2       & \dots & \lambda_N^K\\
+  \end{bmatrix}
+  , \qquad B=
+  \begin{bmatrix}
+    \beta_0\\
+    \beta_1\\
+    \vdots\\
+    \beta_K
+  \end{bmatrix}
+\end{equation}
+\begin{equation}
+  \text{and} \qquad \textbf{V}\cdot \textbf{B} = \textbf{0}
 \end{equation}
 
 With $N$ being in this case the number of eigenvalues of $\mathcal{L}$.\\
@@ -103,27 +105,25 @@ Another approach to the problem is based on inserting this smoothness prior in t
     1 & \lambda_{P-M+1} & \lambda_{P-M+1}^2 & \dots & \lambda_{P-M+1}^{K} \\
     \vdots & & \\
     1 & \lambda_P & \lambda_P^2 & \dots & \lambda_P^K \\
-\end{bmatrix}
-\begin{bmatrix}
-  \alpha_0 \\
-  \alpha_1 \\
-  \vdots \\
-  \alpha_K
-\end{bmatrix}
-=
-\begin{bmatrix}
-  0\\
-  0\\
-  \vdots\\
-  0
-\end{bmatrix}
+  \end{bmatrix}
+  \begin{bmatrix}
+    \alpha_0 \\
+    \alpha_1 \\
+    \vdots \\
+    \alpha_K
+  \end{bmatrix}
+  =
+  \begin{bmatrix}
+    0\\
+    0\\
+    \vdots\\
+    0
+  \end{bmatrix}
 \end{equation}
-
 \subsection{The optimization algorithm}
-The final optimization algorithm is in this way described:
-\cri{sistema la faccenda della caption in questo algoritmo}
-\begin{algorithm}[H]
-  % \caption{{Parametric dictionary learning on graph with smoothness priors}
+The final optimization algorithm is described by the pesudocode in \autoref{alg:pseudocode1}:
+\begin{algorithm}[tb]
+  \label{alg:pseudocode1}
   \begin{algorithmic}[1]
     \Procedure{initialization}{}
       \State $Y \gets \text{Signal samples set}$
@@ -147,6 +147,7 @@ The final optimization algorithm is in this way described:
       \EndProcedure
     \EndFor
   \end{algorithmic}
+  \caption{Parametric dictionary learning on graph with smoothness priors}
 \end{algorithm}
 
 \subsection{Results}
@@ -173,9 +174,9 @@ We use the \textit{sdpt3} solver in the \textit{yalmip} optimization toolbox to 
 
 Finally, the average normalized approximation error we examine in the results is estimated by:
 \begin{equation}
-  \frac{1}{|TestSignal|}\sum_{m=1}^{|TestSignal|}\frac{||TestSignal_m - \mathcal{D}X_m||_2^2}{||TestSignal_m||^2}
+  \frac{1}{|Y_{test}|}\sum_{m=1}^{|Y_{test}|}\frac{||Y_m - \mathcal{D}X_m||_2^2}{||Y_m||^2}
 \end{equation}
-with $|TestSignal|$ being the cardinality of the testing set.
+with $|Y_{test}|$ being the cardinality of the testing set.
 
 \subsubsection{First approach: smoothness in the structure}
 Results are promising, especially from a calculation time point of view. The experiments have been repeated several times, in order to be able to claim the stability of the algorithm and show a stable trend.
@@ -225,7 +226,7 @@ On the other hand, this prior allows us to observe an improvement in the computa
 \begin{table}[htbp]
   \centering
   \begin{tabular}{c|c|c}
-    0 &
+    &
     \multicolumn{1}{c}{\textbf{No smoothness assumption}} &
     \multicolumn{1}{|c}{\textbf{Smoothness assumption}}\\
     \hline
@@ -264,13 +265,14 @@ The learning procedure behaves overall well, as depicted by the figures \ref{fig
   \label{fig:kernelDorina_struct}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[htbp]
   \centering
-  \begin{minipage}[c]{.8\textwidth}
+  \begin{minipage}[c]{.85\textwidth}
     \centering
     \includegraphics[width = \textwidth]{alphaHeat_noSmoothness_struct.png}
   \end{minipage}
-  \begin{minipage}[c]{.8\textwidth}
+  \vspace{10mm}
+  \begin{minipage}[c]{.85\textwidth}
     \centering
     \includegraphics[width = \textwidth]{alphaHeat_Smoothness_struct.png}
   \end{minipage}
@@ -278,13 +280,14 @@ The learning procedure behaves overall well, as depicted by the figures \ref{fig
   \label{fig:alphaHeat_struct}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[htbp]
   \centering
-  \begin{minipage}[c]{.8\textwidth}
+  \begin{minipage}[c]{.85\textwidth}
     \centering
     \includegraphics[width = \textwidth]{alphaDorina_noSmoothness_struct.png}
   \end{minipage}
-  \begin{minipage}[c]{.8\textwidth}
+  \vspace{10mm}
+  \begin{minipage}[c]{.85\textwidth}
     \centering
     \includegraphics[width = \textwidth]{alphaDorina_Smoothness_struct.png}
   \end{minipage}
@@ -351,11 +354,12 @@ The improvement can also be noticed in the behavior of the kernels' coefficients
 
 \begin{figure}
   \centering
-  \begin{minipage}[c]{.8\textwidth}
+  \begin{minipage}[c]{.85\textwidth}
     \centering
     \includegraphics[width = \textwidth]{alphaHeat_noSmoothness_dictionary.png}
   \end{minipage}
-  \begin{minipage}[c]{.8\textwidth}
+  \vspace{10mm}
+  \begin{minipage}[c]{.85\textwidth}
     \centering
     \includegraphics[width = \textwidth]{alphaHeat_Smoothness_dictionary.png}
   \end{minipage}
@@ -365,42 +369,43 @@ The improvement can also be noticed in the behavior of the kernels' coefficients
 
 \begin{figure}
   \centering
-  \begin{minipage}[c]{.8\textwidth}
+  \begin{minipage}[c]{.85\textwidth}
     \centering
     \includegraphics[width = \textwidth]{alphaDorina_noSmoothness_dictionary.png}
   \end{minipage}
-  \begin{minipage}[c]{.8\textwidth}
+  \vspace{10mm}
+  \begin{minipage}[c]{.85\textwidth}
     \centering
     \includegraphics[width = \textwidth]{alphaDorina_Smoothness_dictionary.png}
   \end{minipage}
-  \caption{Comparison between kernels coefficients without and with smoothness prior. Thanou et al.   dataset}
+  \caption{Comparison between kernels coefficients without and with smoothness prior. Thanou et al. dataset}
   \label{fig:alphaDorinaDictionary}
 \end{figure}
 
 
 Finally, \autoref{fig:kernelHeatDictionary} and \autoref{fig:kernelDorinaDictionary} show the comparison between the original kernel and the learned kernel without and with smoothness prior in the case of a Heat kernel (\ref{fig:kernelHeatDictionary}) and the dataset from  Thanou et al. (\ref{fig:kernelDorinaDictionary}). It can be seen how the use of smoothness improves the overall trend also for the kernel shape, which is the ultimate purpose of the algorithm.
 
-\begin{figure}
+\begin{figure}[htbp]
   \begin{minipage}[c]{.5\textwidth}
     \centering
-    \includegraphics[width = \textwidth]{kernelHeat_noSmoothness_dictionary.png}
+    \includegraphics[width = .95\textwidth]{kernelHeat_noSmoothness_dictionary.png}
   \end{minipage}
   \begin{minipage}[c]{.5\textwidth}
     \centering
-    \includegraphics[width = \textwidth]{kernelHeat_Smoothness_dictionary.png}
+    \includegraphics[width = .95\textwidth]{kernelHeat_Smoothness_dictionary.png}
   \end{minipage}
   \caption{Comparison between kernels without and with smoothness prior. Heat kernel dataset}
   \label{fig:kernelHeatDictionary}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[htbp]
   \begin{minipage}[c]{.5\textwidth}
     \centering
-    \includegraphics[width = \textwidth]{kernelDorina_noSmoothness_dictionary.png}
+    \includegraphics[width = .95\textwidth]{kernelDorina_noSmoothness_dictionary.png}
   \end{minipage}
   \begin{minipage}[c]{.5\textwidth}
     \centering
-    \includegraphics[width = \textwidth]{kernelDorina_Smoothness_dictionary.png}
+    \includegraphics[width = .95\textwidth]{kernelDorina_Smoothness_dictionary.png}
   \end{minipage}
   \caption{Comparison between kernels without and with smoothness prior. Thanou et al. kernel dataset}
   \label{fig:kernelDorinaDictionary}
