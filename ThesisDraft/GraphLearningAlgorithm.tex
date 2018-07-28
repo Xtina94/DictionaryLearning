@@ -1,5 +1,5 @@
 \chapter{The graph learning algorithm}
-As previously anticipated, our work involved also the need of learning the graph manifold structuring a signal. In order to accomplish it, we made use of the contribution of Maretic et al. to the problem, as it is presented in \cite{Maretic2017}. In the work, a generic model analogous to the one described in \cite {Thanou2014} is considered, where the signals are represented by combinations of local overlapping patterns residing on graphs and where the intrinsic graph structure is merged with the dictionary through the already well known graph Laplacian operator.\\
+As previously anticipated, our work involved also the need of learning the graph manifold structuring a signal. In order to accomplish it, we made use of the contribution of Maretic et al. to the problem, as it is presented in \cite{Maretic2017}. In the work, a generic model is considered and which is analogous to the one described in \cite {Thanou2014}. There the signals are represented by combinations of local overlapping patterns residing on graphs and the intrinsic graph structure is merged with the dictionary through the already well known graph Laplacian operator.\\
 In the process, the optimization is performed over the weight matrix $W$ instead of $\mathcal{L}$ due to the fact that the constraints defining a valid weight matrix $W$ are less demanding than those defining a valid Laplacian.
 
 \section{The algorithm}
@@ -7,7 +7,7 @@ Since also this optimization problem is non convex, Maretic et al. solved it thr
 
 The optimization problem addressed as
 \begin{align}
-\argmin_W \quad &||Y - DX||_F^2 + \beta_W ||W||_1\\
+\argmin_W \quad &||Y - \mathcal{D}X||_F^2 + \beta_W ||W||_1\\
 \text{subject to} \quad &\mathcal{D} = [\mathcal{D}_1,\mathcal{D}_2,\dots,\mathcal{D}_S]\\
                         &\mathcal{D} = \sum_{k=0}^{K}\alpha_{sk}\mathcal{L}^k, \qquad \forall s \in \{1,\dots,S\}\\
                         &\mathcal{L} = I - D^{\frac{1}{2}}WD^{\frac{1}{2}}\\
