@@ -1,0 +1,256 @@
+\chapter{The joint dictionary and graph learning problem}
+\label{sec:GD}
+% \cri{nelle osservazioni aggiungi:
+% - Il criterio di scelta dell'inizailizzazione ---> Cerca di capire bene come viene inizializzato il dizionario per essere sicura che quello che stai dicendo nella sezione non è una cazzata
+% - come varia il comportamento dell'algoritmo in base alla variazione dei parametri che abbiamo: del tipo, più samples vuol dire maggiore precisione ecc..}
+The next step of our work focuses on the attempt to learn at the same time the Dictionary and the graph structure, while in a further moment we will focus on adding the previous smoothness constraint. As it is formulated theoretically, the double optimization problem could reveal itself to be heavily ill posed, since now the number of parameters involved in the optimization would go up to three instead of the already challenging two. This could bring the problem to diverge, or on the contrary, to have infeasibility consequent issues. As a remedy we decided to create an algorithm which alternates the dictionary learning and the graph learning step, while the sparsity prior is checked at every step by the continuous optimization of the sparsity matrix $X$.
+
+\section{The initialization section}
+% In this situation, one first aspect we have to be careful about is how we initialize the elements for the optimization, namely $W$ and $D$, since both them are clearly necessary from the beginning. The choice is between randomly initialising the kernels coefficients and initializing the graph structure: since each entity is strictly correlated with the other, one of the two can be reduced. Our hypothesis is that forcing some kind of structure in the kernels, even though random, could heavily influence the overall behavior of the optimization structure, since a small error in their estimation could easily propagate through the structures that develop onto them; on the other hand, initializing the graph structure in a random way would not bias our learning problem with the same importance. Moreover, the nature of the two learning parts is slightly different: in the dictionary learning part the algorithm attempts to find the only solution that could exist, while in the graph learning part the algorithm aims at finding a good solution for the problem, without necessarily meaning that the graph learned is the same as the ground truth one, since it just has to be one possible solution to the problem. Under this light, it is clear that the graph initialization has smaller consequences than the initialization of the kernels. In order to verify our reasoning we run some tests to see if the intuition was correct and the results aligned with it. \cri{mostrali nei risultati poi}.
+In this first part we initialize the weight matrix $W$ with a set of random weights with a gaussian distribution, we obtain the related normalized Laplacian $\mathcal{L}$ following the procedure explained in \cite{Kalofolias2016} and compute the orthogonal basis connected to it on order to use the eigenvectors we find to have a first estimate on the dictionary.
+
+\section{The alternation between optimization steps}
+With this starting elements we are then able to pass to the alternating optimization steps: every iteration of the global cycle involves the sparsity matrix estimation $X$ through the \gls{omp} method (the so-called \textit{sparse coding step}); what occur in turn every time are the \textit{dictionary learning} and the \textit{graph learning} steps. After the learning steps there is then a re-estimation of the dictionary, from the new values of $\alpha$ and $\mathcal{L}$, which will then be used from the spars coding step in the next iteration.\\
+The general algorithm thus articulates as described in the algorithm \ref{eq:GDSimple}
+
+\begin{algorithm}[htbp]
+  \caption{Parametric dictionary and graph learning}
+  \begin{algorithmic}[1]
+    \Procedure{initialization}{}
+      \State $Y \gets \text{Signal samples set}$
+      \State $T_0\gets \text{Target sparsity}$
+      \State $K \gets \text{Polynomial degree}$
+      \State $S \gets \text{Number of subdictionaries}$
+      \State $iterNum \gets \text{Number of iterations}$
+      \State $W \gets \text{Random thresholded adjacency matrix}$
+    \EndProcedure
+    \For{$i=1,2,\dots, iterNum$}
+      \Procedure{Sparsity step}{}
+        \State $X \gets \text{Sparsity estimation with \gls{omp}}$
+      \EndProcedure
+      \Procedure{Learning step}{}
+        \If{$mod(i,5) = 0$} \label{5}
+          \State $\alpha \gets \text{kernels estimation through sdpt3}$
+        \Else
+          \State $W \gets \text{graph estimation through gradient descent}$
+          \State $\mathcal{L} \gets D^{-\frac{1}{2}}LD^{-\frac{1}{2}}$
+        \EndIf
+      \EndProcedure
+      \Procedure{Dictionary update step}{}
+        \State $\mathcal{D} \gets \sum_{k=0}^K \alpha_k \mathcal{L}^k$
+      \EndProcedure
+    \EndFor
+    \end{algorithmic}
+  \label{eq:GDSimple}
+\end{algorithm}
+
+We specify that, as shown in the pseudo code at line \ref{5}, in our algorithm there is no equal distribution of the iterations dedicated to graph and dictionary learning, but there is a rate $5:1$ in favour of the graph learning. This choice derived from two main facts:
+\begin{itemize}
+\item While the dictionary learning procedure converges to its minimums in every step, the graph learning part requires more steps for it, concluding that giving more space of action to it was a way to balance the optimization steps;
+\item The sparsity step revealed to be more sensible to alterations of its inputs (the dictionary in our case) when those were due to the kernel coefficients (and so the dictionary learning step) in such a way that limiting these learning steps in their number was advisable.
+\end{itemize}
+
+\section{Results}
+For the tests we run regarding this part, we deployed the same datasets used in \autoref{sec:dataGen}: a graph signal with edge weights taken from a gaussian distribution, a Heat kernel and the kernel isolated from Thanou et al. dataset.
+
+Moreover, the number of iterations we chose is $iterNum = 250$, the sparsity factor still equal to $T_0 = 4$ and the stability factor $\mu = 10^{-4}$.
+
+Together with the representation error we added another metric to evaluate the quality of our approach, a function estimating the Precision and the Recall rate for the graph. In particular, the Precision metric expresses the percentage of estimated edges in the graph that are correct, while the Recall metric shows the rate of the original edges are correctly estimated.\\
+The experiments showed promising results, not particularly degraded by the alternating process, and the results we present here are obtained imposing the smoothness prior over the structure of the objective function, since the other procedure was giving similar outcomes.
+
+In \autoref{fig:alphaHeatGD} and \autoref{fig:alphaDorinaGD} the original and the learned kernels are compared: as it can be seen from the figures, the learning process is not particularly affected  by the fact that at the beginning of our optimization procedure we have to suppose as unknowns both the graph structure and the dictionary coefficients. The only noticeable difference is in the absolute value of the kernels, as it is slightly reduced, and the spectral range of the eigenvalues: these ones are constantly updated at every graph learning step and the results indicate the tendency to "contract" the spectral range, bringing it further from the 0 value. The constraints over the dictionary, anyway, prevent the learned solution to be sensibly altered and assure the spectral distribution of the frequencies already assumed in the dictionary learning approach.
+
+\begin{figure}[hb]
+  \begin{minipage}[c]{.5\textwidth}
+    \centering
+    \includegraphics[width = \textwidth]{kernelHeat_original.png}
+  \end{minipage}
+  \begin{minipage}[c]{.5\textwidth}
+    \centering
+    \includegraphics[width = \textwidth]{kernelHeat_noSmoothness_GD.png}
+  \end{minipage}
+  \caption{Comparison between the original and the learned kernels. Heat kernel dataset}
+  \label{fig:alphaHeatGD}
+\end{figure}
+
+\begin{figure}[ht]
+  \begin{minipage}[c]{.5\textwidth}
+    \centering
+    \includegraphics[width = \textwidth]{kernelDorina_original.png}
+  \end{minipage}
+  \begin{minipage}[c]{.5\textwidth}
+    \centering
+    \includegraphics[width = \textwidth]{kernelDorina_noSmoothness_GD.png}
+  \end{minipage}
+  \caption{Comparison between the original and the learned kernels. Thanou et al. dataset}
+  \label{fig:alphaDorinaGD}
+\end{figure}
+
+In the \autoref{tab:PrecRec_noSmth} what is presented is the comparison between the Precision and Recall values obtained from the graph learning only approach and the approach combining graph and dictionary learning. The values listed show that alternating between the two learning phases affects the single learning process: in the case of the smooth kernel this difference is discrete, while in the second dataset can be clearly noted; at the same time, though, in the latter case we saw that the outcomes were not stables over the trials, having very good results in some of them and less good in others.
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{lcccc}
+  &\multicolumn{2}{c}{\textbf{Heat kernel}}&\multicolumn{2}{c}{\textbf{Thanou et al. kernel}}\\
+  \toprule
+  &Graph L. & Graph and D. L. & Graph L. & Graph and D. L.\\ %\cline{2-5}
+    \midrule
+    \textbf{Precision rate} & 99.56 \% & 91.67 \% & 95.6 \% & 69.277 \%\\
+    \textbf{Recall Rate} & 98.97 \% &  91.67 \% & 94.99 \% & 67.69 \%\\
+    \bottomrule
+  \end{tabular}
+  \caption{Precision and Recall comparison between the graph-learning-only option and the one adding the dictionary learning}
+  \label{tab:PrecRec_noSmth}
+\end{table}
+
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{lcccc}
+  &\multicolumn{2}{c}{\textbf{Heat kernel}}&\multicolumn{2}{c}{\textbf{Thanou et al. kernel}}\\
+  \toprule
+  &Dictionary L. & Graph and D. L. & Dictionary L. & Graph and D. L.\\ %\cline{2-5}
+    \midrule
+    \textbf{Avg. repr. Error} & 0.0250 & 0.0697 & 0.0217 & 0.0283\\
+    \bottomrule
+  \end{tabular}
+  \caption{Reproduction error comparison between the dictionary-only learning and the overall process}
+  \label{tab:errorGD}
+\end{table}
+
+Finally, regarding the representation error the table \ref{tab:errorGD} shows how the learned dictionary is not significantly degraded in quality with respect to the dictionary-only learning algorithm, but still remains acceptable:
+
+\section{Adding the smoothness assumption}
+The last part of our work focuses on the addition of the smoothness constraint to the overall algorithm described in chapter \ref{sec:GD}.
+\subsection{Results}
+Again, the starting conditions for the experiments are analogues to the ones supposed in chapters \ref{sec:GD} and \ref{sec:DL}, the number of iterations is, again, $250$ and there is still a rate $5:1$ for the number of iterations dedicated to the graph learning part, per each iteration dedicated to the dictionary learning one.
+\\
+
+The figures \ref{fig:alphaHeatGD_smth} and \ref{fig:alphaDorinaGD_smth} show the comparison between the kernels learned without and with the smoothness assumption. In both the figures we see how the smoothness assumption still improves the kernel learning process, at the same time respecting the overall spectral composition of the signal.
+
+\begin{figure}
+  \centering
+  \begin{minipage}[c]{.8\textwidth}
+    \centering
+    \includegraphics[width = \textwidth]{kernelHeat_noSmoothness_GD.png}
+  \end{minipage}
+  \begin{minipage}[c]{.8\textwidth}
+    \centering
+    \includegraphics[width = \textwidth]{kernelHeat_Smoothness_GD_constr.png}
+  \end{minipage}
+  \caption{Comparison between kernels without and with smoothness prior. Heat kernel dataset}
+  \label{fig:alphaHeatGD_smth}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \begin{minipage}[c]{.8\textwidth}
+    \centering
+    \includegraphics[width = \textwidth]{kernelDorina_GD.png}
+  \end{minipage}
+  \begin{minipage}[c]{.8\textwidth}
+    \centering
+    \includegraphics[width = \textwidth]{kernelDorina_Smoothness_GD_struct.png}
+  \end{minipage}
+  \caption{Comparison between kernels without and with smoothness prior. Thanou et al. dataset}
+  \label{fig:alphaDorinaGD_smth}
+\end{figure}
+
+Tables \ref{tab:PrecRec_compSmth1} and \ref{tab:PrecRec_compSmth2} again show the comparison between the Precision and Recall values obtained from the approach without the smoothness prior and the approach accounting for it. The values listed clearly show how the algorithm benefits from the prior, having both the values increased. Moreover, in the case of the optimization without smoothness, the values of Precision and Recall tend to have a larger variance over the trials, while adding the smoothness constraint the output tends to oscillate less.
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{lcccc}
+  &\multicolumn{2}{c}{\textbf{Heat kernel}}&\multicolumn{2}{c}{\textbf{Thanou et al. kernel}}\\
+  \toprule
+  &No Smoothness & Smoothness & No Smoothness & Smoothness\\
+  \midrule
+    \textbf{Precision rate} & 92.59 \% & 96.25 \% & 51.53 \% & 80.75   \%\\
+    \textbf{Recall Rate} & 92.59 \% & 95.06 \% & 53.50 \% & 79.75 \%\\
+  \bottomrule
+  \end{tabular}
+ \caption{Precision and Recall outputs for the low frequency kernel from Thanou et al. dataset. Trial 1}
+ \label{tab:PrecRec_compSmth1}
+ \end{table}
+
+ \begin{table}[htbp]
+   \centering
+   \begin{tabular}{lcccc}
+   &\multicolumn{2}{c}{\textbf{Heat kernel}}&\multicolumn{2}{c}{\textbf{Thanou et al. kernel}}\\
+   \toprule
+   &No Smoothness & Smoothness & No Smoothness & Smoothness\\
+   \midrule
+    \textbf{Precision rate} & 79.00 \% & 96.30 \% & 45.06 \% & 86.05  \%\\
+    \textbf{Recall Rate} & 77.70 \% & 96.89 \% & 44.79 \% & 84.66 \%\\
+    \bottomrule
+    \end{tabular}
+   \caption{Precision and Recall outputs for the low frequency kernel from Thanou et al. dataset. Trial 2}
+  \label{tab:PrecRec_compSmth2}
+   \end{table}
+
+Having a look in detail to the reproduction error, we can observe how in this general case the algorithm tends to behave better for the Thanou et al. dataset, while it's almost the same for the heat kernel dataset. \autoref{tab:errorGD_smoothness} compares the reproduction error over $3$ trials for both the datasets: it must be underlined how not only the smoothness prior improves the outcomes, but again the algorithm results in being more stable over the trials.
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{lcccc}
+  \textbf{Trial \#} &\multicolumn{2}{c}{\textbf{Heat kernel}}&\multicolumn{2}{c}{\textbf{Thanou et al. kernel}}\\
+  \toprule
+  & No Smoothness & Smoothness & No Smoothness & Smoothness\\ %\cline{2-5}
+  \midrule
+    1 & 0.1114 & 0.1113 & 0.0225 & 0.0230\\
+    2 & 0.0310 & 0.1131 & 0.0384 & 0.0229\\
+    3 & 0.1024 & 0.1100 & 0.0239 & 0.0224\\
+    \textbf{Average Error} & 0.0816 & 0.1115 & 0.0283 & 0.0227 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Reproduction error comparison for the low frequency kernel from both the datasets}
+  \label{tab:errorGD_smoothness}
+\end{table}
+
+Moreover, for what concerns the kernels coefficients, figures \ref{fig:alphaGDHeat} and \ref{fig:alphaGDDorina} highlight one time more how the smoothness prior has a good repercussion over them, allowing to get more faithful behaviors.
+
+\begin{figure}
+  \centering
+  \begin{minipage}[c]{.8\textwidth}
+    \centering
+    \includegraphics[width = \textwidth]{alphaHeat_noSmoothness_GD.png}
+  \end{minipage}
+  \begin{minipage}[c]{.8\textwidth}
+    \centering
+    \includegraphics[width = \textwidth]{alphaHeat_Smoothness_GD_struct.png}
+  \end{minipage}
+  \caption{Comparison between kernels coefficients without and with smoothness prior. Heat kernel   dataset}
+  \label{fig:alphaGDHeat}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \begin{minipage}[c]{.8\textwidth}
+    \centering
+    \includegraphics[width = \textwidth]{alphaDorina_noSmoothness_GD.png}
+  \end{minipage}
+  \begin{minipage}[c]{.8\textwidth}
+    \centering
+    \includegraphics[width = \textwidth]{alphaDorina_Smoothness_GD_struct.png}
+  \end{minipage}
+  \caption{Comparison between kernels coefficients without and with smoothness prior. Thanou et al.   dataset}
+  \label{fig:alphaGDDorina}
+\end{figure}
+
+Finally, in we examine the computational cost of the algorithm with and without the prior, we can see a general improvement of the average CPUTime per iteration, as shown in \autoref{tab:CPUTime_GD}
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{lcccc}
+  \textbf{Trial \#} &\multicolumn{2}{c}{\textbf{Heat kernel}}&\multicolumn{2}{c}{\textbf{Thanou et al. kernel}}\\
+  \toprule
+  & No Smoothness & Smoothness & No Smoothness & Smoothness\\ %\cline{2-5}
+  \midrule
+    1 & 0.0219 & 0.0164 & 0.0267 & 0.0128\\
+    2 & 0.0163 & 0.0171 & 0.0253 & 0.0123\\
+    3 & 0.0328 & 0.0166 & 0.0269 & 0.0155\\
+    \textbf{Average CPUTime} & 0.0191 & 0.0167 & 0.0263 & 0.0135 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Computational cost comparison for both the datasets with an without smoothness priors}
+  \label{tab:CPUTime_GD}
+\end{table}

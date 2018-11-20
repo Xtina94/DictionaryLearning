@@ -1,0 +1,134 @@
+\chapter{The smoothness assumption in the global algorithm}
+The last part of our work focuses on the addition of the smoothness constraint to the overall algorithm described in chapter \ref{sec:GD}.
+\section{Results}
+Again, the starting conditions for the experiments are analogues to the ones supposed in chapters \ref{sec:GD} and \ref{sec:DL}, the number of iterations is, again, $250$ and there is still a rate $5:1$ for the number of iterations dedicated to the graph learning part, per each iteration dedicated to the dictionary learning one.
+\\
+
+The figures \ref{fig:alphaHeatGD_smth} and \ref{fig:alphaDorinaGD_smth} show the comparison between the kernels learned without and with the smoothness assumption. In both the figures we see how the smoothness assumption still improves the kernel learning process, at the same time respecting the overall spectral composition of the signal.
+
+\begin{figure}
+  \centering
+  \begin{minipage}[c]{.8\textwidth}
+    \centering
+    \includegraphics[width = \textwidth]{kernelHeat_noSmoothness_GD.png}
+  \end{minipage}
+  \begin{minipage}[c]{.8\textwidth}
+    \centering
+    \includegraphics[width = \textwidth]{kernelHeat_Smoothness_GD_constr.png}
+  \end{minipage}
+  \caption{Comparison between kernels without and with smoothness prior. Heat kernel dataset}
+  \label{fig:alphaHeatGD_smth}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \begin{minipage}[c]{.8\textwidth}
+    \centering
+    \includegraphics[width = \textwidth]{kernelDorina_GD.png}
+  \end{minipage}
+  \begin{minipage}[c]{.8\textwidth}
+    \centering
+    \includegraphics[width = \textwidth]{kernelDorina_Smoothness_GD_struct.png}
+  \end{minipage}
+  \caption{Comparison between kernels without and with smoothness prior. Thanou et al. dataset}
+  \label{fig:alphaDorinaGD_smth}
+\end{figure}
+
+Tables \ref{tab:PrecRec_compSmth1} and \ref{tab:PrecRec_compSmth2} again show the comparison between the Precision and Recall values obtained from the approach without the smoothness prior and the approach accounting for it. The values listed clearly show how the algorithm benefits from the prior, having both the values increased. Moreover, in the case of the optimization without smoothness, the values of Precision and Recall tend to have a larger variance over the trials, while adding the smoothness constraint the output tends to oscillate less.
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{lcccc}
+  &\multicolumn{2}{c}{\textbf{Heat kernel}}&\multicolumn{2}{c}{\textbf{Thanou et al. kernel}}\\
+  \toprule
+  &No Smoothness & Smoothness & No Smoothness & Smoothness\\
+  \midrule
+    \textbf{Precision rate} & 92.59 \% & 96.25 \% & 51.53 \% & 80.75   \%\\
+    \textbf{Recall Rate} & 92.59 \% & 95.06 \% & 53.50 \% & 79.75 \%\\
+  \bottomrule
+  \end{tabular}
+ \caption{Precision and Recall outputs for the low frequency kernel from Thanou et al. dataset. Trial 1}
+ \label{tab:PrecRec_compSmth2}
+ \end{table}
+
+ \begin{table}[htbp]
+   \centering
+   \begin{tabular}{lcccc}
+   &\multicolumn{2}{c}{\textbf{Heat kernel}}&\multicolumn{2}{c}{\textbf{Thanou et al. kernel}}\\
+   \toprule
+   &No Smoothness & Smoothness & No Smoothness & Smoothness\\
+   \midrule
+    \textbf{Precision rate} & 79.00 \% & 96.30 \% & 45.06 \% & 86.05  \%\\
+    \textbf{Recall Rate} & 77.70 \% & 96.89 \% & 44.79 \% & 84.66 \%\\
+    \bottomrule
+    \end{tabular}
+   \caption{Precision and Recall outputs for the low frequency kernel from Thanou et al. dataset. Trial 2}
+   \end{table}
+
+Having a look in detail to the reproduction error, we can observe how in this general case the algorithm tends to behave better for the Thanou et al. dataset, while it's almost the same for the heat kernel dataset. \autoref{tab:errorGD_smoothness} compares the reproduction error over $3$ trials for both the datasets: it must be underlined how not only the smoothness prior improves the outcomes, but again the algorithm results in being more stable over the trials.
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{lcccc}
+  \textbf{Trial \#} &\multicolumn{2}{c}{\textbf{Heat kernel}}&\multicolumn{2}{c}{\textbf{Thanou et al. kernel}}\\
+  \toprule
+  & No Smoothness & Smoothness & No Smoothness & Smoothness\\ %\cline{2-5}
+  \midrule
+    1 & 0.1114 & 0.1113 & 0.0225 & 0.0230\\
+    2 & 0.0310 & 0.1131 & 0.0384 & 0.0229\\
+    3 & 0.1024 & 0.1100 & 0.0239 & 0.0224\\
+    \textbf{Average Error} & 0.0816 & 0.1115 & 0.0283 & 0.0227 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Reproduction error comparison for the low frequency kernel from both the datasets}
+  \label{tab:errorGD_smoothness}
+\end{table}
+
+Moreover, for what concerns the kernels coefficients, figures \ref{fig:alphaGDHeat} and \ref{fig:alphaGDDorina} highlight one time more how the smoothness prior has a good repercussion over them, allowing to get more faithful behaviors.
+
+\begin{figure}
+  \centering
+  \begin{minipage}[c]{.8\textwidth}
+    \centering
+    \includegraphics[width = \textwidth]{alphaHeat_noSmoothness_GD.png}
+  \end{minipage}
+  \begin{minipage}[c]{.8\textwidth}
+    \centering
+    \includegraphics[width = \textwidth]{alphaHeat_Smoothness_GD_struct.png}
+  \end{minipage}
+  \caption{Comparison between kernels coefficients without and with smoothness prior. Heat kernel   dataset}
+  \label{fig:alphaGDHeat}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \begin{minipage}[c]{.8\textwidth}
+    \centering
+    \includegraphics[width = \textwidth]{alphaDorina_noSmoothness_GD.png}
+  \end{minipage}
+  \begin{minipage}[c]{.8\textwidth}
+    \centering
+    \includegraphics[width = \textwidth]{alphaDorina_Smoothness_GD_struct.png}
+  \end{minipage}
+  \caption{Comparison between kernels coefficients without and with smoothness prior. Thanou et al.   dataset}
+  \label{fig:alphaGDDorina}
+\end{figure}
+
+Finally, in we examine the computational cost of the algorithm with and without the prior, we can see a general improvement of the average CPUTime per iteration, as shown in \autoref{tab:CPUTime_GD}
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{lcccc}
+  \textbf{Trial \#} &\multicolumn{2}{c}{\textbf{Heat kernel}}&\multicolumn{2}{c}{\textbf{Thanou et al. kernel}}\\
+  \toprule
+  & No Smoothness & Smoothness & No Smoothness & Smoothness\\ %\cline{2-5}
+  \midrule
+    1 & 0.0219 & 0.0164 & 0.0267 & 0.0128\\
+    2 & 0.0163 & 0.0171 & 0.0253 & 0.0123\\
+    3 & 0.0328 & 0.0166 & 0.0269 & 0.0155\\
+    \textbf{Average CPUTime} & 0.0191 & 0.0167 & 0.0263 & 0.0135 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Computational cost comparison for both the datasets with an without smoothness priors}
+  \label{tab:CPUTime_GD}
+\end{table}

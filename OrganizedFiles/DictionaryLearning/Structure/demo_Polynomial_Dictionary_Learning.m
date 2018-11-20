@@ -6,7 +6,7 @@ addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\Optimizers'); %Folder
 % % % addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\Comparison_datasets\'; %Folder containing the comparison datasets
 % % % addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\'; %Folder containing the training and verification dataset
 
-%% Loaging the required dataset
+%% Loading the required dataset
 flag = 5;
 switch flag
     case 1
@@ -86,7 +86,7 @@ param.K = degree*ones(1,param.S);
 param.T0 = 4; % sparsity level in the training phase
 param.c = 1; % spectral control parameters
 param.mu = 1e-2; % polynomial regularizer paremeter
-path = ['C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DictionaryLearning\Structure\Results\23.07.18\',num2str(ds_name),'\']; %Folder containing the results to save
+path = ['C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DictionaryLearning\Structure\Results\28.07.18\',num2str(ds_name),'\']; %Folder containing the results to save
 
 %% Initialize the kernel coefficients
 temp = comp_alpha;
@@ -133,12 +133,12 @@ end
 [param.beta_coefficients, param.rts] = retrieve_betas_2(param);
  
 
-for trial = 3:3
+for trial = 1:1
     %% Polynomial dictionary learning algorithm
 
     param.InitializationMethod =  'Random_kernels';
     param.displayProgress = 1;
-    param.numIteration = 50;
+    param.numIteration = 5;
     param.plot_kernels = 1; % plot the learned polynomial kernels after each iteration
     param.quadratic = 0; % solve the quadratic program using interior point methods
 
@@ -228,4 +228,17 @@ for trial = 3:3
 
     filename = [path,'AvgCPUtime_plot_trial',num2str(trial),'.png'];
     saveas(gcf,filename);
+    
+% % %     % Verify the obtained graph
+% % %     coordinates = [randperm(50,30),randperm(50,30)];
+% % %     plottingLim = [0,50,0,50];
+% % %     G.Ne = 1;
+% % %     G.W = comp_W;
+% % %     G.directed = 0;
+% % %     G.coords = coordinates;
+% % %     
+% % %     G.plotting.limits = plottingLim;
+% % %     
+% % %     gsp_plot_signal(G,TestSignal);
+% % %     gsp_plot_signal(G,Dictionary_Pol*CoefMatrix_Pol);
 end

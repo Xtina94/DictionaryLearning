@@ -16,7 +16,7 @@ thresh = param.thresh;
 
 Lambda = param.lambda_power_matrix;
 
-if param.big_epoch < 0
+if param.big_epoch < 60
     alpha = alpha_free;
     BA = kron(eye(S),Lambda);
     BB = kron(ones(1,S),Lambda);
@@ -96,7 +96,7 @@ X = norm(Data,'fro')^2 - 2*YPhi*alpha + alpha'*(PhiPhiT + mu*eye(size(PhiPhiT,2)
 
 %% Set constraints
 
-if param.big_epoch < 0
+if param.big_epoch < 60
     F = (BA*alpha <= c*ones(la,1))...
         + (BA*alpha >= 0.001*epsilon*ones(la,1));%...
     % % %         + (BB*alpha <= (c+epsilon)*ones(lb,1))...

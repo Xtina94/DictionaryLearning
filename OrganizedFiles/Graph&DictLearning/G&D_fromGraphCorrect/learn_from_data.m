@@ -6,9 +6,9 @@ addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\Optimizers'); %Folder
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\Comparison_datasets\'); %Folder containing the comparison datasets
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\DataSets\'); %Folder containing the training and verification dataset
 addpath('C:\Users\Cristina\Documents\GitHub\OrganizedFiles\GeneratingKernels\Results'); %Folder conatining the heat kernel coefficients
-path = 'C:\Users\Cristina\Documents\GitHub\OrganizedFiles\Graph&DictLearning\G&D_fromGraphCorrect\Results\24.07.18\'; %Folder containing the results to save
+path = 'C:\Users\Cristina\Documents\GitHub\OrganizedFiles\Graph&DictLearning\G&D_fromGraphCorrect\Results\28.07.18\'; %Folder containing the results to save
 
-flag = 4;
+flag = 7;
 
 switch flag
     case 1 %Dorina
@@ -131,7 +131,7 @@ param.y_size = size(param.y,2);
 param.T0 = 4; %sparsity level (# of atoms in each signals representation)
 param.max = 0;
 
-for trial = 1:1
+for trial = 1:2
     %% Initialize the kernel coefficients
     temp = comp_alpha;
     comp_alpha = zeros(K+1,param.S);
@@ -217,11 +217,11 @@ for trial = 1:1
                 param.startingKer = zeros(param.N,param.S);
             end
             param.beta_coefficients = retrieve_betas_2(param);
-            [my_alpha,CPUTime(big_epoch)] = coefficient_update_interior_point_struct_2(Y,x,param,'sdpt3');
-            for i = 1:param.S
-                param.alpha{i} = my_alpha(:,i);
-            end
-% % %             [param,CPUTime(big_epoch)] = coefficient_update_interior_point(Y,x,param,'sdpt3');        
+% % %             [my_alpha,CPUTime(big_epoch)] = coefficient_update_interior_point_struct_2(Y,x,param,'sdpt3');
+% % %             for i = 1:param.S
+% % %                 param.alpha{i} = my_alpha(:,i);
+% % %             end
+            [param,CPUTime(big_epoch)] = coefficient_update_interior_point(Y,x,param,'sdpt3');        
         else
             %--------optimise with respect to W--------%
             disp('Graph learning step');
@@ -364,8 +364,32 @@ for trial = 1:1
         end
     end
 
-    figure('Name','Comparison between the Kernels')
-    subplot(2,1,1)
+%     figure('Name','Comparison between the Kernels')
+%     subplot(2,1,1)
+%     title('Original kernels');
+%     hold on
+%     for s = 1 : param.S
+%         plot(comp_lambdaSym,comp_ker(:,s));
+%     end
+%     set(gca,'YLim',[0 1])
+%     set(gca,'YTick',(0:0.5:1))
+%     set(gca,'XLim',[0 1.4])
+%     set(gca,'XTick',(0:0.2:1.4))
+%     hold off
+%     subplot(2,1,2)
+%     title('learned kernels');
+%     hold on
+%     for s = 1 : param.S
+%     %     plot(param.lambda_sym(1:length(param.lambda_sym)-1),g_ker(1:length(g_ker)-1,s));
+%         plot(param.lambdaSym,g_ker);
+%     end
+%     set(gca,'YLim',[0 1])
+%     set(gca,'YTick',(0:0.5:1))
+%     set(gca,'XLim',[0 1.4])
+%     set(gca,'XTick',(0:0.2:1.4))
+%     hold off
+
+    figure('Name','Original kernels')
     title('Original kernels');
     hold on
     for s = 1 : param.S
@@ -376,21 +400,23 @@ for trial = 1:1
     set(gca,'XLim',[0 1.4])
     set(gca,'XTick',(0:0.2:1.4))
     hold off
-    subplot(2,1,2)
+% [0; param.lambda_sym(1:length(param.lambda_sym)-1)],
+    figure('Name','Learned kernels')
     title('learned kernels');
     hold on
     for s = 1 : param.S
-    %     plot(param.lambda_sym(1:length(param.lambda_sym)-1),g_ker(1:length(g_ker)-1,s));
         plot(param.lambda_sym,g_ker);
     end
     set(gca,'YLim',[0 1])
     set(gca,'YTick',(0:0.5:1))
+    set(gca,'XLim',[0 1.4])
+    set(gca,'XTick',(0:0.2:1.4))
     hold off
 
     %% Save results to file
 
     % The kernels
-    filename = [path,num2str(ds_name),'\Comp_kernels_trial',num2str(trial),'.png'];
+    filename = [path,num2str(ds_name),'\Learned_kernel_trial',num2str(trial),'.png'];
     saveas(gcf,filename);
 
     % The norms
@@ -400,7 +426,7 @@ for trial = 1:1
 
     % The Output data
     filename = [path,num2str(ds_name),'\Output_trial',num2str(trial),'_',num2str(ds_name),'.mat'];
-    learned_eigenVal = param.lambda_sym;
+    learned_eigenVal = param.lambdaSym; %param.lambda_sym;
     save(filename,'ds','learned_dictionary','learned_W','final_W','Y','learned_eigenVal','errorTesting_Pol','CPUTime');
 
     %% Verify the results with the precision recall function

@@ -1,0 +1,130 @@
+\chapter{Representation learning for graph signals}
+In this chapter we will present and discuss briefly our joint learning problem, first approaching the dictionary learning issue and its improvement, then analysing the graph learning problem and finally describing a solution to merge the two approaches into a single learning problem.
+
+\section{Dictionary learning section}
+\label{sec:2implementations}
+Gives the previous background, this part of the learning problem mainly tries to identify useful criteria for the way each kernel function spreads over the surrounding nodes. If, in fact, we were able to define the behavior of an atom inside its surroundings, we could use this information to sum up the description of a graph's portion in a more accurate way.
+% This accomplishment, moreover, could give a further method to relate the general structure of a graph (seen as separable into communities) to the inner one, thus
+% : we would like, for example, to establish a criteria to cluster a graph signal into several so called \textit{supernodes} connected among themselves and to relate the \textit{coarsened graph} so obtained the inner structure of each \textit{supernode}.
+
+Since experimental description of real-life graph structures gives us reasons to believe that they tend to rely on smooth patterns (and so, low frequencies), assuming a certain kernels structure could be a way to relate the manifold macrostructure with its inner structure. From this, we arrive to the main assumption in our work, which is kernels smoothness: what we wish is that our atoms were representative of the portion of the graph they are covering, so that they should spread with non trivial values over all nodes of the subgraph. For this reason we constrained our dictionary kernels in such a way that they have mostly smooth support in the surroundings of the source node. What we mean with this statement is that the function describing a kernel behave in a way similar to a low-pass filter: the frequencies represented through the kernel are properly described if they are small, while for high frequencies the kernel tends to suppress them. For this reason we can address a smooth kernel also as \textit{low frequency kernel}.
+
+To  be precise, this concept is something different form the smoothness assumption we widely examined in the previous sections: it adds some more information strictly related to the behavior of the kernel itself. In fact, if we learned a smaller order polynomial with constraints in high frequencies, we would not have a large spread of our atoms, things we want to have so that our atoms can represent a large portion of the graph.
+
+To have this new smoothness constraint we look at the kernel polynomial:
+\begin{equation}
+g(\lambda) = \sum_{k=0}^{K}\alpha_k \lambda_k
+\end{equation}
+and we try to constraint the roots to correspond to the highest eigenvalues.\\
+This would change the expression of the kernel and turn our learning problem into a simpler one.
+
+In order to include this new smoothness notion we could go along two different paths:
+\begin{itemize}
+\item We could add this information into the objective function;
+\item Or we could add the information to the constraints;
+\end{itemize}
+
+\subsubsection{Smoothness prior in the objective function}
+In the first case the problem becomes trying to learn a smaller number of coefficients in the kernel function:
+\begin{align}
+g(\lambda) &= h(\lambda)(\lambda - \lambda_N)(\lambda - \lambda_{N-1})\cdot \dots \cdot (\lambda - \lambda_{N-M+1}) \label{eq:polynom}\\
+where \qquad h(\lambda) &= \sum_{n=0}^{K-M}\gamma_n\lambda^{n} \notag
+\end{align}
+
+With this statement as start, we could try to give a first formulation of our problem, where we try to also include the fact that the atoms in the dictionary are actually coming from a graph dictionary. In fact, if we assumed these atoms to be only vectors describing the signal, we would keep this part separated from the graph notion.
+
+With the previous formula we can thus arrive to a dictionary problem of this type:
+\begin{align}
+\underset{{\gamma_0,\dots,\gamma_{K-M}X}}{\argmin} \quad& ||Y - \mathcal{D}X||^2_F + \alpha||\mathcal{D}||_1 \label{eq:opt}\\
+with \qquad g(\lambda) &= h(\lambda)(\lambda - \lambda_N)(\lambda - \lambda_{N-1})\cdot \dots \cdot (\lambda - \lambda_{N-M+1}) \notag\\
+h(\lambda) &= \sum_{n=0}^{K-M}\gamma_n\lambda^{n} \notag\\
+\mathcal{D}_i &= [g(L_i)]_{\text{source}_i} \notag\\
+0 &\leq g(\lambda) \leq c \label{eq:ProblemPres1}\\
+(c-\epsilon)I &\preceq \sum_{s=1}^{S}\mathcal{D}_s \preceq (c+\epsilon)I \label{eq:ProblemPres2}
+\end{align}
+Where the second term in \autoref{eq:opt} accounts for the graph sparsity, while the positions of the non-trivial values of $X$ are known, but the values are to be learned. Moreover, the last two constraints \autoref{eq:ProblemPres1} and \autoref{eq:ProblemPres2} are taken from \cite{Thanou2014} and ensure the kernels are bounded and span the entire spectrum.
+\label{sec:DictionaryLearningSection}
+
+\subsubsection{Smoothness prior in the constraints}
+On the other hand, we could be interested in adding the prior to the constraints of the minimization problem presented above. In this way the problem would assume a form like the following one:
+
+\begin{align}
+\underset{{\gamma_0,\dots,\gamma_{K}X}}{\argmin} \quad& ||Y - \mathcal{D}X||^2_F + \alpha||\mathcal{D}||_1 \label{eq:optConstraint}\\
+with \qquad g(\lambda) &= \sum_{k=0}^{K}\alpha_k\lambda^{k} \notag\\
+\mathcal{D}_i &= [g(L_i)]_{\text{source}_i} \notag\\
+0 &\leq g(\lambda) \leq c \label{eq:ProblemPresConstraint1}\\
+(c-\epsilon)I &\preceq \sum_{s=1}^{S}\mathcal{D}_s \preceq (c+\epsilon)I \notag\\
+0 & \leq g(\lambda') \leq \varepsilon \notag\\
+\lambda' & \in [\lambda_{N}, \lambda_{N-1},\dots,\lambda_{N-M+1}] \quad and \quad \varepsilon \approx 0 \label{eq:ProblemPresConstraint2}
+\end{align}
+
+Where also in this case $M$ represents the number of eigenvalues we want to send the kernel functions to 0.
+
+\section{The graph learning section}
+As previously anticipated, our work involved also the need of learning the graph manifold structuring a signal. In order to accomplish it, we made use of the contribution of Maretic et al. to the problem, as it is presented in \cite{Maretic2017}. In the work, a generic model is considered and which is analogous to the one described in \cite {Thanou2014}. There the signals are represented by combinations of local overlapping patterns residing on graphs and the intrinsic graph structure is merged with the dictionary through the already well known graph Laplacian operator.\\
+In the process, the optimization is performed over the weight matrix $W$ instead of $\mathcal{L}$ due to the fact that the constraints defining a valid weight matrix $W$ are less demanding than those defining a valid Laplacian.
+
+\subsection{The algorithm}
+Since also this optimization problem is non convex, Maretic et al. solved it through the alternation of the optimization steps: in the first step a weight matrix $W$ is fixed and the objective function is optimized with respect to the sparsity matrix, using \gls{omp}, in an analogous way than in \cite{Thanou2014}; in the second step the focus is on the graph learning using the previously estimated $X$, and since the relative problem is still non convex, the proposed solution involved an approach based on gradient descent.
+
+The optimization problem addressed as
+\begin{align}
+\argmin_W \quad &||Y - \mathcal{D}X||_F^2 + \beta_W ||W||_1\\
+\text{subject to} \quad &\mathcal{D} = [\mathcal{D}_1,\mathcal{D}_2,\dots,\mathcal{D}_S]\\
+                        &\mathcal{D} = \sum_{k=0}^{K}\alpha_{sk}\mathcal{L}^k, \qquad \forall s \in \{1,\dots,S\}\\
+                        &\mathcal{L} = I - D^{\frac{1}{2}}WD^{\frac{1}{2}}\\
+                        &W_{ij} = W_{ji} \geq 0, \qquad \forall i,j \quad i \ne j\\
+                        &W_{ij} = 0, \forall i
+\end{align}
+is then turned into the gradient equivalent form:
+\begin{equation}
+\begin{split}
+&\nabla_W ||Y - \sum_{s=1}^{S}\mathcal{D}_s X_s||_F^2\\
+&= \sum_{s=1}^S \sum_{k=1}^K \alpha_{sk} (- \sum_{r = 0}^{k-1}2A^T_{k,r}+\textbf{1}_{N\times N}(B_k \circ I))
+\end{split}
+\end{equation}
+
+Where the values the matrices $A_{k,r}$ and $B_k$ hold are:
+\begin{align}
+A_{k,r} &= D^{-\frac{1}{2}} \mathcal{L}^{k-r-1} X_s (Y - DX)^T \mathcal{L}^r D^{-\frac{1}{2}}\\
+&and\\
+B_k &= \sum_{r=0}{k-1}D^{-\frac{1}{2}} W A_{k,r} D^{-\frac{1}{2}} + A_{k,r} W D^{-1}
+\end{align}
+% \begin{align}
+% A_{k,r} &= D^{-\frac{1}{2}}\mathcal{L}^{k-r-1} X_s (Y - DX)^T \mathcal{L}^r D^{-\frac{1}{2}}\\
+%         $and
+% B_k     &= \sum_{r=0}^{k-1}D^{-\frac{1}{2}} W A_{k,r}D^{-\frac{1}{2}} + A_{k,r}W D^{-1}
+% \end{align}
+moreover $\textbf{1}_{N\times N}$ is a matrix of ones, $I$ is an $N\times N$ identity matrix and the gradient of $\beta_W||W||_1$ can be approximated with $\beta_W sign(W)$
+
+
+\section{Joint large graph and dictionary learning}
+Come to this point, an interesting aspect we could focus on is the attempt to joint both the graph and the dictionary learning problem; in fact, if we assume that the graph is unknown we could imagine adding a graph learning part to the optimization. In doing this, we have to take into account two main complications: first the fact that we do not have fixed eigenvalues, since we would learn the Laplacian again at every new optimization step, and second the fact that as we are learning the eigenvalues, we do not have their initial values either. To this aspects we still have to take into account that the structure of the kernels should be incorporated in our learning problem. For this part, in the end we assumed only one kernel for simplicity so that the dictionary atoms will come all from the same kernel but will be localized in different sources spreading throughout different parts of the graph. This meaning that the pattern has to be followed by all the atoms, but it will be adapted to small different graphs.
+
+Therefore the overall problem could become something similar to:
+\begin{align}
+\underset{{X,W_1,\dots,W_m,\gamma_0,\dots,\gamma_{K-M}}}{\argmin} \quad& ||Y - \mathcal{D}X||^2_F + \alpha||\mathcal{D}||_1 \label{eq:overallProblem}\\
+\text{where} \qquad g(\lambda) &= h(\lambda)(\lambda - \lambda_N)(\lambda - \lambda_{N-1})\cdot \dots \cdot (\lambda - \lambda_{N-M+1}) \notag\\
+h(\lambda) &= \sum_{k=0}^{K-M}\gamma_n\lambda^{n} \notag\\
+\mathcal{D}_i &= [g(L_i)]_{\text{source}_i} \notag\\
+L_i &= \text{normalised Laplacian}(W_i) \notag\\
+W_{ij} &= W_{ji} \geq 0, \quad \forall i,j \label{eq:symmetry}\\
+W_{ii} &= 0, \quad \forall i \notag\\
+0 &\leq g(\lambda) \leq c \notag\\
+(c-\epsilon)I &\preceq \sum_{s=1}^{S}\mathcal{D}_s \preceq (c+\epsilon)I \notag
+\end{align}
+in the case the smoothness prior is carried by the objective function, while:
+\begin{align}
+\underset{{X,W_1,\dots,W_m,\gamma_0,\dots,\gamma_{K}}}{\argmin} \quad& ||Y - \mathcal{D}X||^2_F + \alpha||\mathcal{D}||_1 \label{eq:overallProblem2}\\
+\text{where} \qquad g(\lambda) &= \sum_{k=0}^{K}\gamma_k\lambda^{k} \notag\\
+\mathcal{D}_i &= [g(L_i)]_{\text{source}_i} \notag\\
+L_i &= \text{normalised Laplacian}(W_i) \notag\\
+W_{ij} &= W_{ji} \geq 0, \quad \forall i,j \label{eq:symmetry2}\\
+W_{ii} &= 0, \quad \forall i \notag\\
+0 &\leq g(\lambda) \leq c \notag\\
+(c-\epsilon)I &\preceq \sum_{s=1}^{S}\mathcal{D}_s \preceq (c+\epsilon)I \notag\\
+0 & \leq g(\lambda') \leq \varepsilon \notag\\
+\lambda' &\in [\lambda_{N}, \lambda_{N-1},\dots,\lambda_{N-M+1}] \quad and \quad \varepsilon \approx 0 \label{eq:ProblemPresGeneral}
+\end{align}
+in the case the smoothness is carried by the constraints.\\
+We also remember that the constraint in \autoref{eq:symmetry} accounts for the fact that we are assuming to work with undirected graphs.\\
